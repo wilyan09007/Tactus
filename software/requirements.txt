@@ -1,0 +1,14 @@
+# audio
+basic-pitch
+librosa
+aubio
+crepe
+sounddevice
+numpy
+scipy
+# vision
+mediapipe
+opencv-contrib-python   # includes ArUco
+# coach + memory
+anthropic
+redis                   # optional: per-user mistake history

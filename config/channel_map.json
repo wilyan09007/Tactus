@@ -1,0 +1,22 @@
+{
+  "_comment": "12 channels = 6 SK473 boxes x stereo (L,R). Each box's single 3.5mm jack is STEREO -> 2 independent channels (L=driver A, R=driver B); the single USB is shared 5V power only. 6 stereo jacks -> 2 Vantecs (V1 all 4 jacks + V2 two jacks); V3 = spare. Map: logical ch -> (vantec card, alsa channel, jack) -> amp box -> driver -> body site. card_alsa filled at bring-up from `aplay -l` / by-id (docs/15 §2). Actuators = the SK473's own KHD 3ohm/5W drivers, de-housed (docs/15 §12).",
+  "intensity_levels": 3,
+  "pulse": { "freq_hz": 160, "duration_ms": 50, "_note": "starting point — tune per docs/18 (heavy 3ohm drivers may prefer 80-160 Hz)" },
+  "verify_stereo": "Stage 1: feed L-only tone -> only driver A; R-only -> only driver B. Confirms the box amp is true stereo, not mono-summed.",
+  "channels": [
+    { "ch": 1,  "vantec": "V1", "card_alsa": null, "alsa_ch": 0, "jack": "front",  "box": "B1", "side": "L", "axis": "string", "index": 1, "site": "chest_high_e", "actuator": "SK473_KHD_3ohm" },
+    { "ch": 2,  "vantec": "V1", "card_alsa": null, "alsa_ch": 1, "jack": "front",  "box": "B1", "side": "R", "axis": "string", "index": 2, "site": "chest_b",      "actuator": "SK473_KHD_3ohm" },
+    { "ch": 3,  "vantec": "V1", "card_alsa": null, "alsa_ch": 2, "jack": "rear",   "box": "B2", "side": "L", "axis": "string", "index": 3, "site": "chest_g",      "actuator": "SK473_KHD_3ohm" },
+    { "ch": 4,  "vantec": "V1", "card_alsa": null, "alsa_ch": 3, "jack": "rear",   "box": "B2", "side": "R", "axis": "string", "index": 4, "site": "chest_d",      "actuator": "SK473_KHD_3ohm" },
+    { "ch": 5,  "vantec": "V1", "card_alsa": null, "alsa_ch": 4, "jack": "center", "box": "B3", "side": "L", "axis": "string", "index": 5, "site": "chest_a",      "actuator": "SK473_KHD_3ohm" },
+    { "ch": 6,  "vantec": "V1", "card_alsa": null, "alsa_ch": 5, "jack": "center", "box": "B3", "side": "R", "axis": "string", "index": 6, "site": "chest_low_e",  "actuator": "SK473_KHD_3ohm" },
+    { "ch": 7,  "vantec": "V1", "card_alsa": null, "alsa_ch": 6, "jack": "side",   "box": "B4", "side": "L", "axis": "fret",   "index": 1, "site": "forearm_z1",   "actuator": "SK473_KHD_3ohm" },
+    { "ch": 8,  "vantec": "V1", "card_alsa": null, "alsa_ch": 7, "jack": "side",   "box": "B4", "side": "R", "axis": "fret",   "index": 2, "site": "forearm_z2",   "actuator": "SK473_KHD_3ohm" },
+    { "ch": 9,  "vantec": "V2", "card_alsa": null, "alsa_ch": 0, "jack": "front",  "box": "B5", "side": "L", "axis": "fret",   "index": 3, "site": "forearm_z3",   "actuator": "SK473_KHD_3ohm" },
+    { "ch": 10, "vantec": "V2", "card_alsa": null, "alsa_ch": 1, "jack": "front",  "box": "B5", "side": "R", "axis": "fret",   "index": 4, "site": "forearm_z4",   "actuator": "SK473_KHD_3ohm" },
+    { "ch": 11, "vantec": "V2", "card_alsa": null, "alsa_ch": 2, "jack": "rear",   "box": "B6", "side": "L", "axis": "fret",   "index": 5, "site": "forearm_z5",   "actuator": "SK473_KHD_3ohm" },
+    { "ch": 12, "vantec": "V2", "card_alsa": null, "alsa_ch": 3, "jack": "rear",   "box": "B6", "side": "R", "axis": "fret",   "index": 6, "site": "forearm_z6",   "actuator": "SK473_KHD_3ohm" }
+  ],
+  "spare": { "vantec_jacks": ["V2 center", "V2 side"], "vantec": "V3", "note": "fallback for any jack that won't map; V3 entirely spare now that 12 ch only needs 6 jacks" }
+}
+</content>

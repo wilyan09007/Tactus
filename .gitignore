@@ -1,0 +1,7 @@
+# local agent / editor
+.claude/
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+venv/
