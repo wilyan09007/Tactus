@@ -48,7 +48,8 @@ held-out d′    ─► which advice is allowed (overlap ⇒ don't coach it)
 
 ## 3. Data collection protocol
 ```
-RIG:  fixed cam over neck · ArUco on headstock · mic at soundhole
+RIG:  fixed cam over neck · ArUco on headstock · Sony ECM-LV1 clip-in mic INSIDE the body
+      → Vantec V2 mic-in (mono, plug-in power); SAME mic for training + inference (no skew)
       one Python process, monotonic clock; audio onset stamps t, grab nearest frame(s)
       clap at session start = A/V sync cross-check
 

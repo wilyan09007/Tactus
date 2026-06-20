@@ -109,7 +109,9 @@ Parametric OpenSCAD + pre-rendered STLs in `cad/`:
 
 ### 3.8 Sensing
 - **Camera** (USB webcam aimed down the neck, or laptop cam) → MediaPipe + ArUco. **Print the ArUco marker** for the headstock (`cad/README` has the slot).
-- **Mic / contact mic** near the soundhole; keep F0 clean in a loud room.
+- **Mic (CHOSEN): Sony ECM-LV1** lavalier, **clipped inside the guitar body (at the soundhole).** A mentor flagged the noisy-venue problem — an open laptop mic distorts the granular buzz feedback; a mic close to the source + the body shielding the room fixes it. **The SAME mic is the audio input for both training and live inference** (the model never sees a different mic at test time — no train/serve skew).
+  - **Connection (verified compatible at spec level):** the mic's 3.5 mm **TRS plug goes straight into a Vantec *Mic* jack — use V2; keep V3 as the spare.** No adapter. It's a plug-in-power electret, and the Vantec's **CM6206 mic input supplies that DC bias** (~2 V, in the ECM-LV1's range), so it powers the mic. Captured as **mono (left channel)** — exactly what F0/buzz analysis uses. **Confirm the input level in Stage-1** (watch the macOS input meter; if dead, move to V3's mic jack).
+  - **Settings:** disable any noise-cancel/AGC (it strips the buzz we measure); set gain so a hard strum doesn't clip. Cable is ~1 m → add a 3.5 mm TRS male-female extension if the laptop sits far from the player. **Fallback** if the Vantec bias is too weak: a USB sound card with plug-in power, or (last resort) the DJI Mic Mini (USB-C but wireless/compressed).
 
 ---
 
@@ -130,6 +132,7 @@ Parametric OpenSCAD + pre-rendered STLs in `cad/`:
 | AudioVox 18 AWG speaker wire | 995381 | 1 | 18 AWG, 2-conductor zip-cord, 100 ft, stranded | ≈$20 | **the only body wire** + Mode B 5 V bus |
 | Elegoo ESP-32 USB-C (3-pack) | 961193 | 1 (+2 prior = 5) | — | (confirm) | **NOT in the audio path** (sensor work only) |
 | Adafruit 22 AWG solid-core (6-color) | 889089 | 2 | — | (confirm) | **stale — not physically present** (`docs/15 §3`) |
+| **Sony ECM-LV1** compact stereo lavalier | — | 1 (on order) | 3.5 mm TRS electret, plug-in power, omni, ~1 m cable | ≈$37 | **Canonical audio input** — clip inside the guitar → **Vantec V2 Mic jack**, mono (training + inference). See §3.8. |
 | Guitar | — | 1 | acoustic, from a friend | $0 | the instrument |
 
 ### Tools
@@ -150,7 +153,7 @@ Parametric OpenSCAD + pre-rendered STLs in `cad/`:
 | Chest plate / node mount | `tactus_chest_plate.scad`, `tactus_node_mount.scad` | torso radius 150 mm (est), string pitch 46 mm, plate 3 mm; **`drv_dia` = 58 mm PLACEHOLDER** | body-side driver mounts (VHB + zip-tie through a slot grid — dimension-tolerant) |
 > ⚠️ **The KHD driver diameter is NOT yet measured.** `spk_dia`/`drv_dia` are placeholders (40 / 58 mm). Measure the de-housed driver → set the params → re-render the STLs before the final print.
 
-**Still to get:** 2× sacrificial USB-C cables (Mode B buses), compression vest/shirt + VHB foam tape + velcro + zip ties + thin gloves, USB webcam (or laptop cam), optional 24-26 AWG silicone stranded wire (solders to the tiny PAM8403 pads far better than 18 AWG).
+**Still to get:** the **Sony ECM-LV1 mic** (≈$37, Best Buy/DoorDash) + an optional 3.5 mm TRS male-female extension cable, 2× sacrificial USB-C cables (Mode B buses), compression vest/shirt + VHB foam tape + velcro + zip ties + thin gloves, USB webcam (or laptop cam), optional 24-26 AWG silicone stranded wire (solders to the tiny PAM8403 pads far better than 18 AWG).
 
 ---
 
@@ -183,6 +186,7 @@ Anthropic (Claude vision = the coaching brain: frame + target + fault → the pl
 3. **Browser→Python vision-feature schema + A/V sync** — lock Saturday AM. (§2)
 4. **Actuator coupling** — prove ONE puck feels strong before building 12. (§3.3)
 5. **On-body tuning** — drive freq / pulse / coupling / per-channel gain. (`docs/18`)
+6. **Mic input level** — confirm the ECM-LV1 reads cleanly on the **Vantec V2 mic-in** (plug-in power) in Stage-1; raise gain or move to V3 if weak. (§3.8)
 
 ---
 
