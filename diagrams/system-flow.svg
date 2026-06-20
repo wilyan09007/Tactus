@@ -1,0 +1,56 @@
+<svg width="100%" viewBox="0 0 700 540" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial,sans-serif">
+  <title>tactus system flow</title>
+  <defs>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#6b7280"/></marker>
+  </defs>
+  <rect x="0" y="0" width="700" height="540" fill="#ffffff"/>
+  <text x="20" y="30" font-size="18" font-weight="600" fill="#111827">tactus — system flow (14 channels)</text>
+  <rect x="430" y="16" width="12" height="12" rx="2" fill="#cfe0fc"/><text x="448" y="26" font-size="12" fill="#374151">audio</text>
+  <rect x="520" y="16" width="12" height="12" rx="2" fill="#ffe2b8"/><text x="538" y="26" font-size="12" fill="#374151">power</text>
+
+  <!-- inputs -->
+  <rect x="30"  y="52" width="180" height="44" rx="6" fill="#eef2f7" stroke="#cbd5e1"/><text x="120" y="79" font-size="13" text-anchor="middle" fill="#111827">guitar</text>
+  <rect x="260" y="52" width="180" height="44" rx="6" fill="#eef2f7" stroke="#cbd5e1"/><text x="350" y="73" font-size="13" text-anchor="middle" fill="#111827">webcam</text><text x="350" y="89" font-size="11" text-anchor="middle" fill="#6b7280">fretboard</text>
+  <rect x="490" y="52" width="180" height="44" rx="6" fill="#eef2f7" stroke="#cbd5e1"/><text x="580" y="79" font-size="13" text-anchor="middle" fill="#111827">mic</text>
+  <line x1="120" y1="96" x2="320" y2="120" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="350" y1="96" x2="350" y2="120" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="580" y1="96" x2="380" y2="120" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- laptop -->
+  <rect x="200" y="120" width="300" height="54" rx="6" fill="#eef2f7" stroke="#cbd5e1"/>
+  <text x="350" y="143" font-size="14" text-anchor="middle" fill="#111827">laptop = AI brain</text>
+  <text x="350" y="161" font-size="11" text-anchor="middle" fill="#6b7280">vision + audio fusion + coach + screen map</text>
+  <line x1="350" y1="174" x2="350" y2="202" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ar)"/><text x="362" y="192" font-size="11" fill="#6b7280">USB</text>
+
+  <!-- vantec -->
+  <rect x="180" y="202" width="340" height="52" rx="6" fill="#cfe0fc" stroke="#93b4f0"/>
+  <text x="350" y="224" font-size="14" text-anchor="middle" fill="#111827">3× Vantec NBA-200U 7.1</text>
+  <text x="350" y="242" font-size="11" text-anchor="middle" fill="#374151">8 ch each = 24 DAC channels (14 used)</text>
+  <line x1="350" y1="254" x2="350" y2="284" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ar)"/><text x="362" y="272" font-size="11" fill="#6b7280">3.5mm</text>
+
+  <!-- power -->
+  <rect x="20" y="288" width="150" height="54" rx="6" fill="#ffe2b8" stroke="#e6b870"/>
+  <text x="95" y="310" font-size="12" text-anchor="middle" fill="#111827">power (5V)</text>
+  <text x="95" y="328" font-size="10.5" text-anchor="middle" fill="#374151">hub 50W  /  Anker bus</text>
+  <line x1="170" y1="315" x2="188" y2="315" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- amps -->
+  <rect x="190" y="288" width="300" height="54" rx="6" fill="#cfe0fc" stroke="#93b4f0"/>
+  <text x="340" y="310" font-size="14" text-anchor="middle" fill="#111827">7× SK473 amp boards</text>
+  <text x="340" y="328" font-size="11" text-anchor="middle" fill="#374151">gutted · PAM8403 · 2 ch each = 14</text>
+  <line x1="340" y1="342" x2="340" y2="386" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="354" y="368" font-size="11" fill="#6b7280">18 AWG speaker wire</text>
+
+  <!-- actuators -->
+  <text x="340" y="406" font-size="13" text-anchor="middle" fill="#111827">14 actuators on body</text>
+  <line x1="340" y1="386" x2="215" y2="420" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="340" y1="386" x2="485" y2="420" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="110" y="420" width="210" height="60" rx="6" fill="#cfe0fc" stroke="#93b4f0"/>
+  <text x="215" y="443" font-size="13" text-anchor="middle" fill="#111827">6× string actuators</text>
+  <text x="215" y="461" font-size="11" text-anchor="middle" fill="#374151">chest column · 2W 40mm</text>
+  <rect x="360" y="420" width="250" height="60" rx="6" fill="#cfe0fc" stroke="#93b4f0"/>
+  <text x="485" y="443" font-size="13" text-anchor="middle" fill="#111827">8× fret-zone actuators</text>
+  <text x="485" y="461" font-size="11" text-anchor="middle" fill="#374151">forearm + upper back · 3W 40mm</text>
+
+  <text x="20" y="512" font-size="11" fill="#6b7280">Connectors: Vantec↔amp = 3.5mm plug (no bare wire) · amp↔actuator = soldered speaker wire · amp←power = USB 5V</text>
+</svg>

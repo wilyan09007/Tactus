@@ -1,0 +1,37 @@
+<svg width="100%" viewBox="0 0 700 560" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial,sans-serif">
+  <title>tactus wiring channel map</title>
+  <rect x="0" y="0" width="700" height="560" fill="#ffffff"/>
+  <text x="20" y="30" font-size="18" font-weight="600" fill="#111827">wiring map — 3 Vantec → 7 amps → 14 actuators</text>
+
+  <!-- header -->
+  <rect x="20" y="48" width="660" height="28" fill="#374151"/>
+  <g font-size="12" fill="#ffffff">
+    <text x="40" y="67">ch</text><text x="90" y="67">vantec</text><text x="170" y="67">jack</text><text x="260" y="67">amp</text><text x="330" y="67">side</text><text x="410" y="67">body site</text><text x="600" y="67">actuator</text>
+  </g>
+
+  <!-- rows -->
+  <g font-size="12" fill="#111827">
+    <rect x="20" y="76"  width="660" height="32" fill="#eef4fb"/>
+    <text x="40" y="97">1</text><text x="90" y="97">V1</text><text x="170" y="97">front</text><text x="260" y="97">A1</text><text x="330" y="97">L</text><text x="410" y="97">string 1 · high E · chest</text><text x="600" y="97">2W</text>
+    <text x="40" y="129">2</text><text x="90" y="129">V1</text><text x="170" y="129">front</text><text x="260" y="129">A1</text><text x="330" y="129">R</text><text x="410" y="129">string 2 · B · chest</text><text x="600" y="129">2W</text>
+    <rect x="20" y="140" width="660" height="32" fill="#eef4fb"/>
+    <text x="40" y="161">3</text><text x="90" y="161">V1</text><text x="170" y="161">rear</text><text x="260" y="161">A2</text><text x="330" y="161">L</text><text x="410" y="161">string 3 · G · chest</text><text x="600" y="161">2W</text>
+    <text x="40" y="193">4</text><text x="90" y="193">V1</text><text x="170" y="193">rear</text><text x="260" y="193">A2</text><text x="330" y="193">R</text><text x="410" y="193">string 4 · D · chest</text><text x="600" y="193">2W</text>
+    <rect x="20" y="204" width="660" height="32" fill="#eef4fb"/>
+    <text x="40" y="225">5</text><text x="90" y="225">V1</text><text x="170" y="225">center</text><text x="260" y="225">A3</text><text x="330" y="225">L</text><text x="410" y="225">string 5 · A · chest</text><text x="600" y="225">2W</text>
+    <text x="40" y="257">6</text><text x="90" y="257">V1</text><text x="170" y="257">center</text><text x="260" y="257">A3</text><text x="330" y="257">R</text><text x="410" y="257">string 6 · low E · chest</text><text x="600" y="257">2W</text>
+    <rect x="20" y="268" width="660" height="32" fill="#fff4e5"/>
+    <text x="40" y="289">7</text><text x="90" y="289">V1</text><text x="170" y="289">side</text><text x="260" y="289">A4</text><text x="330" y="289">L</text><text x="410" y="289">fret-zone 1 · forearm</text><text x="600" y="289">3W</text>
+    <text x="40" y="321">8</text><text x="90" y="321">V1</text><text x="170" y="321">side</text><text x="260" y="321">A4</text><text x="330" y="321">R</text><text x="410" y="321">fret-zone 2 · forearm</text><text x="600" y="321">3W</text>
+    <rect x="20" y="332" width="660" height="32" fill="#fff4e5"/>
+    <text x="40" y="353">9</text><text x="90" y="353">V2</text><text x="170" y="353">front</text><text x="260" y="353">A5</text><text x="330" y="353">L</text><text x="410" y="353">fret-zone 3 · forearm</text><text x="600" y="353">3W</text>
+    <text x="40" y="385">10</text><text x="90" y="385">V2</text><text x="170" y="385">front</text><text x="260" y="385">A5</text><text x="330" y="385">R</text><text x="410" y="385">fret-zone 4 · forearm</text><text x="600" y="385">3W</text>
+    <rect x="20" y="396" width="660" height="32" fill="#fff4e5"/>
+    <text x="40" y="417">11</text><text x="90" y="417">V2</text><text x="170" y="417">rear</text><text x="260" y="417">A6</text><text x="330" y="417">L</text><text x="410" y="417">fret-zone 5 · forearm</text><text x="600" y="417">3W</text>
+    <text x="40" y="449">12</text><text x="90" y="449">V2</text><text x="170" y="449">rear</text><text x="260" y="449">A6</text><text x="330" y="449">R</text><text x="410" y="449">fret-zone 6 · forearm</text><text x="600" y="449">3W</text>
+    <rect x="20" y="460" width="660" height="32" fill="#fff4e5"/>
+    <text x="40" y="481">13</text><text x="90" y="481">V2</text><text x="170" y="481">center</text><text x="260" y="481">A7</text><text x="330" y="481">L</text><text x="410" y="481">fret-zone 7 · back (reserved)</text><text x="600" y="481">3W</text>
+    <text x="40" y="513">14</text><text x="90" y="513">V2</text><text x="170" y="513">center</text><text x="260" y="513">A7</text><text x="330" y="513">R</text><text x="410" y="513">fret-zone 8 · back (reserved)</text><text x="600" y="513">3W</text>
+  </g>
+  <text x="20" y="540" font-size="11.5" fill="#6b7280">V3 = spare/fallback for any jack that won't map · label both ends of every wire</text>
+</svg>
