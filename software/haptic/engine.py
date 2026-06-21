@@ -325,15 +325,17 @@ class HapticEngine:
             log.info("stream %s started: device=%d (%s, %s) channels=%d sr=%d latency=%.1fms",
                      key, dev, sd.query_devices(dev)["name"].strip(), api, nch, sr,
                      stream.latency * 1000.0)
-            if not is_bypass_api(api):
-                log.warning(
-                    "stream %s is on SHARED-MODE host API '%s' -> the OS mixer down-mixes %dch onto "
-                    "the device's configured layout; if that layout is Stereo, ch3-8 COLLAPSE onto the "
-                    "FRONT jack. For discrete routing use a bypass path (WDM-KS) or set the USB Sound "
-                    "Device to '7.1 Surround' in Windows Sound settings, then re-run. "
-                    "(Force an endpoint with --device / --v1 / --v2.)", key, api, nch)
-            else:
+            if is_bypass_api(api):
                 log.info("stream %s host API '%s' = DISCRETE (mixer-bypass, no fold)", key, api)
+            elif shared_would_fold():
+                log.warning(
+                    "stream %s on SHARED-MODE '%s' + device layout = Stereo -> the OS mixer down-mixes "
+                    "%dch and ch3-8 COLLAPSE onto the FRONT jack. Set this USB Sound Device to "
+                    "'7.1 Surround' in Windows Sound (or use WDM-KS / macOS) for discrete routing.",
+                    key, api, nch)
+            else:
+                log.info("stream %s on shared-mode '%s' but device reports >=8ch (7.1) -> routes "
+                         "discretely (no fold)", key, api)
 
     def _close_open_streams(self):
         for key, stream in list(self._streams.items()):
