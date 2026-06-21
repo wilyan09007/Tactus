@@ -529,7 +529,7 @@ function startRec(){
   const CLAP_MS = 1300;               // recording rolls now -> clap window before the metronome starts
   if(r.stream){
     // continuous chord progression — ONE recording, advance a chord every 2 beats, log cue times.
-    streamCues=[]; let ci=0; const seq=r.sequence||[]; const CHORD_MS=beatMs*2;
+    streamCues=[]; let ci=0; const seq=r.sequence||[]; const CHORD_MS=beatMs;   // 1 chord/beat -> BPM sets the strum rate (BPM 75 = 0.8s)
     $("#beatDot").classList.add("on");
     $("#beatBig").textContent="👏 GET SET"; $("#beatHint").textContent="clap once (sync) — chords start in a moment…";
     const showChord=()=>{
