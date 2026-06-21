@@ -17,7 +17,7 @@ Several early docs describe **plans we no longer build**. The product narrowed a
 | DAC | **2× Vantec NBA-200U used** (V3 spare) | "3× Vantec" framing — 3 owned, 2 used |
 | LEARN UI | **`web/glow.html`** — live fret-glow on the **real neck** (per-string 6-hue markers, on-neck annotation, silent alphaTab tab) | the black 14-ch dashboard mock, `beatsaber.html`, `ar.html` (now archived in `web/_prototypes/`) |
 
-The legacy docs that carried this old info have been **removed from this repo** (recoverable from the original repo's git history). This file is canonical; every surviving doc (§9) is reconciled to it.
+The legacy docs that carried this old info have been **removed from this repo** (recoverable from the original repo's git history). This file is canonical; every surviving doc (§10) is reconciled to it.
 
 ---
 
@@ -178,16 +178,38 @@ Full spec: `docs/17` (rigor), `docs/20` (training design + decisions D1–D8), `
 - **Stage 2 — HOW CLEAN (audio-led):** fault taxonomy is **clean / buzz / muted** — 3 *acoustically-distinct* classes, separable on **audio alone** (leave-one-player-out). This **supersedes** the old `buzz-light` vs `buzz-placement` cause-split (audio-ambiguous → dropped) and the 2-class pressure ordinal. **Chord feedback without a per-chord fault library:** reuse the mono buzz/mute primitive in polyphony by **collapsing the known-chord harmonics → the non-harmonic residual carries the fault** (mono→poly transfer); **muted = a missing expected harmonic** (uses the chord prior); per-string buzz attribution leans on vision + prior. Full plan + experiment matrix: **`docs/27`**.
 - **Fusion:** Bayesian posterior over position × fault with a **theory prior** (intended chord from the tab); divergence between played and intended = the detected mistake.
 - **Rigor centerpiece:** the **separability study** (PCA→LDA → Fisher / silhouette / pairwise d′ / confusion, **leave-one-player-out**, audio-only vs vision-only vs fused) proves fusion is necessary. **Cluster→advice = hybrid** (supervised backbone + validated discovery; a discovered error sub-family ships only after passing the held-out promotion gate).
-- **Data:** prompted + audio-verified, interleaved, pluck-controlled; breadth pass (6×3 frets, clean) + depth pass (2×2 cells × fault conditions); ~100 clean/class, ~1,000–1,500 takes, ~2–4 hrs. Engineered named features are the core; the contrastive embedding + Redis retrieval is cut-first (Redis runs on the engineered vectors regardless).
+- **Data:** prompted + audio-verified, interleaved, pluck-controlled; breadth pass (6×3 frets, clean) + depth pass (2×2 cells × fault conditions); ~100 clean/class, ~1,000–1,500 takes, ~2–4 hrs. Engineered named features are the core; the contrastive embedding is cut-first, but **Redis is BUILT and a centerpiece (see §7)** — it runs on the engineered vectors and is the project's real-time memory + classifier substrate.
 
 ---
 
-## 7. Sponsors / tracks targeted
-Anthropic (Claude vision = the coaching brain: frame + target + fault → the plain-language fix), **Annapurna/AWS Trainium** (train the contrastive embedding — the legitimate accelerator job), Redis (mistake-retrieval / "your similar past mistakes"), CV track (MediaPipe + ArUco + occluded-placement), Accessibility / Ddoski's Lab (the whole product), Most-Technical (the inverse-problem fusion + separability proof). (`docs/19`.)
+## 7. Redis — where we stand (BUILT & measured; for teammates)
+
+**Status: built, running, and held-out-measured — no longer "cut-first."** One live
+Redis Stack is the project's **real-time semantic nervous system**, not a cache.
+
+- **Where it runs:** Docker container **`tactus-redis`** → `localhost:6379`, **RedisInsight UI at `:8001`** (browse the index live). 25k Redis Cloud credits available to scale off-laptop.
+- **Modules present:** **RediSearch (vector), RedisJSON, RedisTimeSeries.** ⚠️ This build has **no native Vector Sets (VADD/VSIM)** — an early `redis_retrieval.py` assumed them and errors here, so we standardized on **RediSearch HNSW** (the production vector path). Use that.
+
+**Four roles, all on ONE Redis, all measured (one player → stratified k-fold; honest):**
+1. **The classifier IS a query.** clean/buzz/muted predicted by RediSearch HNSW k-NN over the audio-feature vectors — **62% held-out (chance 33%) at 0.75 ms p50** — matching an LDA on the same folds (66.9%) with **no model server, no GPU**. Adding a player = one `HSET`, no retraining.
+2. **Semantic cache for the Claude coach** (the Anthropic-track tie-in). Each mistake is embedded; a new one vector-searches Redis for a semantically-similar past mistake whose coaching text is cached → serve it. **~20% of `messages.create()` calls saved** at cosine 0.85 (full sweep 59%→2% across 0.70→0.95). Redis = real-time context retrieval for the LLM agent.
+3. **Long-term mistake memory.** Neighbour coherence **1.69× class / 2.17× string** above chance powers the money query "**you keep muting the A**" (67% of muted-A neighbours are muted, 2× lift).
+4. **Skill profile + progression.** RedisJSON per-player profile + RedisTimeSeries practice curve. Two independent Redis signals corroborate one real weakness: the **A string** is both the lowest-accuracy class (54%) and the most-muted.
+
+**Code & artifacts (on `culmination` branch):** `software/ai/analysis/exp/redis_engine.py` (current; run it against the live instance) → `data/analysis/exp/redis_engine_report.md` (architecture + the "beyond caching" pitch), `redis_engine.html` (openable live demo), `redis_engine_results.json`. `exp/redis_retrieval.py` (native Vector Sets) is **superseded on this build**.
+
+**Why it wins the track ("Redis beyond caching"):** most teams bolt Redis on as a KV cache; Tactus makes it the **inference substrate** (classifier-as-a-query), the **LLM accelerator** (semantic cache), and the device's **longitudinal memory** — creative + technically real + scalable, tied to a real accessibility product.
+
+**Honest caveats (say these out loud):** single player → k-fold, no cross-player claim; the k-NN classifier is ~5 pts under LDA (the claim is *parity without a model server*, not SOTA); the semantic-cache coaching text is a **deterministic stub** standing in for a real Claude call (hit-rate/mechanism are real, coaching *quality* is not evaluated); the per-string error **rate** is collection-balanced by design (not a skill signal — the profile ranks weakness by held-out classifier accuracy, and says so); the multi-session TimeSeries progression is **synthesized** from the one real session. Full reconciled numbers: `data/analysis/exp/reconcile_report.md`.
 
 ---
 
-## 8. Top open items (measure / lock before they bite)
+## 8. Sponsors / tracks targeted
+Anthropic (Claude vision = the coaching brain: frame + target + fault → the plain-language fix), **Annapurna/AWS Trainium** (train the contrastive embedding — the legitimate accelerator job), **Redis (BUILT — see §7:** classifier-as-a-query + semantic cache of the Claude coach + mistake memory + skill profile), CV track (MediaPipe + ArUco + occluded-placement), Accessibility / Ddoski's Lab (the whole product), Most-Technical (the inverse-problem fusion + separability proof). (`docs/19`.)
+
+---
+
+## 9. Top open items (measure / lock before they bite)
 1. **Driver Ø** — **52 mm web-verified** (Havit HV-SK473); `spk_dia`/`drv_dia` set to 52. Caliper one physical driver (cone-vs-frame + depth) before the full batch, then re-render. (§3.3)
 2. **ALSA bring-up** — bind Vantecs by-id, verify in-card channel order, fill `channel_map.json`. (§3.2)
 3. **Browser→Python vision-feature schema + A/V sync** — lock Saturday AM. (§2)
@@ -197,7 +219,7 @@ Anthropic (Claude vision = the coaching brain: frame + target + fault → the pl
 
 ---
 
-## 9. Doc map (all current; legacy removed)
+## 10. Doc map (all current; legacy removed)
 **Canonical:** this file (`truth.md`) + [`config/channel_map.json`](config/channel_map.json) (machine-readable channel routing).
 
 **Current docs — all reconciled to this file:** `docs/00-start-here`, `01-bill-of-materials`, `02-system-architecture`, `03-power`, `04-soldering-guide`, `05-wiring-map`, `06-safety`, `07-haptic-encoding`, `08-software-architecture`, `09-assembly-checklist`, `10-design-decisions`, `11-ai-and-pitch`, `12-perception-references`, `13-open-questions`, `13_LEARN_WEB_AND_VISUALIZATION` (the browser↔engine WebSocket schema, see §2), `15-build-refinements` (the as-built teardown log), `17-ai-rigor`, `18-tuning-and-calibration`, `19-sponsors-refined`, `20-aiml-training-design` (+ `20-eng-review`), `21-chord-and-sustain-rendering`, `22-interface-ar-and-correction`, `23-data-and-cluster-semantics`, `24-data-collection-protocol`, `25-data-and-feature-format` (the corrected offline processing contract), `26-aiden-handoff` (data handoff for the offline pipeline), `cad/README.md`, and the `REF_*` research briefs (cited background).

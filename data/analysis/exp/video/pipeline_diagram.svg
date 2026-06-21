@@ -1,0 +1,71 @@
+<svg viewBox="0 0 920 470" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,system-ui,Segoe UI,sans-serif" role="img" aria-labelledby="ttl dsc">
+<title id="ttl">How Tactus reads a guitar mistake</title>
+<desc id="dsc">A note becomes a 28-dimensional audio feature vector, collapsed by PCA then LDA into a 3D space whose clean, buzz, and muted regions are named by their features; a note's region surfaces the correction to the player.</desc>
+<rect x="0" y="0" width="920" height="470" rx="14" fill="#0a0d13"/>
+<text x="460" y="34" text-anchor="middle" fill="#eaecf2" font-size="22" font-weight="700">How Tactus reads a mistake</text>
+<text x="460" y="56" text-anchor="middle" fill="#94a0b4" font-size="13">high-dimensional sound to eigenvector collapse to named regions to one correction you feel</text>
+<g>
+<rect x="20" y="84" width="190" height="174" rx="12" fill="#141a25" stroke="#222b3a"/>
+<text x="34" y="108" fill="#94a0b4" font-size="11" font-weight="700" letter-spacing="1.2">1 . CAPTURE</text>
+<ellipse cx="86" cy="168" rx="30" ry="38" fill="none" stroke="#3b82f6" stroke-width="2"/>
+<circle cx="86" cy="174" r="9" fill="#0a0d13" stroke="#3b82f6" stroke-width="2"/>
+<line x1="86" y1="130" x2="180" y2="130" stroke="#3b82f6" stroke-width="2"/>
+<path d="M120 175 q6 -22 12 0 q6 22 12 0 q6 -16 12 0 q6 16 12 0" fill="none" stroke="#22c55e" stroke-width="2"/>
+<text x="115" y="234" fill="#cdd5e3" font-size="12.5">webcam + in-guitar mic</text>
+</g>
+<text x="222" y="176" fill="#54607a" font-size="22">-&gt;</text>
+<g>
+<rect x="242" y="84" width="190" height="174" rx="12" fill="#141a25" stroke="#222b3a"/>
+<text x="256" y="108" fill="#94a0b4" font-size="11" font-weight="700" letter-spacing="1.2">2 . FEATURE VECTOR</text>
+<g fill="#7c93b8">
+<rect x="262" y="120" width="120" height="7" rx="3"/><rect x="262" y="132" width="86" height="7" rx="3"/>
+<rect x="262" y="144" width="140" height="7" rx="3"/><rect x="262" y="156" width="64" height="7" rx="3"/>
+<rect x="262" y="168" width="104" height="7" rx="3" fill="#ef4444"/><rect x="262" y="180" width="48" height="7" rx="3"/>
+<rect x="262" y="192" width="128" height="7" rx="3"/><rect x="262" y="204" width="78" height="7" rx="3"/>
+</g>
+<text x="256" y="232" fill="#cdd5e3" font-size="12">28 dims: centroid . MFCC x13</text>
+<text x="256" y="247" fill="#cdd5e3" font-size="12">HNR . buzz-band . flatness ...</text>
+</g>
+<text x="444" y="176" fill="#54607a" font-size="22">-&gt;</text>
+<g>
+<rect x="464" y="84" width="190" height="174" rx="12" fill="#141a25" stroke="#222b3a"/>
+<text x="478" y="108" fill="#94a0b4" font-size="11" font-weight="700" letter-spacing="1.2">3 . EIGEN-COLLAPSE</text>
+<g stroke="#7c3aed" stroke-width="1.4" opacity="0.8">
+<line x1="484" y1="128" x2="556" y2="176"/><line x1="484" y1="148" x2="556" y2="176"/>
+<line x1="484" y1="168" x2="556" y2="176"/><line x1="484" y1="188" x2="556" y2="176"/>
+<line x1="484" y1="208" x2="556" y2="176"/>
+</g>
+<g stroke="#a78bfa" stroke-width="2">
+<line x1="556" y1="176" x2="630" y2="146"/><line x1="556" y1="176" x2="636" y2="182"/><line x1="556" y1="176" x2="600" y2="222"/>
+</g>
+<circle cx="556" cy="176" r="4" fill="#a78bfa"/>
+<text x="478" y="234" fill="#cdd5e3" font-size="12.5">PCA -&gt; LDA</text>
+<text x="478" y="249" fill="#cdd5e3" font-size="12.5">28-D -&gt; 3 named axes</text>
+</g>
+<text x="666" y="176" fill="#54607a" font-size="22">-&gt;</text>
+<g>
+<rect x="686" y="84" width="214" height="174" rx="12" fill="#141a25" stroke="#222b3a"/>
+<text x="700" y="108" fill="#94a0b4" font-size="11" font-weight="700" letter-spacing="1.2">4 . SEMANTIC REGIONS</text>
+<g stroke="#3a4560" stroke-width="1.5">
+<line x1="712" y1="232" x2="712" y2="128"/><line x1="712" y1="232" x2="884" y2="232"/><line x1="712" y1="232" x2="760" y2="196"/>
+</g>
+<ellipse cx="772" cy="160" rx="34" ry="22" fill="#22c55e" opacity="0.22" stroke="#22c55e"/>
+<text x="772" y="163" text-anchor="middle" fill="#22c55e" font-size="11" font-weight="700">clean</text>
+<ellipse cx="838" cy="186" rx="30" ry="20" fill="#ef4444" opacity="0.22" stroke="#ef4444"/>
+<text x="838" y="189" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">buzz</text>
+<ellipse cx="788" cy="212" rx="28" ry="16" fill="#9ca3af" opacity="0.22" stroke="#9ca3af"/>
+<text x="788" y="215" text-anchor="middle" fill="#c4cad6" font-size="11" font-weight="700">muted</text>
+<text x="700" y="250" fill="#cdd5e3" font-size="12">a region = what it means</text>
+</g>
+<rect x="20" y="300" width="880" height="92" rx="12" fill="#10202a" stroke="#1f3a44"/>
+<text x="40" y="328" fill="#94a0b4" font-size="11" font-weight="700" letter-spacing="1.2">SURFACE THE CORRECTION</text>
+<circle cx="52" cy="360" r="7" fill="#ef4444"/>
+<text x="70" y="356" fill="#eaecf2" font-size="15">Your strum lands in the <tspan fill="#ef4444" font-weight="700">buzz</tspan> region near the A string  -&gt;</text>
+<text x="70" y="378" fill="#cdd5e3" font-size="14">"you're buzzing the A" -&gt; a <tspan fill="#22c55e" font-weight="700">haptic pulse</tspan> on that body site + <tspan fill="#a78bfa" font-weight="700">Claude</tspan> coaching, in real time</text>
+<g font-size="12" fill="#94a0b4">
+<circle cx="30" cy="430" r="6" fill="#22c55e"/><text x="42" y="434">clean</text>
+<circle cx="110" cy="430" r="6" fill="#ef4444"/><text x="122" y="434">buzz</text>
+<circle cx="186" cy="430" r="6" fill="#9ca3af"/><text x="198" y="434">muted</text>
+<text x="470" y="434" text-anchor="middle">same machinery maps the chord space + separates per-string error regions</text>
+</g>
+</svg>
