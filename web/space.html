@@ -40,7 +40,7 @@
 <div id="scene"></div>
 <div class="hdr">
   <h1><b>Tactus</b> · live semantic vector space</h1>
-  <div class="sub"><span class="badge" id="vcard">VCARD …</span> <b>STRING space</b> = stacked layers (low-E→high-e) · <b>ERROR space</b> = class-LDA clusters · note→Redis <b>VADD/VSIM</b> · <span id="var">PC…</span></div>
+  <div class="sub"><span class="badge" id="vcard">VCARD …</span> organic 3-D cloud · <b>colour = error</b> · <b>shape = string</b> · each note → Redis <b>VADD / VSIM</b> · <span id="var">eigenbasis</span></div>
 </div>
 <div class="key">
   <h4>ERROR = COLOUR</h4>
@@ -49,7 +49,7 @@
     <span class="it"><i style="background:#FF9F43"></i>buzz</span>
     <span class="it"><i style="background:#8A7BFF"></i>muted</span>
   </div>
-  <h4>STRING = SHAPE / LAYER</h4>
+  <h4>STRING = SHAPE</h4>
   <div class="row">
     <span class="it"><span class="g">▲</span>e</span>
     <span class="it"><span class="g">■</span>B</span>
@@ -104,8 +104,8 @@ controls.enableDamping=true; controls.autoRotate=true; controls.autoRotateSpeed=
 scene.add(new THREE.AmbientLight(0xffffff,1.0));
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 
-// data(world): X = class-LDA0, Y(up) = string layer, Z = class-LDA1
-const worldOf=p=>[p.x, p.z, p.y];
+// organic 3-D cloud: use the embedding coords directly
+const worldOf=p=>[p.x, p.y, p.z];
 let Tf=null;
 function transform(w){ return [ (w[0]-Tf.cx)*Tf.s, (w[1]-Tf.cy)*Tf.s, (w[2]-Tf.cz)*Tf.s ]; }
 function tpoint(p){ return transform(worldOf(p)); }
@@ -152,7 +152,7 @@ async function loadSpace(){
   const W=d.points.map(worldOf);
   const mid=i=>{const a=W.map(w=>w[i]);return (Math.min(...a)+Math.max(...a))/2;};
   const span=i=>{const a=W.map(w=>w[i]);return Math.max(1e-6,Math.max(...a)-Math.min(...a));};
-  Tf={cx:mid(0),cy:mid(1),cz:mid(2), s:200/Math.max(span(0),span(1),span(2))};
+  Tf={cx:mid(0),cy:mid(1),cz:mid(2), s:300/Math.max(span(0),span(1),span(2))};
 
   // group background points by string -> one Points per shape, vertex-coloured by class
   const byS={}; d.points.forEach(p=>{(byS[p.string_num]=byS[p.string_num]||[]).push(p);});
@@ -162,36 +162,23 @@ async function loadSpace(){
     arr.forEach((p,i)=>{ pos.set(tpoint(p),i*3); const c=new THREE.Color(CLASS_COLOR[p.cls]||0x888888); col.set([c.r,c.g,c.b],i*3); });
     g.setAttribute('position',new THREE.BufferAttribute(pos,3));
     g.setAttribute('color',new THREE.BufferAttribute(col,3));
-    scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:7,map:SPRITE[sn],vertexColors:true,
-      transparent:true,opacity:0.92,alphaTest:0.25,sizeAttenuation:true,depthWrite:false})));
+    scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:6,map:SPRITE[sn],vertexColors:true,
+      transparent:true,opacity:0.95,alphaTest:0.25,sizeAttenuation:true,depthWrite:false})));
   }
 
-  // STRING space = stacked translucent planes + rings + labels
-  const xExt=Math.max(Math.abs(Tf.s*span(0)/2),Math.abs(Tf.s*span(2)/2))*1.25+10;
-  d.regions.filter(r=>r.kind==='string').forEach(r=>{
-    const yc=transform([0,r.z,0])[1];
-    const disc=new THREE.Mesh(new THREE.CircleGeometry(xExt,56),
-      new THREE.MeshBasicMaterial({color:0x9f8fd0,transparent:true,opacity:0.05,side:THREE.DoubleSide,depthWrite:false}));
-    disc.rotation.x=-Math.PI/2; disc.position.y=yc; scene.add(disc);
-    const ring=new THREE.Mesh(new THREE.RingGeometry(xExt*0.985,xExt,72),
-      new THREE.MeshBasicMaterial({color:0xb9a6ff,transparent:true,opacity:0.28,side:THREE.DoubleSide,depthWrite:false}));
-    ring.rotation.x=-Math.PI/2; ring.position.y=yc; scene.add(ring);
-    const lab=labelSprite(r.label,'#d7c8ff',40); lab.position.set(xExt*0.86,yc+7,0); scene.add(lab);
-  });
-
-  // ERROR space = bold class labels floating above the stack
+  // ERROR clusters: bold class label floating at each articulation's centroid
   d.regions.filter(r=>r.kind==='class').forEach(r=>{
-    const t=transform([r.centroid[0],r.centroid[2]?r.centroid[2]:0,r.centroid[1]]); // x, top y, z
-    const top=transform([0,r.centroid[2],0])[1];
-    const lab=labelSprite(r.label.toUpperCase()+(r.label!=='clean'?' ✕':' ✓'),'#'+new THREE.Color(CLASS_COLOR[r.label]).getHexString(),58);
-    lab.position.set(t[0],top+18,t[2]); scene.add(lab);
+    const t=tpoint({x:r.centroid[0],y:r.centroid[1],z:r.centroid[2]});
+    const lab=labelSprite(r.label.toUpperCase()+(r.label!=='clean'?' ✕':' ✓'),
+      '#'+new THREE.Color(CLASS_COLOR[r.label]).getHexString(),64);
+    lab.position.set(t[0],t[1]+26,t[2]); scene.add(lab);
   });
 }
 
 // ---- live point ----
 let errors=0;
 function addLivePoint(res){
-  const p=res.point, lim=230;
+  const p=res.point, lim=300;
   const t=tpoint(p).map(v=>clampB(v,lim));
   const color=CLASS_COLOR[p.cls]||0xFF4D8D;
   const geo=LIVE_GEO[p.string_num]||LIVE_GEO[5];
@@ -267,7 +254,7 @@ document.getElementById('reset').onclick=()=>{ livePts.forEach(p=>liveGroup.remo
   document.getElementById('errrow').textContent='0 errors clustered'; gi=0; showAsk(); };
 
 function tick(){ const now=performance.now();
-  for(const p of livePts){ const a=Math.min(1,(now-p.born)/260); p.mesh.scale.setScalar(2.4*(0.45+0.55*a)+(a<1?3.2*(1-a):0)); p.mesh.rotation.y+=0.03; }
+  for(const p of livePts){ const a=Math.min(1,(now-p.born)/260); p.mesh.scale.setScalar(4*(0.5+0.5*a)+(a<1?5*(1-a):0)); p.mesh.rotation.y+=0.03; }
   controls.update(); renderer.render(scene,camera); requestAnimationFrame(tick); }
 loadSpace().then(()=>tick());
 </script>

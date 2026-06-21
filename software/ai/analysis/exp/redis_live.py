@@ -11,17 +11,16 @@ service so the live interface can, on every note the player plays:
     3. `VSIM` against `tactus:events` (sub-ms approximate-NN) to vote the note's
        articulation class, and `VADD` it into the growing `tactus:live` set.
 
-THE 3-D SEMANTIC SPACE (web/space.html) deliberately separates the two facets,
-because they behave differently in the audio (measured on this data):
-
-    * ERROR space  -> class-LDA(2) on X/Y. Articulation (clean/buzz/muted)
-      separates under a supervised discriminant (silhouette ~0.16); colour = class.
-    * STRING space -> the Z axis is 6 discrete LAYERS (low-E bottom .. high-e top).
-      String identity is the *intended* target (from the tab), not something the
-      timbre reveals (string silhouette ~0 even with LDA) — so we stack by it.
-
-=> strings read as horizontal planes (geometry); errors read as coloured
-clusters within each plane. Two visibly different structures.
+THE 3-D SEMANTIC SPACE (web/space.html):
+    A single organic 3-D point cloud. Layout = class-LDA-seeded t-SNE on the
+    audio eigen-features, then a declump pass so every point keeps a minimum
+    spacing (no clumping). Two facets stay legible by encoding, not by separate
+    panels:
+        ERROR  -> COLOUR (clean=green / buzz=orange / muted=purple); the
+                  LDA-seeding makes the three articulations form visible clusters.
+        STRING -> SHAPE  (triangle/square/diamond/plus/circle/hexagon); string
+                  identity is the intended target from the tab, not recoverable
+                  from timbre, so it rides on shape rather than position.
 
 Run:
     REDIS_PORT=6380 python3 software/ai/analysis/exp/redis_live.py   # serves :8771
@@ -29,7 +28,8 @@ Run:
 Endpoints (CORS-open):
     GET  /health
     GET  /projection                 -> 432 events, 2-D PCA (legacy redis-memory.html)
-    GET  /space3d                     -> 432 events: class-LDA X/Y + string-layer Z + regions
+    GET  /space3d                     -> 432 events in the 3-D cloud + class regions
+    GET  /demo?cls=muted&string=A     -> replay a real recorded note into the space
     GET  /mistake?cls=muted&string=5  -> recurring-mistake retrieval + insight (legacy)
     POST /embed  {sr, pcm_b64|samples, requested:{cls,string}}  -> live note -> 3-D point
 """
@@ -45,8 +45,10 @@ from urllib.parse import urlparse, parse_qs
 
 import numpy as np
 import pandas as pd
+from scipy.spatial import cKDTree
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -58,20 +60,36 @@ import features_audio as FA   # noqa: E402  (librosa-backed _extract_one)
 PORT = int(os.environ.get("TACTUS_REDIS_LIVE_PORT", "8771"))
 LIVE_KEY = "tactus:live"
 EMB_DIM = 16
+JIT = 0.5  # live-point jitter (t-SNE units) so repeats don't overlap
 
 CLASS_COLOR = {"clean": "#3DDC84", "buzz": "#FF9F43", "muted": "#8A7BFF"}
 ERROR_CLASSES = {"buzz", "muted"}
-
-# string -> vertical layer (low-E at the bottom .. high-e at the top)
-STRING_Z = {6: 0, 5: 1, 4: 2, 3: 3, 2: 4, 1: 5}
 NAME_TO_NUM = {v: k for k, v in R.STRING_NAMES.items()}
+
+
+def _declump(A, min_d, iters=140):
+    """Push apart any points closer than min_d so the cloud has even spacing
+    while preserving overall cluster structure."""
+    A = A.astype(float).copy()
+    for _ in range(iters):
+        pairs = cKDTree(A).query_pairs(min_d, output_type="ndarray")
+        if len(pairs) == 0:
+            break
+        v = A[pairs[:, 0]] - A[pairs[:, 1]]
+        dist = np.linalg.norm(v, axis=1)
+        dist[dist < 1e-6] = 1e-6
+        push = ((min_d - dist) / 2.0)[:, None] * (v / dist[:, None])
+        disp = np.zeros_like(A)
+        np.add.at(disp, pairs[:, 0], push)
+        np.add.at(disp, pairs[:, 1], -push)
+        A += disp
+    return A
 
 
 # --------------------------------------------------------------------------- #
 # Projector
-#   * PCA(16) L2-normalized  -> the Redis retrieval embedding (VSIM/VADD)
-#   * class-LDA(2)           -> the ERROR space (X/Y of the 3-D view)
-#   * string layer (Z)       -> the STRING space (6 stacked planes)
+#   * PCA(16) L2-normalized  -> Redis retrieval embedding (VSIM/VADD)
+#   * class-LDA-seeded t-SNE(3) + declump -> the spread 3-D cloud (coord3)
 # --------------------------------------------------------------------------- #
 class Projector:
     def __init__(self):
@@ -81,13 +99,11 @@ class Projector:
         self.medians = X.median(numeric_only=True)
         Xs = self._fit_scaler(X.fillna(self.medians).values)
 
-        # retrieval embedding (matches redis_retrieval index basis)
         self.pca = PCA(n_components=EMB_DIM, random_state=0).fit(Xs)
         emb = self.pca.transform(Xs)
         self.var = [float(v) for v in self.pca.explained_variance_ratio_[:3]]
 
         self.ids = feats["event_id"].tolist()
-        # per-event L2-normalized 16-D vectors (== what is indexed) for replay/demo
         nrm = np.linalg.norm(emb, axis=1, keepdims=True); nrm[nrm == 0] = 1.0
         embn = emb / nrm
         self.qvec = {e: embn[i].astype(float) for i, e in enumerate(self.ids)}
@@ -104,22 +120,38 @@ class Projector:
         self.coord = {e: [float(c3[i, 0]), float(c3[i, 1]), float(c3[i, 2])]
                       for i, e in enumerate(self.ids)}
 
-        # --- supervised ERROR layout (class-LDA) + STRING layers (Z) ---
-        labels = [self.meta[e]["cls"] for e in self.ids]
-        self.lda = LDA(n_components=2).fit(Xs, labels)
-        xy = self.lda.transform(Xs)
-        self.layer_gap = (float(np.std(xy)) * 2.4) or 1.0
-        self.coord3 = {}
-        for i, e in enumerate(self.ids):
-            self.coord3[e] = [float(xy[i, 0]), float(xy[i, 1]), self._z_for(self.meta[e]["string_num"])]
+        # 3-D cloud: class-LDA-seeded t-SNE (organic + error clusters) + declump
+        self.lda = LDA(n_components=2).fit(Xs, [self.meta[e]["cls"] for e in self.ids])
+        self.coord3 = self._layout3d(Xs, emb)
         self._regions = self._build_regions()
 
     def _fit_scaler(self, X):
         self.scaler = StandardScaler().fit(X)
         return self.scaler.transform(X)
 
-    def _z_for(self, string_num):
-        return float((STRING_Z.get(string_num, 3) - 2.5) * self.layer_gap)
+    def _layout3d(self, Xs, emb):
+        cache = os.path.join(os.path.dirname(R.FEATURES_CSV), "space3d_coords.csv")
+        if os.path.exists(cache):
+            try:
+                c = pd.read_csv(cache)
+                if len(c) == len(self.ids) and set(c["event_id"]) == set(self.ids):
+                    cm = {r["event_id"]: [float(r["x"]), float(r["y"]), float(r["z"])]
+                          for _, r in c.iterrows()}
+                    return {e: cm[e] for e in self.ids}
+            except Exception:
+                pass
+        L = self.lda.transform(Xs)
+        T = TSNE(n_components=3, perplexity=35, init="pca", random_state=0).fit_transform(
+            np.hstack([L * 6.0, emb]))
+        med = float(np.median(cKDTree(T).query(T, k=2)[0][:, 1]))
+        T = _declump(T, min_d=med * 1.6)
+        coord = {e: [float(T[i, 0]), float(T[i, 1]), float(T[i, 2])] for i, e in enumerate(self.ids)}
+        try:
+            pd.DataFrame([{"event_id": e, "x": coord[e][0], "y": coord[e][1], "z": coord[e][2]}
+                          for e in self.ids]).to_csv(cache, index=False)
+        except Exception:
+            pass
+        return coord
 
     def _centroid3(self, ids):
         a = np.array([self.coord3[i] for i in ids])
@@ -127,20 +159,11 @@ class Projector:
 
     def _build_regions(self):
         regions = []
-        top = 3.4 * self.layer_gap
         for cls in ("clean", "buzz", "muted"):
             ids = [i for i in self.ids if self.meta[i]["cls"] == cls]
             if ids:
-                c = self._centroid3(ids)
                 regions.append({"kind": "class", "label": cls, "color": CLASS_COLOR[cls],
-                                "centroid": [c[0], c[1], top], "n": len(ids)})
-        for sn in (6, 5, 4, 3, 2, 1):
-            ids = [i for i in self.ids if self.meta[i]["string_num"] == sn]
-            if ids:
-                c = self._centroid3(ids)
-                regions.append({"kind": "string", "label": R.string_name(sn) + " string",
-                                "color": "#ffffff", "centroid": c, "z": self._z_for(sn),
-                                "string_num": sn, "n": len(ids)})
+                                "centroid": self._centroid3(ids), "n": len(ids)})
         return regions
 
     def points3d(self):
@@ -162,7 +185,7 @@ class Projector:
                 and (string_num is None or self.meta[e]["string_num"] == string_num)]
 
     def embed_live(self, y, sr):
-        """live note -> (class-LDA X/Y, L2-normalized 16-D query vector, raw features)."""
+        """live note -> (L2-normalized 16-D query vector, raw features)."""
         feats = FA._extract_one(np.asarray(y, dtype=np.float32), int(sr))
         vec = np.array([feats.get(n, np.nan) for n in R.AUDIO_FEATURES], dtype=float)
         for i, n in enumerate(R.AUDIO_FEATURES):
@@ -170,9 +193,8 @@ class Projector:
                 vec[i] = float(self.medians[n])
         Xs = self.scaler.transform(vec.reshape(1, -1))
         emb = self.pca.transform(Xs)[0]
-        xy = self.lda.transform(Xs)[0]
         norm = float(np.linalg.norm(emb)) or 1.0
-        return [float(xy[0]), float(xy[1])], (emb / norm).astype(float), feats
+        return (emb / norm).astype(float), feats
 
 
 PROJ: Projector | None = None
@@ -181,8 +203,7 @@ _LIVE_N = 0
 
 def ensure_data():
     """Build data/analysis/{features_fused,events}.csv from the shared offline
-    data (data/analysis/all/) if absent. data/analysis/ is gitignored, so this
-    lets the service run after a fresh checkout without shipping data files."""
+    data (data/analysis/all/) if absent. data/analysis/ is gitignored."""
     need_fused = not os.path.exists(R.FEATURES_CSV)
     need_ev = not os.path.exists(R.EVENTS_CSV)
     if not (need_fused or need_ev):
@@ -239,16 +260,26 @@ def _req_string_num(requested):
     return NAME_TO_NUM.get(s)
 
 
+def _place_near(neighbors):
+    """Place a live note among its VSIM neighbours (t-SNE is non-parametric):
+    score-weighted centroid of neighbour coords + jitter."""
+    if not neighbors:
+        return [float(np.random.uniform(-JIT, JIT)) for _ in range(3)]
+    pts = np.array([[n["x"], n["y"], n["z"]] for n in neighbors])
+    w = np.array([max(0.01, n["score"]) for n in neighbors])
+    c = (pts * w[:, None]).sum(0) / w.sum()
+    return [float(c[i] + np.random.uniform(-JIT, JIT)) for i in range(3)]
+
+
 def embed_note(y, sr, requested=None) -> dict:
     global _LIVE_N
     r = R.get_redis()
-    xy, q, feats = PROJ.embed_live(y, sr)
+    q, feats = PROJ.embed_live(y, sr)
 
     rms = feats.get("rms")
     if rms is None or not np.isfinite(rms) or rms < 1e-3:
         return {"silent": True}
 
-    # REAL Redis similarity search by the raw query vector
     args = ["VSIM", R.VSET_KEY, "VALUES", EMB_DIM] + [float(x) for x in q] + ["WITHSCORES", "COUNT", 12]
     pairs = R._parse_withscores(r.execute_command(*args))
 
@@ -265,13 +296,9 @@ def embed_note(y, sr, requested=None) -> dict:
 
     pred_cls = max(cls_votes, key=cls_votes.get) if cls_votes else None
     pred_str = max(str_votes, key=str_votes.get) if str_votes else None
-
-    # Z = the intended string (from the tab/guide); fall back to the VSIM string vote
-    sn = _req_string_num(requested)
-    if sn is None and pred_str:
-        sn = NAME_TO_NUM.get(pred_str)
-    z = PROJ._z_for(sn) if sn else 0.0
+    sn = _req_string_num(requested) or (NAME_TO_NUM.get(pred_str) if pred_str else None)
     shown_string = R.string_name(sn) if sn else pred_str
+    pos = _place_near(neighbors)
 
     _LIVE_N += 1
     live_id = "live:%d:%d" % (int(time.time()), _LIVE_N)
@@ -284,7 +311,7 @@ def embed_note(y, sr, requested=None) -> dict:
         live_vcard = _LIVE_N
 
     return {
-        "point": {"x": xy[0], "y": xy[1], "z": z, "cls": pred_cls, "string": shown_string,
+        "point": {"x": pos[0], "y": pos[1], "z": pos[2], "cls": pred_cls, "string": shown_string,
                   "string_num": sn, "color": CLASS_COLOR.get(pred_cls, "#FF4D8D"), "id": live_id},
         "neighbors": neighbors,
         "pred_class": pred_cls, "pred_string": pred_str,
@@ -298,14 +325,13 @@ def embed_note(y, sr, requested=None) -> dict:
 def demo_note(cls, string_num) -> dict:
     """Replay a REAL recorded note of (cls, string) into the space — for the
     no-guitar demo/video. It's an actual dataset note, so it lands in the correct
-    cluster (synthetic audio can't reliably reproduce an articulation class). The
-    microphone path (/embed) remains the pure live-audio pipeline."""
+    cluster (synthetic audio can't reliably reproduce an articulation class)."""
     global _LIVE_N
     r = R.get_redis()
-    cands = sorted(PROJ.exemplars(cls=cls, string_num=string_num) or PROJ.exemplars(cls=cls))
+    cands = PROJ.exemplars(cls=cls, string_num=string_num) or PROJ.exemplars(cls=cls)
     if not cands:
         return {"error": "no exemplar", "cls": cls, "string_num": string_num}
-    seed = cands[len(cands) // 2]
+    seed = cands[int(np.random.randint(len(cands)))]   # spread repeats across the cluster
     res = R.search_by_event(seed, k=12, with_baserate=False)
     neighbors = []
     for nb in res["neighbors"]:
@@ -315,7 +341,6 @@ def demo_note(cls, string_num) -> dict:
                               "cls": nb.intended_class, "string": nb.string_name})
     m = PROJ.meta[seed]
     base = PROJ.coord3[seed]
-    jit = PROJ.layer_gap * 0.12
     _LIVE_N += 1
     live_id = "demo:%d:%d" % (int(time.time()), _LIVE_N)
     try:
@@ -324,8 +349,9 @@ def demo_note(cls, string_num) -> dict:
         live_vcard = int(r.execute_command("VCARD", LIVE_KEY))
     except Exception:
         live_vcard = _LIVE_N
-    return {"point": {"x": base[0] + float(np.random.uniform(-jit, jit)),
-                      "y": base[1] + float(np.random.uniform(-jit, jit)), "z": base[2],
+    return {"point": {"x": base[0] + float(np.random.uniform(-JIT, JIT)),
+                      "y": base[1] + float(np.random.uniform(-JIT, JIT)),
+                      "z": base[2] + float(np.random.uniform(-JIT, JIT)),
                       "cls": m["cls"], "string": m["string"], "string_num": m["string_num"],
                       "color": CLASS_COLOR.get(m["cls"], "#FF4D8D"), "id": live_id},
             "neighbors": neighbors, "pred_class": m["cls"], "pred_string": m["string"],
@@ -402,7 +428,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send({"points": PROJ.points(), "var": PROJ.var, "n": len(PROJ.ids)})
         elif u.path == "/space3d":
             self._send({"points": PROJ.points3d(), "regions": PROJ._regions,
-                        "layer_gap": PROJ.layer_gap, "var": PROJ.var, "n": len(PROJ.ids)})
+                        "var": PROJ.var, "n": len(PROJ.ids)})
         elif u.path == "/demo":
             q = parse_qs(u.query)
             cls = (q.get("cls") or ["clean"])[0]
@@ -466,7 +492,7 @@ def main():
     ensure_data()
     PROJ = Projector()
     vcard = ensure_index()
-    print("[redis_live] index=%d live=%d  class-LDA X/Y + string-layer Z  serving :%d"
+    print("[redis_live] index=%d live=%d  3-D cloud=class-LDA-seeded t-SNE+declump  serving :%d"
           % (vcard, _safe_vcard(), PORT))
     ThreadingHTTPServer(("localhost", PORT), Handler).serve_forever()
 
