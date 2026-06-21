@@ -34,3 +34,5 @@ weights/
 software/ai/vision/*.jpg
 software/ai/vision/*_annotated.png
 software/ai/vision/selftest_out.png
+# real-world vision test scratch dir (annotated frames + demo mp4, regenerable via annotate_video.py)
+software/ai/vision/realtest/

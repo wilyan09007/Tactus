@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tactus — learn guitar by feel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#FFFBF6; --ink:#3A2A4A; --berry:#FF4D8D; --line:#FBD9E6;
+    --peach:#FFE3D1; --mint:#D6F7E6; --lav:#E7DBFF; --grape:#AD7FFF; --tangy:#FF9F43;
+    --s1:#FF6B6B; --s2:#FF9F43; --s3:#FFD635; --s4:#26DEA0; --s5:#48B6FF; --s6:#AD7FFF;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:'Nunito',-apple-system,Segoe UI,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(900px 620px at 8% -6%, var(--peach) 0%, rgba(255,227,209,0) 60%),
+      radial-gradient(820px 640px at 102% 14%, var(--lav) 0%, rgba(231,219,255,0) 58%),
+      radial-gradient(1000px 780px at 88% 108%, var(--mint) 0%, rgba(214,247,230,0) 60%),
+      radial-gradient(760px 560px at 18% 112%, #FFE9F1 0%, rgba(255,233,241,0) 62%),
+      #FFFBF6;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
+  }
+
+  /* faint string-colored decorative lines that sweep across the page */
+  .strings{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+  .strings .ln{position:absolute;left:-6%;right:-6%;height:2px;border-radius:2px;transform:rotate(-7deg);transform-origin:left}
+  .strings .ln::after{content:"";position:absolute;right:0;top:50%;width:9px;height:9px;border-radius:50%;transform:translateY(-50%);background:inherit;box-shadow:0 0 12px currentColor}
+  .strings .ln.l1{top:16%;background:var(--s1)} .strings .ln.l2{top:23%;background:var(--s2)}
+  .strings .ln.l3{top:30%;background:var(--s3)} .strings .ln.l4{top:71%;background:var(--s4)}
+  .strings .ln.l5{top:78%;background:var(--s5)} .strings .ln.l6{top:85%;background:var(--s6)}
+
+  /* nav */
+  .nav{position:relative;z-index:2;display:flex;align-items:center;gap:11px;padding:26px 34px}
+  .brand{font-family:'Fredoka','Nunito';font-weight:700;font-size:23px;letter-spacing:.4px;color:var(--ink);text-shadow:0 2px 0 #FFFFFFcc}
+  .dot{color:#E3B6CC;font-weight:700;margin:0 -2px}
+  .learn{background:linear-gradient(180deg,#FFD24D,var(--tangy));color:#7A3D00;font-weight:800;font-size:11px;padding:5px 12px;border-radius:999px;letter-spacing:.12em;box-shadow:0 4px 10px #ff9f4340}
+  .nav .right{margin-left:auto;font-weight:800;font-size:13px;color:#A77FC9;display:flex;align-items:center;gap:8px}
+  .nav .right .pip{width:9px;height:9px;border-radius:50%;background:var(--s4);box-shadow:0 0 9px var(--s4)}
+
+  /* hero */
+  .wrap{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px 26px 56px;max-width:960px;margin:0 auto;width:100%}
+
+  .kicker{display:inline-flex;align-items:center;gap:9px;background:#FFFFFFcc;border:2px solid var(--line);border-radius:999px;padding:7px 16px 7px 12px;font-weight:800;font-size:13px;color:#9A5C7E;box-shadow:0 4px 0 #FFE2EE,0 8px 18px #ff4d8d14;margin-bottom:26px}
+  .kicker .taps{display:inline-flex;gap:4px}
+  .kicker .taps i{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .kicker .taps i:nth-child(1){background:var(--s1)} .kicker .taps i:nth-child(2){background:var(--s3)}
+  .kicker .taps i:nth-child(3){background:var(--s4)} .kicker .taps i:nth-child(4){background:var(--s5)}
+
+  h1{font-family:'Fredoka','Nunito';font-weight:700;font-size:clamp(46px,8.4vw,90px);line-height:.97;letter-spacing:-1.5px;margin:0 0 22px}
+  h1 .feel{color:var(--berry);position:relative;white-space:nowrap}
+  h1 .feel::after{content:"";position:absolute;left:2%;right:2%;bottom:.06em;height:.14em;border-radius:99px;background:linear-gradient(90deg,var(--s1),var(--s3),var(--s4),var(--s5),var(--s6));opacity:.85}
+
+  .sub{font-weight:700;font-size:clamp(16px,2vw,21px);line-height:1.5;color:#6B5780;max-width:660px;margin:0 auto 6px}
+  .sub b{color:#3A2A4A;font-weight:900}
+  .sub .chip{display:inline-block;font-weight:900;color:#7A2A52;background:#FFE3EF;border-radius:8px;padding:0 7px;white-space:nowrap}
+  .sub .chip.arm{color:#08543F;background:var(--mint)}
+
+  .mission{font-weight:800;font-size:13.5px;color:#9A5C7E;margin:18px auto 0;max-width:620px;line-height:1.5}
+
+  /* input group */
+  .form{margin:38px auto 0;width:100%;max-width:680px}
+  .group{display:flex;gap:12px;align-items:stretch}
+  #link{
+    flex:1;min-width:0;font-family:'Nunito';font-weight:700;font-size:17px;color:#5A4470;
+    background:#FFFFFFf2;border:2.5px solid #FFCBE0;border-radius:999px;padding:0 24px;height:62px;
+    box-shadow:0 4px 0 #FFE2EE,0 10px 22px #ff4d8d12;outline:none;transition:border-color .15s,box-shadow .15s,transform .06s;
+  }
+  #link::placeholder{color:#C29FB8;font-weight:700}
+  #link:focus{border-color:var(--berry);box-shadow:0 4px 0 #FFD0E2,0 0 0 4px #ff4d8d22,0 12px 26px #ff4d8d22}
+
+  .btn{font-family:'Nunito';font-weight:800;border-radius:999px;cursor:pointer;border:2.5px solid #FFB8D4;background:#FFFFFFe6;color:#7A2A52;transition:transform .06s,box-shadow .06s;white-space:nowrap}
+  .btn:active{transform:translateY(3px)}
+  .start{
+    height:62px;padding:0 34px;font-size:19px;letter-spacing:.2px;color:#fff;border-color:#FF8FB6;
+    background:linear-gradient(180deg,#FF6FA3,#FF4D8D);
+    box-shadow:0 4px 0 #C9356C,0 8px 16px #ff4d8d33;
+  }
+  .start:active{box-shadow:0 1px 0 #C9356C,0 4px 10px #ff4d8d33}
+  .start .ar{font-weight:900;margin-left:4px}
+
+  .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px}
+  .chip-btn{
+    height:44px;padding:0 18px;font-size:14px;border-radius:999px;border:2.5px solid #FFB8D4;background:#FFFFFFe6;color:#7A2A52;font-weight:800;cursor:pointer;
+    box-shadow:0 4px 0 #FFD9E8,0 8px 16px #ff4d8d1f;transition:transform .06s,box-shadow .06s,background .15s;display:inline-flex;align-items:center;gap:8px;
+  }
+  .chip-btn:hover{background:#FFF4F9}
+  .chip-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #FFD9E8,0 4px 10px #ff4d8d1f}
+  .chip-btn .em{font-size:16px}
+
+  .helper{margin-top:16px;font-weight:800;font-size:12.5px;color:#B08FC8;letter-spacing:.2px}
+
+  /* slim inline proof row */
+  .proof{display:inline-flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:24px;font-weight:800;font-size:13.5px;color:#7A6690}
+  .proof .p{display:inline-flex;align-items:center;gap:8px;background:#FFFFFFb3;border:2px solid #FBE0EC;border-radius:999px;padding:7px 15px}
+  .proof .p .d{width:9px;height:9px;border-radius:50%}
+  .proof .p.see .d{background:var(--s5);box-shadow:0 0 8px var(--s5)}
+  .proof .p.hear .d{background:var(--s4);box-shadow:0 0 8px var(--s4)}
+  .proof .p.tap .d{background:var(--berry);box-shadow:0 0 8px var(--berry)}
+
+  .foot{position:relative;z-index:1;text-align:center;font-weight:800;font-size:12px;color:#C0A3D6;padding:0 24px 26px}
+
+  @media (max-width:640px){
+    .nav{padding:20px}
+    .group{flex-direction:column}
+    .start{width:100%}
+    h1{letter-spacing:-1px}
+    .strings{opacity:.34}
+    .proof{font-size:12.5px}
+  }
+</style>
+</head>
+<body>
+
+  <div class="strings" aria-hidden="true">
+    <span class="ln l1"></span><span class="ln l2"></span><span class="ln l3"></span>
+    <span class="ln l4"></span><span class="ln l5"></span><span class="ln l6"></span>
+  </div>
+
+  <header class="nav">
+    <span class="brand">TACTUS</span>
+    <span class="dot">·</span>
+    <span class="learn">LEARN</span>
+    <span class="right"><span class="pip"></span>haptic guitar coach</span>
+  </header>
+
+  <main class="wrap">
+    <div class="kicker">
+      <span class="taps"><i></i><i></i><i></i><i></i></span>
+      feel the fretboard on your skin
+    </div>
+
+    <h1>Learn guitar<br>by <span class="feel">feel</span>.</h1>
+
+    <p class="sub">
+      You feel the music in your body — <span class="chip">6 taps on your chest</span> are the strings,
+      <span class="chip arm">6 on your forearm</span> are the frets — so you can learn
+      <b>whether or not you can hear</b>.
+    </p>
+
+    <p class="mission">Built for Deaf &amp; hard-of-hearing players — and anyone who learns by doing.</p>
+
+    <div class="form">
+      <div class="group">
+        <input id="link" type="text" inputmode="url" autocomplete="off" spellcheck="false"
+               placeholder="Paste a tab or MusicXML link…" aria-label="Paste a tab or MusicXML link" />
+        <button class="btn start" id="startBtn" type="button">Start <span class="ar">→</span></button>
+      </div>
+
+      <div class="chips" role="group" aria-label="Preset songs">
+        <button class="chip-btn preset" type="button" data-src="songs/tactus-etude.gp"><span class="em">🎸</span> Tactus Etude</button>
+        <button class="chip-btn preset" type="button" data-src="songs/wonderwall.gp"><span class="em">🌧</span> Wonderwall</button>
+        <button class="chip-btn preset" type="button" data-src="songs/seven-nation-army.gp"><span class="em">🥁</span> Seven Nation Army</button>
+      </div>
+
+      <div class="helper">Guitar Pro / MusicXML — or pick a preset</div>
+
+      <div class="proof" aria-label="How it works">
+        <span class="p see"><span class="d"></span>sees your hands</span>
+        <span class="p hear"><span class="d"></span>hears every note</span>
+        <span class="p tap"><span class="d"></span>taps your skin</span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="foot">Vision + audio cross-check every note · granular per-finger correction, instant on your skin.</footer>
+
+<script>
+  function go(src){
+    var v = (typeof src === 'string' && src)
+      ? src
+      : ((document.querySelector('#link')?.value || '').trim());
+    location.href = 'glow.html' + (v ? ('?src=' + encodeURIComponent(v)) : '');
+  }
+
+  document.getElementById('startBtn').addEventListener('click', function(){ go(); });
+
+  var input = document.getElementById('link');
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); go(); }
+  });
+
+  document.querySelectorAll('.preset').forEach(function(btn){
+    btn.addEventListener('click', function(){ go(btn.getAttribute('data-src')); });
+  });
+
+  input.focus();
+</script>
+</body>
+</html>

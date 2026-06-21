@@ -1,0 +1,17 @@
+{
+  "format": "tactus-tab/v1",
+  "title": "Twinkle Twinkle Little Star",
+  "artist": "Traditional",
+  "tuning": ["E2", "A2", "D3", "G3", "B3", "E4"],
+  "string_numbering": "1=high-E .. 6=low-E",
+  "capo": 0,
+  "bpm": 100,
+  "notes": [
+    { "string": 5, "fret": 3 }, { "string": 5, "fret": 3 }, { "string": 3, "fret": 0 }, { "string": 3, "fret": 0 }, { "string": 3, "fret": 2 }, { "string": 3, "fret": 2 }, { "string": 3, "fret": 0 },
+    { "string": 4, "fret": 3 }, { "string": 4, "fret": 3 }, { "string": 4, "fret": 2 }, { "string": 4, "fret": 2 }, { "string": 4, "fret": 0 }, { "string": 4, "fret": 0 }, { "string": 5, "fret": 3 },
+    { "string": 3, "fret": 0 }, { "string": 3, "fret": 0 }, { "string": 4, "fret": 3 }, { "string": 4, "fret": 3 }, { "string": 4, "fret": 2 }, { "string": 4, "fret": 2 }, { "string": 4, "fret": 0 },
+    { "string": 3, "fret": 0 }, { "string": 3, "fret": 0 }, { "string": 4, "fret": 3 }, { "string": 4, "fret": 3 }, { "string": 4, "fret": 2 }, { "string": 4, "fret": 2 }, { "string": 4, "fret": 0 },
+    { "string": 5, "fret": 3 }, { "string": 5, "fret": 3 }, { "string": 3, "fret": 0 }, { "string": 3, "fret": 0 }, { "string": 3, "fret": 2 }, { "string": 3, "fret": 2 }, { "string": 3, "fret": 0 },
+    { "string": 4, "fret": 3 }, { "string": 4, "fret": 3 }, { "string": 4, "fret": 2 }, { "string": 4, "fret": 2 }, { "string": 4, "fret": 0 }, { "string": 4, "fret": 0 }, { "string": 5, "fret": 3 }
+  ]
+}

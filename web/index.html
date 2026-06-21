@@ -3,15 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Tactus — LEARN</title>
+<title>Tactus · LEARN</title>
 <!--
-  Tactus entry point. The product UI is the live fret-glow LEARN interface:
-  per-string-colour AR annotation on the real neck (web/glow.html).
-  This page just forwards to it so "/" always opens the real thing.
+  Tactus entry point. "/" forwards to the landing (web/learn.html), which leads
+  into the live fret glow interface (web/glow.html).
   Archived exploration prototypes live in web/_prototypes/ (not the product).
 -->
-<meta http-equiv="refresh" content="0; url=glow.html" />
-<link rel="canonical" href="glow.html" />
+<meta http-equiv="refresh" content="0; url=learn.html" />
+<link rel="canonical" href="learn.html" />
 <style>
   :root{ --ivory:#F8F4EA; --ink:#16130E; --gold:#efc84b; }
   html,body{margin:0;height:100%;background:#0c0a07;color:var(--ivory);
@@ -28,9 +27,9 @@
 <body>
   <div class="mark">
     <div class="brand"><b>TACTUS</b> · LEARN</div>
-    <div class="sub">opening the live fret-glow interface… &nbsp;
-      <a href="glow.html">enter →</a></div>
+    <div class="sub">opening Tactus… &nbsp;
+      <a href="learn.html">enter →</a></div>
   </div>
-  <script>location.replace('glow.html');</script>
+  <script>location.replace('learn.html');</script>
 </body>
 </html>

@@ -51,11 +51,20 @@ import numpy as np
 
 import cv2
 
+# The 12-TET fret law (fret_fraction(n) = 1 - 2^(-n/12)). Shared with fretboard.py /
+# fretboard_detect.py so the silver-fret-wire grid uses the SAME physical law the
+# consumer's nut->fret7 grid does. Import is cheap (pure numpy) and never per-frame.
+try:
+    from fretboard import fret_fraction
+except Exception:  # keep the detector runnable even if the sibling import fails
+    def fret_fraction(n: int) -> float:
+        return 1.0 - 2.0 ** (-n / 12.0)
+
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-WS_HOST = "localhost"
-WS_PORT = 8770
+WS_HOST = "127.0.0.1"   # explicit IPv4 loopback
+WS_PORT = 8772          # moved off 8770: macOS sharingd holds a dual-stack *:8770 listener (v4+v6)
 # yolov8m-worldv2 (~55 MB) replaces yolov8x (~146 MB): on the two test images it
 # returns near-identical guitar boxes (the box is all SAM2 needs) at ~26ms vs
 # ~73ms/frame. SAM2 keys on the box, not the logits, so the smaller detector
@@ -148,6 +157,40 @@ EDGE_MIN_SIDE_PTS = 8
 # side-split collapses), which would otherwise emit a wildly mis-rotated rect.
 EDGE_ANGLE_GUARD_DEG = 35.0
 
+# --- Silver fret-wire detection -> 12-TET law -> real nut..fret7 (see
+#     _detect_fret_wires / _fit_fret_law_1d) ---
+# The top-edge rect's ALONG extent is the SAM2 band (mid-neck, truncated by the
+# fretting hand), NOT the real nut. The silver fret WIRES are a strong high-contrast
+# cue: we rectify the band so frets become vertical, pop the bright thin vertical
+# wires, peak-find their along-neck positions, fit the 12-TET law, and EXTRAPOLATE
+# the (occluded) nut + fret 7 to re-anchor the quad. Tuned on the realtest frames.
+FRET_DETECT = True              # master switch; False -> behave exactly as before
+# Rectified-ROI sampling: extend the band this fraction of its own along-length past
+# EACH end so an extrapolated nut/fret-7 that falls just outside the band is drawable.
+FRET_RECT_PAD_ALONG = 0.6
+FRET_RECT_PAD_PERP = 0.08
+# Profile only the top+bottom fractions of the neck height: fret WIRES span the full
+# height; inlay DOTS sit in the centre, so skipping the centre rejects the dots.
+FRET_EDGE_BAND = 0.32           # use rows in [0,0.32) and (0.68,1] of the rect height
+# A rectified column must have at least this fraction of its edge-rows inside the
+# fretboard band to contribute a profile value (drops the occluded / off-board cols).
+FRET_MIN_COL_COV = 0.18
+# Peak finder on the smoothed along-neck bright-line profile.
+FRET_PEAK_PROMINENCE = 0.30     # x the profile's nonzero std
+FRET_PEAK_MIN_DIST_FRAC = 1.0 / 80.0   # x rectified width
+FRET_PROFILE_SMOOTH = 7         # 1-D Gaussian width (odd) on the column profile
+# 12-TET law fit acceptance: need >= this many UNIQUE consecutive fret inliers and a
+# spacing residual (normalized by scale) below the threshold, else fall back to the
+# band-extent quad (never worse than before).
+FRET_MIN_INLIERS = 5
+FRET_MAX_FRET = 14              # search frets 0..this in the law fit
+FRET_FIT_TOL_FRAC = 0.05        # inlier tolerance as a fraction of the peak span
+FRET_MAX_RESID_FRAC = 0.020     # max mean residual / scale to TRUST the law fit
+# Confidence blend: final conf = YOLO_conf * (FRET_CONF_BASE + (1-base)*fit_quality),
+# where fit_quality in [0,1] grows with inliers and shrinks with residual. So a clean
+# fret fit nudges confidence up; a weak one barely changes the YOLO confidence.
+FRET_CONF_BASE = 0.85
+
 # Skin HSV range (the fretting hand) — used only by the legacy box-refine
 # fallback when SAM2 / neck extraction is unavailable.
 SKIN_LO = np.array([0, 30, 60], dtype=np.uint8)
@@ -165,6 +208,11 @@ _DEVICE = "mps"
 _LAST_SAM_BOX = None        # (x1, y1, x2, y2) the cached neck quad is relative to
 _CACHED_NECK_REL = None     # (4,2) neck corners in normalized box-local coords
 _FRAMES_SINCE_SAM = 0
+# The silver-fret `frets` payload from the last SAM2 frame, cached so the cheap
+# cache path (between SAM2 runs) can re-emit it: the u values are relative to the
+# quad's nut->fret7 axis, which the cached quad preserves as it reprojects. None
+# when the last SAM2 frame had no trustworthy fret fit.
+_CACHED_FRETS = None        # list[{"n": int, "u": float}] or None
 # Temporal smoothing state: the last quad we EMITTED (normalized px, full frame),
 # its confidence, and the count of consecutive no-detection frames.
 _LAST_EMIT_QUAD = None      # (4,2) float, normalized [0..1], canonical order
@@ -178,11 +226,12 @@ def reset_state():
     Called when a WS client connects so a new session starts clean, and exposed
     for the self-test / unit tests so each starts from a known state.
     """
-    global _LAST_SAM_BOX, _CACHED_NECK_REL, _FRAMES_SINCE_SAM
+    global _LAST_SAM_BOX, _CACHED_NECK_REL, _FRAMES_SINCE_SAM, _CACHED_FRETS
     global _LAST_EMIT_QUAD, _LAST_EMIT_CONF, _MISS_COUNT
     _LAST_SAM_BOX = None
     _CACHED_NECK_REL = None
     _FRAMES_SINCE_SAM = 0
+    _CACHED_FRETS = None
     _LAST_EMIT_QUAD = None
     _LAST_EMIT_CONF = 0.0
     _MISS_COUNT = 0
@@ -624,9 +673,223 @@ def _rect_quad_from_band(neck_pts, axis, perp):
     return np.array([a0, a1, b1, b0], dtype=np.float64)
 
 
-def _neck_quad_from_mask(mask):
-    """Isolate the NECK from a whole-guitar mask and return its 4 corners
-    (full-frame px, cv2.boxPoints order) or None.
+# ---------------------------------------------------------------------------
+# Silver fret-wire detection -> 12-TET law fit -> real nut..fret7 anchoring.
+# The top-edge rect gives a stable rotation + string span but its ALONG extent is
+# the SAM2 band (truncated by the fretting hand), not the nut. We rectify that band,
+# pop the bright silver wires, fit the fret LAW, and extrapolate the nut + fret 7.
+# ---------------------------------------------------------------------------
+def _fit_fret_law_1d(peaks, max_fret=FRET_MAX_FRET, tol_frac=FRET_FIT_TOL_FRAC,
+                     min_inliers=FRET_MIN_INLIERS):
+    """Fit the 12-TET law to 1-D rectified fret-x peaks.
+
+    Model: x(n) = x0 + scale * sign * fret_fraction(n), where the detected peaks are
+    a (mostly) CONSECUTIVE run of frets (a few missed/spurious tolerated). This is the
+    1-D analogue of fretboard_detect.fit_law (try nut offsets, assign consecutive fret
+    indices, keep the lowest-residual assignment) made robust to the orientation and
+    to occlusion: we try BOTH signs and BOTH anchor-label orientations (which end is
+    the nut is exactly what we solve for) and score by inlier count minus a phantom-gap
+    penalty, with the spacing residual as the tiebreak.
+
+    peaks: iterable of rectified along-neck x positions of detected fret wires.
+    Returns dict(x0, scale, sign, nut_x, fret7_x, frets=[(n, x)...], inliers, resid,
+    gaps, fret_span, quality in [0,1]) or None if no usable fit.
+    """
+    p = np.array(sorted({round(float(x), 1) for x in peaks}), dtype=np.float64)
+    if len(p) < min_inliers:
+        return None
+    span = float(p.max() - p.min())
+    if span < 10.0:
+        return None
+    tol = max(5.0, tol_frac * span)
+    fr = np.array([fret_fraction(n) for n in range(max_fret + 1)], dtype=np.float64)
+    n = len(p)
+    best = None
+
+    for ia in range(n):
+        for ib in range(ia + 1, n):
+            xa, xb = p[ia], p[ib]
+            if abs(xb - xa) < 8.0:
+                continue
+            for sign in (+1.0, -1.0):
+                for na in range(0, 4):
+                    for nb in range(na + 1, na + 5):     # up to 3 skipped frets
+                        # Both label orientations: the smaller fret may sit on the
+                        # lower-x OR the higher-x anchor peak.
+                        for la, lb in ((na, nb), (nb, na)):
+                            denom = (fr[lb] - fr[la]) * sign
+                            if abs(denom) < 1e-9:
+                                continue
+                            scale = (xb - xa) / denom
+                            if not np.isfinite(scale) or scale <= 0:
+                                continue
+                            x0 = xa - scale * sign * fr[la]
+                            pred = x0 + scale * sign * fr
+                            d = np.abs(p[:, None] - pred[None, :])
+                            j = d.argmin(1)
+                            dmin = d[np.arange(n), j]
+                            inl = dmin <= tol
+                            if int(inl.sum()) < min_inliers:
+                                continue
+                            # one peak per fret number (closest wins)
+                            bynum = {}
+                            for k in range(n):
+                                if not inl[k]:
+                                    continue
+                                num = int(j[k])
+                                if num not in bynum or dmin[k] < bynum[num][1]:
+                                    bynum[num] = (float(p[k]), float(dmin[k]))
+                            nums = sorted(bynum)
+                            if len(nums) < min_inliers:
+                                continue
+                            fret_span = nums[-1] - nums[0] + 1
+                            gaps = fret_span - len(nums)
+                            resid = float(np.mean([bynum[q][1] for q in nums]))
+                            score = (len(nums) - 1.3 * gaps) - (resid / tol)
+                            key = round(score, 4)
+                            if best is None or key > best[0]:
+                                best = (key, x0, scale, sign, bynum, nums,
+                                        fret_span, gaps, resid)
+    if best is None:
+        return None
+    _, x0, scale, sign, bynum, nums, fret_span, gaps, resid = best
+    # Quality in [0,1]: rewards more unique inliers, punishes phantom gaps + residual.
+    resid_frac = resid / max(scale, 1.0)
+    quality = float(np.clip(
+        (len(nums) / 8.0)
+        - 0.10 * gaps
+        - (resid_frac / FRET_MAX_RESID_FRAC) * 0.5,
+        0.0, 1.0))
+    return {
+        "x0": x0, "scale": scale, "sign": sign,
+        "nut_x": float(x0 + scale * sign * fret_fraction(0)),
+        "fret7_x": float(x0 + scale * sign * fret_fraction(7)),
+        "frets": [(int(q), bynum[q][0]) for q in nums],
+        "inliers": len(nums), "resid": resid, "gaps": gaps,
+        "fret_span": fret_span, "resid_frac": resid_frac, "quality": quality,
+    }
+
+
+def _detect_fret_wires(bgr_frame, neck_pts, band_mask, axis, perp, rect_quad):
+    """Detect the silver fret wires inside the rectified neck band, fit the 12-TET
+    law, and return everything needed to re-anchor the quad to the real nut..fret7.
+
+    bgr_frame  : full BGR frame.
+    neck_pts   : (N,2) float32 fretboard-band pixels (largest CC) — unused directly
+                 but kept for parity / future per-pixel gating.
+    band_mask  : full-frame uint8 (0/255) raster of that band (the spatial gate).
+    axis, perp : body->headstock unit axis and its perpendicular (sense reference).
+    rect_quad  : (4,2) [a0(top-start), a1(top-end), b1(bot-end), b0(bot-start)] from
+                 _rect_quad_from_band — gives the rectifying frame (u along the top
+                 edge, n_hat across the neck) and the string-span width.
+
+    Returns dict(nut_pt, fret7_pt, along_u, frets=[(u_frac, n)...], fit) in FULL-FRAME
+    px, where nut_pt/fret7_pt are the top-edge points (on the a-side) at the fitted
+    nut and fret 7, along_u is the unit top-edge direction, and u_frac is each fret's
+    position as a fraction of nut->fret7 (for the WS `frets` payload). None on failure
+    (the caller then keeps the band-extent quad). Never raises.
+    """
+    if bgr_frame is None or rect_quad is None:
+        return None
+    a0, a1, b1, b0 = (np.asarray(rect_quad[i], np.float64) for i in range(4))
+    u = a1 - a0
+    along_len = float(np.linalg.norm(u))
+    if along_len < 20.0:
+        return None
+    u = u / along_len
+    nvec = b0 - a0
+    width = float(np.linalg.norm(nvec))
+    if width < 6.0:
+        return None
+    n_hat = nvec / width
+
+    h, w = bgr_frame.shape[:2]
+    pad_a = int(FRET_RECT_PAD_ALONG * along_len)
+    pad_p = int(FRET_RECT_PAD_PERP * width)
+    W_out = int(along_len + 2 * pad_a)
+    H_out = int(width + 2 * pad_p)
+    if W_out < 32 or H_out < 8 or W_out > 8000 or H_out > 2000:
+        return None
+
+    # Inverse map: rectified (xo,yo) -> source px = a0 + (xo-pad_a)*u + (yo-pad_p)*n_hat.
+    xo, yo = np.meshgrid(np.arange(W_out, dtype=np.float32),
+                         np.arange(H_out, dtype=np.float32))
+    sx = (a0[0] + (xo - pad_a) * u[0] + (yo - pad_p) * n_hat[0]).astype(np.float32)
+    sy = (a0[1] + (xo - pad_a) * u[1] + (yo - pad_p) * n_hat[1]).astype(np.float32)
+    rect = cv2.remap(bgr_frame, sx, sy, cv2.INTER_LINEAR,
+                     borderMode=cv2.BORDER_REPLICATE)
+    rband = cv2.remap(band_mask, sx, sy, cv2.INTER_NEAREST,
+                      borderMode=cv2.BORDER_CONSTANT, borderValue=0)
+
+    # Spatial gate = the rectified BAND (fretboard-only: the distance-transform split
+    # already drops the body, and the fret-run gap-bridging drops most of the hand).
+    # We deliberately DON'T color-mask the hand: a fixed skin HSV range eats ~98% of a
+    # warm-lit brown fretboard (verified on chord_5s), and the 12-TET fit rejects the
+    # few non-conforming peaks a finger edge leaves anyway.
+    gray = cv2.cvtColor(rect, cv2.COLOR_BGR2GRAY).astype(np.float32)
+    # Pop bright, thin, near-vertical lines: |Sobel_x| (along-neck gradient energy)
+    # spikes on each silver wire. Profiled over the top+bottom edge-rows only so the
+    # central inlay dots don't register.
+    sob = np.abs(cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3))
+    edge_rows = np.zeros(H_out, dtype=bool)
+    edge_rows[: int(FRET_EDGE_BAND * H_out)] = True
+    edge_rows[int((1.0 - FRET_EDGE_BAND) * H_out):] = True
+    valid = (rband > 0) & edge_rows[:, None]
+    sob[~valid] = 0.0
+    cov = valid.sum(axis=0).astype(np.float32)
+    denom_rows = max(int(edge_rows.sum()), 1)
+    prof = sob.sum(axis=0) / np.maximum(cov, 1.0)
+    prof[cov < FRET_MIN_COL_COV * denom_rows] = 0.0
+    k = FRET_PROFILE_SMOOTH | 1
+    prof = cv2.GaussianBlur(prof.reshape(1, -1), (k, 1), 0).ravel()
+
+    nz = prof[prof > 0]
+    if nz.size < 4:
+        return None
+    base = float(nz.std()) or 1.0
+    try:
+        from scipy.signal import find_peaks
+        peaks, _ = find_peaks(
+            prof, distance=max(8, int(FRET_PEAK_MIN_DIST_FRAC * W_out)),
+            prominence=base * FRET_PEAK_PROMINENCE)
+    except Exception:
+        thr = float(prof.mean() + base * FRET_PEAK_PROMINENCE)
+        peaks = np.where((prof[1:-1] > prof[:-2]) & (prof[1:-1] > prof[2:])
+                         & (prof[1:-1] > thr))[0] + 1
+    if len(peaks) < FRET_MIN_INLIERS:
+        return None
+
+    fit = _fit_fret_law_1d([float(x) for x in peaks])
+    if fit is None:
+        return None
+
+    # Map a rectified along-x back to full-frame px on the TOP edge (a-side): the
+    # rectified frame has x=pad_a at a0 and advances by u per pixel.
+    def _to_img_top(xr):
+        return a0 + (float(xr) - pad_a) * u
+
+    nut_pt = _to_img_top(fit["nut_x"])
+    fret7_pt = _to_img_top(fit["fret7_x"])
+    # Per-fret TOP-EDGE image points (full-frame px). The caller turns these into the
+    # WS `frets` payload (normalized u along the FINAL emitted quad) so the u stays
+    # consistent regardless of any later canonical corner re-ordering.
+    fret_img_pts = [(int(nfr), _to_img_top(xr)) for nfr, xr in fit["frets"]]
+    return {
+        "nut_pt": nut_pt, "fret7_pt": fret7_pt, "along_u": u,
+        "fret_img_pts": fret_img_pts, "fit": fit,
+        # debug geometry for the selftest overlay:
+        "_rect_origin": a0, "_pad_a": pad_a, "_W_out": W_out,
+    }
+
+
+def _neck_quad_from_mask(mask, bgr_frame=None):
+    """Isolate the NECK from a whole-guitar mask and return (corners, fret_info).
+
+    corners: 4 neck corners (full-frame px, cv2.boxPoints order) or None.
+    fret_info: the _detect_fret_wires() dict if the silver-fret 12-TET fit succeeded
+        AND re-anchored the quad to the real nut..fret7, else None. When fret_info is
+        not None the returned corners ALREADY span nut..fret7 (along) with the rect's
+        string-span width preserved; otherwise corners are the band-extent rect.
 
     Method (orientation-robust; the round body otherwise dominates a global
     PCA/minAreaRect axis):
@@ -641,17 +904,20 @@ def _neck_quad_from_mask(mask):
          a tilted guitar). Then anchor a TRUE rotated rectangle on the band's
          fitted TOP long edge (_rect_quad_from_band) -> 4 neck corners; if that
          robust fit can't be trusted, fall back to minAreaRect of the band.
+      5. (NEW) If a frame is given and FRET_DETECT is on: detect the silver fret
+         WIRES inside that band, fit the 12-TET law, and replace the along-extent
+         with the extrapolated real nut..fret7 (keeping the rect's string span).
     """
     if mask is None:
-        return None
+        return None, None
     m = (mask > 0).astype(np.uint8)
     if int(m.sum()) < 200:
-        return None
+        return None, None
 
     dt = cv2.distanceTransform(m, cv2.DIST_L2, 5)
     maxd = float(dt.max())
     if maxd <= 0:
-        return None
+        return None, None
 
     # Thick body core, dilated back toward the full body so the rim is excluded
     # from the "thin" set as much as possible.
@@ -662,19 +928,19 @@ def _neck_quad_from_mask(mask):
     thick = cv2.bitwise_and(thick, m)
     tys, txs = np.where(thick > 0)
     if len(txs) < 10:
-        return None
+        return None, None
     body_c = np.array([txs.mean(), tys.mean()], dtype=np.float64)
 
     thin = cv2.bitwise_and(m, cv2.bitwise_not(thick))
     nys, nxs = np.where(thin > 0)
     if len(nxs) < 30:
-        return None
+        return None, None
     thin_pts = np.column_stack([nxs, nys]).astype(np.float64)
     tip = thin_pts[int(np.argmax(((thin_pts - body_c) ** 2).sum(1)))]
     axis = tip - body_c
     nrm = np.linalg.norm(axis)
     if nrm < 1e-6:
-        return None
+        return None, None
     axis /= nrm
     perp = np.array([-axis[1], axis[0]], dtype=np.float64)
 
@@ -686,7 +952,7 @@ def _neck_quad_from_mask(mask):
     wco = rel @ perp
     t_tip = float((tip - body_c) @ axis)
     if t_tip <= 0:
-        return None
+        return None, None
     edges = np.linspace(0.0, t_tip, NECK_BINS + 1)
     widths = np.zeros(NECK_BINS)
     bin_idx = np.clip(np.digitize(t, edges) - 1, 0, NECK_BINS - 1)
@@ -700,12 +966,12 @@ def _neck_quad_from_mask(mask):
 
     run = _fretboard_run(norm_w)
     if run is None:
-        return None
+        return None, None
     s, e = run
     tlo, thi = edges[s], edges[e + 1]
     sel = (t >= tlo) & (t <= thi)
     if int(sel.sum()) < 10:
-        return None
+        return None, None
 
     # Rasterize the fretboard band, close small gaps, keep the largest blob.
     h, w = m.shape[:2]
@@ -716,12 +982,13 @@ def _neck_quad_from_mask(mask):
                             cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15)))
     n_lab, labels, stats, _ = cv2.connectedComponentsWithStats(band, 8)
     if n_lab <= 1:
-        return None
+        return None, None
     big = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+    band_cc = (labels == big).astype(np.uint8) * 255   # the band raster (fret gate)
     ys, xs = np.where(labels == big)
     neck_pts = np.column_stack([xs, ys]).astype(np.float32)
     if len(neck_pts) < 10:
-        return None
+        return None, None
 
     # Primary: a TRUE rotated rectangle anchored on the fretboard's fitted TOP
     # long edge (stable rotation, parallel long edges, zero shear). Fall back to
@@ -731,10 +998,61 @@ def _neck_quad_from_mask(mask):
     except Exception as exc:  # the rect fit must never crash a frame
         print(f"[detect] top-edge rect fit failed: {exc!r}", flush=True)
         rect_quad = None
-    if rect_quad is not None:
-        return rect_quad
-    rect = cv2.minAreaRect(neck_pts)
-    return cv2.boxPoints(rect)
+    if rect_quad is None:
+        rect = cv2.minAreaRect(neck_pts)
+        rect_quad = cv2.boxPoints(rect).astype(np.float64)
+
+    # --- NEW: silver fret-wire 12-TET fit -> re-anchor along-extent to nut..fret7 ---
+    # The rect's ALONG extent is the SAM2 band (hand-truncated, mid-neck). Detect the
+    # silver wires, fit the law, and rebuild the quad so nut..fret7 lands on the REAL
+    # frets. Strictly gated: only replace when the fit is trustworthy; on any failure
+    # / low quality we keep the band-extent rect (never worse than before).
+    fret_info = None
+    if FRET_DETECT and bgr_frame is not None:
+        try:
+            fi = _detect_fret_wires(bgr_frame, neck_pts, band_cc, axis, perp,
+                                    rect_quad)
+        except Exception as exc:  # fret detection must never crash a frame
+            print(f"[detect] fret-wire detection failed: {exc!r}", flush=True)
+            fi = None
+        if fi is not None and _fret_fit_trusted(fi["fit"]):
+            new_quad = _reanchor_quad_nut_fret7(rect_quad, fi)
+            if new_quad is not None:
+                rect_quad = new_quad
+                fret_info = fi
+    return rect_quad, fret_info
+
+
+def _fret_fit_trusted(fit):
+    """Accept the 12-TET fret fit only if it has enough consecutive inliers and a
+    small spacing residual — else we keep the band-extent quad (never regress)."""
+    return (fit is not None
+            and fit["inliers"] >= FRET_MIN_INLIERS
+            and fit["resid_frac"] <= FRET_MAX_RESID_FRAC)
+
+
+def _reanchor_quad_nut_fret7(rect_quad, fret_info):
+    """Rebuild the rect quad so its ALONG extent runs the fitted real nut..fret7,
+    keeping the existing top/bottom edges (string span) and rotation.
+
+    rect_quad: [a0(top-start), a1(top-end), b1(bot-end), b0(bot-start)] — top edge
+        a0->a1 along u, perpendicular a0->b0 of length = string-span width.
+    fret_info: from _detect_fret_wires (nut_pt/fret7_pt on the top edge, along_u).
+
+    Returns [nut.top, fret7.top, fret7.bottom, nut.bottom] (a true rotated rectangle,
+    same width vector), or None if degenerate.
+    """
+    a0, b0 = np.asarray(rect_quad[0], np.float64), np.asarray(rect_quad[3], np.float64)
+    width_vec = b0 - a0                       # top -> bottom (string span), preserved
+    nut_top = np.asarray(fret_info["nut_pt"], np.float64)
+    f7_top = np.asarray(fret_info["fret7_pt"], np.float64)
+    if not (np.all(np.isfinite(nut_top)) and np.all(np.isfinite(f7_top))):
+        return None
+    if float(np.linalg.norm(f7_top - nut_top)) < 5.0:
+        return None
+    nut_bot = nut_top + width_vec
+    f7_bot = f7_top + width_vec
+    return np.array([nut_top, f7_top, f7_bot, nut_bot], dtype=np.float64)
 
 
 def detect_quad(bgr_frame, smooth=True):
@@ -750,7 +1068,7 @@ def detect_quad(bgr_frame, smooth=True):
         the single-shot self-test sees the raw quad. Pass smooth=False to get the
         raw per-frame quad with no temporal state touched.
     """
-    global _LAST_SAM_BOX, _CACHED_NECK_REL, _FRAMES_SINCE_SAM
+    global _LAST_SAM_BOX, _CACHED_NECK_REL, _FRAMES_SINCE_SAM, _CACHED_FRETS
 
     if bgr_frame is None or bgr_frame.size == 0:
         return _miss_result() if smooth else None
@@ -789,22 +1107,27 @@ def detect_quad(bgr_frame, smooth=True):
     # is stable, so the quad follows the guitar without paying for SAM2.
     quad_full = None
     method = "box"
+    fret_info = None         # silver-fret 12-TET fit (set when SAM2+fret fit succeed)
     box_full = (float(x1), float(y1), float(x2), float(y2))
     due = (_FRAMES_SINCE_SAM >= SAM_EVERY)
     jumped = _box_jumped(_LAST_SAM_BOX, box_full)
     if _CACHED_NECK_REL is not None and not due and not jumped:
-        # Cheap path: derive the neck quad from the cached relative geometry.
+        # Cheap path: derive the neck quad from the cached relative geometry. The
+        # cached quad already has its along-extent at the fitted nut..fret7 (the fret
+        # fit ran on the SAM2 frame that produced the cache), so we keep that anchor
+        # for free between SAM2 runs.
         quad_full = _box_rel_to_quad(_CACHED_NECK_REL, box_full)
         method = "sam_cache"
         _FRAMES_SINCE_SAM += 1
     else:
         try:
             mask = _sam_guitar_mask(bgr_frame, box_full)
-            neck_box = _neck_quad_from_mask(mask)
+            neck_box, fret_info = _neck_quad_from_mask(mask, bgr_frame)
             if neck_box is not None:
                 quad_full = _order_quad_along_long_axis(neck_box)
-                method = "sam_neck"
-                # Refresh the cache: store this neck quad relative to its box.
+                method = "sam_neck_fret" if fret_info is not None else "sam_neck"
+                # Refresh the cache: store this (possibly fret-anchored) neck quad
+                # relative to its box.
                 _CACHED_NECK_REL = _quad_to_box_rel(quad_full, box_full)
                 _LAST_SAM_BOX = box_full
                 _FRAMES_SINCE_SAM = 0
@@ -840,6 +1163,13 @@ def detect_quad(bgr_frame, smooth=True):
         quad_full = _order_quad_along_long_axis(_box_corners(x1, y1, x2, y2))
         method = "box"
 
+    # Blend the YOLO box confidence with the 12-TET fret-fit quality: a clean fret
+    # fit (lands the law on the wires) nudges confidence up; a weak/absent fit leaves
+    # the YOLO confidence essentially unchanged (FRET_CONF_BASE is near 1).
+    if fret_info is not None:
+        q = float(fret_info["fit"]["quality"])
+        confidence = float(confidence * (FRET_CONF_BASE + (1.0 - FRET_CONF_BASE) * q))
+
     # Normalize to [0..1].
     quad_norm = quad_full.copy()
     quad_norm[:, 0] /= float(w)
@@ -860,12 +1190,75 @@ def detect_quad(bgr_frame, smooth=True):
     quad_px[:, 0] *= float(w)
     quad_px[:, 1] *= float(h)
 
-    return {
+    # Build the optional `frets` array: each detected/fitted fret as its normalized
+    # position u along the EMITTED quad's nut->fret7 axis plus its fret NUMBER. We
+    # project each fret's image point onto the quad's along-edge (corner0->corner1)
+    # so u stays consistent with whatever canonical corner order we emit. On a fresh
+    # SAM2+fret frame we (re)build it and CACHE it; on the cheap SAM2-cache path we
+    # re-emit the cached frets (their u is quad-relative, so it rides the reprojected
+    # cached quad). The cache is cleared whenever a SAM2 frame has no trustworthy fit.
+    if fret_info is not None:
+        frets_payload = _frets_for_quad(fret_info, quad_px)
+        _CACHED_FRETS = frets_payload
+    elif method.startswith("sam_cache"):
+        frets_payload = _CACHED_FRETS
+    elif method.startswith("sam_neck"):
+        frets_payload = None
+        _CACHED_FRETS = None        # fresh SAM2 frame, no fit -> invalidate cache
+    else:
+        frets_payload = None
+
+    out = {
         "quad": [[float(x), float(y)] for x, y in quad_norm],
         "confidence": confidence,
         "method": method,
         "_quad_px": [[float(x), float(y)] for x, y in quad_px],  # for selftest draw
     }
+    if frets_payload is not None:
+        out["frets"] = frets_payload
+    # Internal: image-space fret geometry for the selftest overlay (NOT sent on WS).
+    # Only present on a fresh SAM2+fret frame (not via the SAM2-cache path, which has
+    # no per-wire points). Skipped under smoothing so we don't carry stale px.
+    if fret_info is not None and not smooth:
+        out["_fret_info"] = {
+            "nut_pt": [float(v) for v in fret_info["nut_pt"]],
+            "fret7_pt": [float(v) for v in fret_info["fret7_pt"]],
+            "fret_img_pts": [[int(n), [float(p[0]), float(p[1])]]
+                             for n, p in fret_info["fret_img_pts"]],
+            "fit": {kk: fret_info["fit"][kk]
+                    for kk in ("inliers", "resid", "resid_frac", "gaps",
+                               "fret_span", "quality", "scale", "sign")},
+        }
+    return out
+
+
+def _frets_for_quad(fret_info, quad_px):
+    """Turn _detect_fret_wires' per-fret image points into the WS `frets` array:
+    [{"n": <fret number>, "u": <0..1 along the quad's nut->fret7 axis>}, ...].
+
+    u is the scalar projection of each fret's top-edge image point onto the emitted
+    quad's along-edge (corner0 -> corner1), divided by that edge's length. By
+    construction of the re-anchored quad corner0 is the nut (u~0) and corner1 is
+    fret 7 (u~1), so the consumer's nut..fret7 grid maps straight onto these.
+    Returns None if degenerate.
+    """
+    if fret_info is None or not fret_info.get("fret_img_pts"):
+        return None
+    p0 = np.asarray(quad_px[0], np.float64)
+    p1 = np.asarray(quad_px[1], np.float64)
+    e = p1 - p0
+    L2 = float(e @ e)
+    if L2 < 1e-6:
+        return None
+    out = []
+    for nfr, pt in fret_info["fret_img_pts"]:
+        ptf = np.asarray(pt, np.float64)
+        if not np.all(np.isfinite(ptf)):
+            continue
+        u = float(((ptf - p0) @ e) / L2)
+        out.append({"n": int(nfr), "u": round(u, 5)})
+    out.sort(key=lambda d: d["n"])
+    return out or None
 
 
 def _miss_result():
@@ -921,9 +1314,17 @@ async def _handle(websocket):
                     print("[detect] conf=0.00 got_quad=n", flush=True)
                 else:
                     payload = {"quad": det["quad"], "confidence": det["confidence"]}
+                    # Optional silver-fret anchoring: present only when the 12-TET fret
+                    # fit succeeded this frame. Each entry = {"n": fret number,
+                    # "u": position 0..1 along the quad's nut(corner0)->fret7(corner1)
+                    # axis}. nut is u~0, fret 7 is u~1. Absent => consumer falls back
+                    # to the plain band quad (unchanged old behavior).
+                    if det.get("frets"):
+                        payload["frets"] = det["frets"]
                     await websocket.send(json.dumps(payload))
                     print(f"[detect] conf={det['confidence']:.2f} got_quad=y "
-                          f"method={det.get('method', '?')}", flush=True)
+                          f"method={det.get('method', '?')} "
+                          f"frets={len(det.get('frets') or [])}", flush=True)
             except Exception as exc:  # never crash on a single bad frame
                 print(f"[detect] error: {exc!r}", flush=True)
                 try:
@@ -972,9 +1373,43 @@ def selftest(image_path: str) -> int:
           f"method={det.get('method', '?')}  in {dt:.2f}s", flush=True)
     print(f"[selftest] quad (normalized 0..1): {det['quad']}", flush=True)
 
-    # Draw the quad on a copy and save next to the input.
     out = img.copy()
-    pts = np.array(det["_quad_px"], dtype=np.int32)
+    quad_px = np.array(det["_quad_px"], dtype=np.float64)
+
+    # --- Draw the detected silver fret WIRES + the fitted nut/fret7 (verification) ---
+    # Each fret line is drawn from its top-edge image point along the quad's width
+    # (top->bottom) vector so we can SEE the line sit on the real silver wire.
+    fi = det.get("_fret_info")
+    if fi is not None:
+        width_vec = quad_px[3] - quad_px[0]   # nut.top -> nut.bottom (string span)
+        f = fi["fit"]
+        print(f"[selftest] FRET FIT: {f['inliers']} frets, span={f['fret_span']}, "
+              f"gaps={f['gaps']}, resid={f['resid']:.1f}px "
+              f"(resid/scale={f['resid_frac']*100:.2f}%), quality={f['quality']:.2f}",
+              flush=True)
+        nums = [n for n, _ in fi["fret_img_pts"]]
+        print(f"[selftest] fret numbers detected: {sorted(nums)}", flush=True)
+        # detected wires (cyan), labeled with their fret number
+        for nfr, pt in fi["fret_img_pts"]:
+            top = np.array(pt, np.float64)
+            bot = top + width_vec
+            cv2.line(out, tuple(top.astype(int)), tuple(bot.astype(int)),
+                     (255, 255, 0), 2)
+            cv2.putText(out, str(nfr), (int(top[0]) - 6, int(top[1]) - 8),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
+        # fitted NUT (red) + FRET 7 (magenta), the re-anchored quad ends
+        for pt0, col, lab in ((fi["nut_pt"], (0, 0, 255), "NUT(0)"),
+                              (fi["fret7_pt"], (255, 0, 255), "FRET7")):
+            top = np.array(pt0, np.float64)
+            bot = top + width_vec
+            cv2.line(out, tuple(top.astype(int)), tuple(bot.astype(int)), col, 3)
+            cv2.putText(out, lab, (int(top[0]) - 10, int(top[1]) - 14),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, col, 2)
+    else:
+        print("[selftest] FRET FIT: none (kept band-extent quad)", flush=True)
+
+    # --- Draw the emitted quad (green) on top so it's visible over the fret lines ---
+    pts = quad_px.astype(np.int32)
     cv2.polylines(out, [pts.reshape(-1, 1, 2)], isClosed=True,
                   color=(0, 255, 0), thickness=3)
     labels = ["0", "1", "2", "3"]
@@ -982,7 +1417,8 @@ def selftest(image_path: str) -> int:
         cv2.circle(out, (int(x), int(y)), 7, (0, 0, 255), -1)
         cv2.putText(out, lab, (int(x) + 8, int(y) - 8),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
-    cv2.putText(out, f"conf={det['confidence']:.3f}", (12, 36),
+    cv2.putText(out, f"conf={det['confidence']:.3f}  "
+                f"frets={len(det.get('frets') or [])}", (12, 36),
                 cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2)
 
     base, _ = os.path.splitext(image_path)

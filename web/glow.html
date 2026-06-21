@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Tactus — live fret-glow annotation</title>
-<script src="https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/alphaTab.min.js"></script>
+<title>Tactus · live fret glow annotation</title>
+<!-- alphaTab removed: the left tab panel is gone; tabs are tactus-tab/v1 JSON (web/tabs/<id>.json) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -13,10 +13,10 @@
   -------------------------------------------------------------------------------------------
   LIVE AR ANNOTATION ON THE REAL NECK. Camera ALWAYS ON, the stage background.
   AUTO: Python backend (software/ai/vision/fretboard_server.py: YOLO-World + SAM2 on the M4
-   Pro GPU) detects the neck + streams a smoothed quad over WebSocket (ws://localhost:8770).
-   - Only the first NUM_FRETS frets (nut end) are drawn, sized to the GRID cell (not the
-     viewport) so the UI always fits the neck. Incoming detections are EMA-smoothed — slow,
-     so it tracks without jitter.
+   Pro GPU) detects the neck + streams a smoothed quad over WebSocket (ws://127.0.0.1:8772).
+   - A NUM_FRETS(=7)-fret grid fills the nut-end 0.60 of the detected neck (NUT_TO_F7);
+     the 12-TET law lays the frets inside the 4-corner quad. The grid eases toward each
+     detection (draw() *0.22) so it tracks smoothly without jitter.
    - "⇄ flip" fixes orientation. MANUAL fallback: "✥ drag mode" → drag the 4 dots; saved.
   Per note, ON the (string,fret) spot: a glowing rounded rect (color=string, deep+frame=strum).
 -->
@@ -32,8 +32,8 @@
       radial-gradient(760px 560px at 18% 112%, #FFE9F1 0%, rgba(255,233,241,0) 62%),
       #FFFBF6;
       font-family:'Nunito',-apple-system,Segoe UI,sans-serif;color:var(--ink)}
-  #app{display:grid;grid-template-columns:340px 1fr;height:100vh}
-  .score{background:linear-gradient(180deg,#FFFFFFF2,#FFF6FBF2);border-right:3px solid var(--line);display:flex;flex-direction:column;overflow:hidden;box-shadow:6px 0 28px #ff4d8d14}
+  #app{display:grid;grid-template-columns:1fr;height:100vh}
+  .score{display:none}
   .score h1{font-family:'Fredoka','Nunito';font-weight:700;font-size:19px;margin:0;padding:16px 18px 6px;letter-spacing:-.2px}
   .score h1 b{color:var(--berry)}
   .score .sub{font-size:12px;font-weight:700;padding:0 18px 12px;color:#A88BC4;border-bottom:3px solid var(--line)}
@@ -51,7 +51,7 @@
       radial-gradient(600px 480px at 22% 110%, #FFE9F1 0%, rgba(255,233,241,0) 64%),
       #FFFDFA}
   #stage{position:absolute;inset:0}
-  #cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  #cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
   #ov{position:absolute;inset:0;width:100%;height:100%}
   .top{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(#fffdfae0,#fffdfa00)}
   .brand{font-family:'Fredoka','Nunito';font-weight:700;font-size:20px;color:var(--ink);text-shadow:0 2px 0 #FFFFFFcc}
@@ -74,12 +74,25 @@
   .tabwrap.rows{overflow:auto;display:block;padding:8px}
   .playhead{position:absolute;left:30%;top:8px;bottom:8px;width:3px;background:var(--berry);border-radius:999px;box-shadow:0 0 12px #ff4d8daa;pointer-events:none;z-index:2}
   .tabwrap.rows .playhead{display:none}
+  /* ---- volume onset -> visual hit (ultra simple) ---- */
+  .vu{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:7;display:flex;align-items:center;gap:10px;
+      background:#FFFFFFe6;border:2.5px solid #FFB8D4;border-radius:999px;padding:8px 14px;box-shadow:0 4px 0 #FFD9E8,0 8px 16px #ff4d8d1f}
+  .vu .dot{width:13px;height:13px;border-radius:50%;background:#E9C6D6;flex:none;transition:background .04s}
+  .vu .dot.hit{background:var(--berry);box-shadow:0 0 16px 4px #ff4d8d99}
+  .vu .bar{position:relative;width:170px;height:12px;border-radius:999px;background:#FBE3EE;overflow:hidden;flex:none}
+  .vu .bar i{position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,#FFD24D,#FF9F43,#FF4D8D)}
+  .vu .bar b{position:absolute;top:0;bottom:0;width:3px;background:#7A2A52;left:30%}
+  .vu input[type=range]{width:96px;accent-color:var(--berry)}
+  .vu .cap{font:700 12px 'Fredoka','Nunito';color:#7A2A52;white-space:nowrap}
+  .edgeflash{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:0}
+  .edgeflash.on{animation:hitflash .42s ease-out}
+  @keyframes hitflash{0%{opacity:1;box-shadow:inset 0 0 90px 14px #ff4d8dcc}100%{opacity:0;box-shadow:inset 0 0 0 0 #ff4d8d00}}
 </style>
 </head>
 <body>
 <div id="app">
   <aside class="score">
-    <h1><b>TACTUS</b> · LEARN<span class="nowchip" id="nowchip">—</span></h1>
+    <h1><b>TACTUS</b> · LEARN<span class="nowchip" id="nowchip">·</span></h1>
     <div class="sub" id="songname">loading score…</div>
     <div class="tabwrap" id="tabwrap"><div id="at"></div><div class="playhead"></div></div>
     <div class="foot">real tab · alphaTab · synced to the glow</div>
@@ -94,23 +107,38 @@
       <button id="flip-btn">⇄ flip</button>
       <button id="pause">pause</button>
     </div>
+    <div class="edgeflash" id="edgeflash"></div>
+    <div class="vu" id="vu">
+      <span class="dot" id="vuDot"></span>
+      <div class="bar"><i id="vuFill"></i><b id="vuTh"></b></div>
+      <input id="vuRange" type="range" min="0.02" max="0.45" step="0.005" value="0.12" aria-label="mic sensitivity">
+      <span class="cap" id="vuCap">mic: allow to test</span>
+    </div>
   </div>
 </div>
 <script>
-// ---- SONG: ONE source -> real tab (alphaTab, left) AND the glow chart (right) ----
-const SONG={ title:'Tactus Etude', sub:'I–vi–IV–V in G', bpm:100, lead:1.6,
-  loop:[
-    {name:'G',  shape:[[6,3],[5,2],[4,0],[3,0],[2,0],[1,3]]},
-    {name:'Em', shape:[[6,0],[5,2],[4,2],[3,0],[2,0],[1,0]]},
-    {name:'C',  shape:[[5,3],[4,2],[3,0],[2,1],[1,0]]},
-    {name:'D',  shape:[[4,0],[3,2],[2,3],[1,2]]},
-  ] };
-const SECPC=4*60/SONG.bpm;
-const CHORDS=[...SONG.loop,...SONG.loop].map((c,i)=>({name:c.name,shape:c.shape,t:SONG.lead+i*SECPC,dur:SECPC*0.86}));
-const NOTES=[]; CHORDS.forEach((c,i)=>c.shape.forEach(([s,f])=>NOTES.push({t:c.t,string:s,fret:f,dur:c.dur,ci:i,popped:false})));
-const SONG_END=CHORDS[CHORDS.length-1].t+SECPC+1.0;
-const ALPHATEX=`\\title "${SONG.title}"\n\\subtitle "${SONG.sub}"\n\\tempo ${SONG.bpm}\n.\n:1\n`+
-  CHORDS.map(c=>'('+c.shape.map(([s,f])=>`${f}.${s}`).join(' ')+')').join(' |\n')+' |';
+// ---- SONG: tactus-tab/v1 (web/tabs/<id>.json via ?song=<id>), else the default etude ----
+// The tab carries only {string,fret} per note (no durations -> mic-derived at runtime). We lay
+// the notes out at a uniform STEP purely so the glow has a time axis to animate along.
+const DEFAULT_TAB={ format:'tactus-tab/v1', title:'Tactus Etude',
+  tuning:["E2","A2","D3","G3","B3","E4"], string_numbering:"1=high-E .. 6=low-E", capo:0, bpm:100,
+  notes:[ {string:6,fret:3},{string:5,fret:2},{string:4,fret:0},{string:3,fret:0},{string:2,fret:1},{string:1,fret:0},
+          {string:5,fret:3},{string:4,fret:2},{string:3,fret:0},{string:2,fret:1},{string:1,fret:0} ] };
+const LEAD=1.4, STEP=0.95, SECPC=STEP;
+let SONG=DEFAULT_TAB, NOTES=[], CHORDS=[], SONG_END=2.6;
+function buildFromTab(tab){
+  SONG=(tab && Array.isArray(tab.notes)) ? tab : DEFAULT_TAB;
+  NOTES=SONG.notes.filter(n=>n && n.string!=null && n.fret!=null)
+        .map((n,i)=>({string:n.string,fret:n.fret,t:LEAD+i*STEP,dur:STEP*0.9,ci:i,popped:false}));
+  CHORDS=NOTES.map(n=>({name:'',shape:[[n.string,n.fret]],t:n.t,dur:n.dur}));
+  SONG_END=NOTES.length ? NOTES[NOTES.length-1].t+STEP+1.0 : 2.6;
+  const sn=document.getElementById('songname'); if(sn) sn.textContent=(SONG.title||'')+(SONG.capo?(' · capo '+SONG.capo):'');
+}
+const NEXT_T=i=> (i+1<NOTES.length)? NOTES[i+1].t : (NOTES.length? NOTES[NOTES.length-1].t+STEP : LEAD);
+const ALPHATEX='';
+buildFromTab(DEFAULT_TAB);
+(async function loadTab(){ const sid=new URLSearchParams(location.search).get('song'); if(!sid) return;
+  try{ const r=await fetch('tabs/'+encodeURIComponent(sid)+'.json'); if(r.ok){ const tab=await r.json(); buildFromTab(tab); now=0; } }catch(e){} })();
 
 const STRING_COLORS=[[255,107,107],[255,159,67],[255,214,53],[38,222,160],[72,182,255],[173,127,255]];
 const STRING_NAMES=['e','B','G','D','A','E'];
@@ -124,17 +152,17 @@ function envelope(lead,dur){
   if(lead>=-dur){ return 1-0.62*(-lead/dur); }
   return Math.max(0, 0.38-(-lead-dur)*1.8);
 }
-const NUM_FRETS=4;          // only the first 4 frets (nut end) — fits the neck + less clutter
+const NUM_FRETS=7;          // 02bbad0 snapping: 7-fret grid fills the nut-end 0.60 of the neck (matches NUT_TO_F7)
 const fdist=n=>1-Math.pow(2,-n/12), F7=fdist(NUM_FRETS);
 const ufret=n=>fdist(n)/F7;
 const pressU=f=> f<=0?0:(ufret(f-1)+ufret(f))/2;
 const cellUV=(s,f)=>[pressU(f),(s-1)/5];
 
 // ---- neck grid corners (normalized in .main). u = along neck (0 nut..1 fret-NUM_FRETS), v = strings (0 high-e..1 low-E) ----
-let C={c00:{x:.16,y:.40},c10:{x:.62,y:.36},c01:{x:.16,y:.60},c11:{x:.62,y:.64}};
+let C={c00:{x:.16,y:.34},c10:{x:.86,y:.27},c01:{x:.16,y:.66},c11:{x:.86,y:.73}};
 let Ctarget=null;
-let mode='auto';
-try{ const s=JSON.parse(localStorage.getItem('tactus_neck')||'null'); if(s&&s.c00&&s.c11){ C=s; mode='manual'; } }catch(e){}
+let mode='auto';            // ALWAYS boot auto so the detector drives the grid (no calibration step)
+try{ const s=JSON.parse(localStorage.getItem('tactus_neck')||'null'); if(s&&s.c00&&s.c11){ C=s; } }catch(e){}   // saved corners = starting position only; dragging a dot (or the toggle) is what opts into manual
 const main=document.querySelector('.main'), ov=document.getElementById('ov'), ctx=ov.getContext('2d');
 const statusEl=document.getElementById('status');
 function P(u,v,W,H){ const tl=C.c00,tr=C.c10,bl=C.c01,br=C.c11;
@@ -153,7 +181,7 @@ function placeHandles(W,H){ const show=(mode==='manual'); for(const k in handles
 // ---- mode + flip toggles ----
 const modeBtn=document.getElementById('mode-btn'), flipBtn=document.getElementById('flip-btn');
 function setMode(m){ mode=m; modeBtn.classList.toggle('on',m==='auto'); modeBtn.textContent=m==='auto'?'✋ auto-fit':'✥ drag mode';
-  if(m==='manual') statusEl.innerHTML='manual — <b>drag the 4 dots</b> onto your neck'; }
+  if(m==='manual') statusEl.innerHTML='manual: <b>drag the 4 dots</b> onto your neck'; }
 modeBtn.onclick=()=> setMode(mode==='auto'?'manual':'auto');
 let flip=0;                 // bit0 = swap nut/body (along) ; bit1 = swap high-e/low-E (across)
 flipBtn.onclick=()=>{ flip=(flip+1)&3; };
@@ -178,13 +206,13 @@ startCam();
 function vidToScreen(nx,ny){ const vw=cam.videoWidth,vh=cam.videoHeight,mw=main.clientWidth,mh=main.clientHeight;
   if(!vw||!vh||!mw||!mh) return [nx,ny];
   const s=Math.max(mw/vw,mh/vh), dw=vw*s, dh=vh*s, ox=(dw-mw)/2, oy=(dh-mh)/2;
-  return [ (nx*dw-ox)/mw, (ny*dh-oy)/mh ]; }
+  return [ 1-(nx*dw-ox)/mw, (ny*dh-oy)/mh ]; }   // camera is CSS-mirrored (scaleX(-1)) -> flip overlay x to match
 
 // ---- AUTO: YOLO-World + SAM2 Python backend over WebSocket ----
-const NUT_TO_F7=0.40;       // the 4-fret grid covers ~the nut-end 0.40 of the visible neck (nut->body)
+const NUT_TO_F7=0.60;       // 02bbad0 snapping: grid covers ~the nut-end 0.60 of the visible neck
 let ws=null, wsOK=false, inflight=false, inflightT=0;
 function connectWS(){
-  try{ ws=new WebSocket('ws://localhost:8770'); }catch(e){ ws=null; setTimeout(connectWS,2500); return; }
+  try{ ws=new WebSocket('ws://127.0.0.1:8772'); }catch(e){ ws=null; setTimeout(connectWS,2500); return; }   // 127.0.0.1:8772 (not localhost:8770): macOS sharingd holds a dual-stack listener on :8770
   ws.binaryType='arraybuffer';
   ws.onopen =()=>{ wsOK=true; };
   ws.onclose=()=>{ wsOK=false; ws=null; setTimeout(connectWS,2500); };
@@ -200,10 +228,7 @@ function connectWS(){
     if(flip&2){ const a=nutA;nutA=nutB;nutB=a; const b=endA;endA=endB;endB=b; }
     const f7A={x:nutA.x+NUT_TO_F7*(endA.x-nutA.x), y:nutA.y+NUT_TO_F7*(endA.y-nutA.y)};
     const f7B={x:nutB.x+NUT_TO_F7*(endB.x-nutB.x), y:nutB.y+NUT_TO_F7*(endB.y-nutB.y)};
-    const nt={c00:nutA, c10:f7A, c01:nutB, c11:f7B};
-    // EMA the incoming detection into the current target -> much less jumpy
-    if(Ctarget){ const B=0.4; for(const k in nt){ nt[k]={x:Ctarget[k].x+(nt[k].x-Ctarget[k].x)*B, y:Ctarget[k].y+(nt[k].y-Ctarget[k].y)*B}; } }
-    Ctarget=nt;
+    Ctarget={c00:nutA, c10:f7A, c01:nutB, c11:f7B};   // 02bbad0: set the target directly (draw eases toward it)
   };
 }
 connectWS();
@@ -211,8 +236,8 @@ const snap=document.createElement('canvas');
 setInterval(()=>{
   if(mode!=='auto') return;
   if(!cam.videoWidth){ statusEl.textContent='waiting for camera…'; return; }
-  if(!wsOK || !ws || ws.readyState!==1){ statusEl.innerHTML='auto detector offline — start the backend, or tap <b>✥</b> to drag'; return; }
-  statusEl.innerHTML = Ctarget ? 'auto-locked <b>✓</b> (neck) — tap ⇄ if flipped' : 'auto — <b>show your guitar</b> (detecting…)';
+  if(!wsOK || !ws || ws.readyState!==1){ statusEl.innerHTML='auto detector offline. Start the backend, or tap <b>✥</b> to drag'; return; }
+  statusEl.innerHTML = Ctarget ? 'auto-locked <b>✓</b> (neck) · tap ⇄ if flipped' : 'auto · <b>show your guitar</b> (detecting…)';
   if(inflight && performance.now()-inflightT<6000) return;
   const vw=cam.videoWidth, vh=cam.videoHeight, w=480, h=Math.max(1,Math.round(480*vh/vw));
   snap.width=w; snap.height=h; snap.getContext('2d').drawImage(cam,0,0,w,h);
@@ -221,7 +246,7 @@ setInterval(()=>{
 
 // ---- left panel: real tab via alphaTab. fallback = chord rows ----
 const tabAt=document.getElementById('at'), tabWrap=document.getElementById('tabwrap');
-document.getElementById('songname').textContent=SONG.title+' · '+SONG.sub;
+document.getElementById('songname').textContent=SONG.title||'';
 let atReady=false, atApi=null;
 function fallbackRows(){ atReady=false; tabWrap.classList.add('rows');
   tabWrap.innerHTML=CHORDS.map((c,i)=>`<div class="row" id="row${i}"><span class="nm">${c.name}</span><span class="shape">${c.shape.map(([s,f])=>f).join(' ')}</span></div>`).join(''); }
@@ -231,7 +256,7 @@ function initTab(){ if(!window.alphaTab){ fallbackRows(); return; }
     atApi.renderFinished.on(()=>{ atReady=true; });
     atApi.tex(ALPHATEX);
   }catch(e){ fallbackRows(); } }
-initTab();
+// initTab();  // left tab panel is display:none now; the tab lives in tactus-tab/v1 (tabs/<id>.json)
 
 // ---- helpers ----
 function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
@@ -243,27 +268,22 @@ let now=0,playing=true,last=performance.now();
 document.getElementById('pause').onclick=e=>{playing=!playing;e.target.textContent=playing?'pause':'play';};
 function draw(dt){
   // ease the grid toward the (already EMA'd) detection — slow = smooth tracking
-  if(mode==='auto' && Ctarget){ for(const k in Ctarget){ C[k].x+=(Ctarget[k].x-C[k].x)*0.12; C[k].y+=(Ctarget[k].y-C[k].y)*0.12; } }
+  if(mode==='auto' && Ctarget){ for(const k in Ctarget){ C[k].x+=(Ctarget[k].x-C[k].x)*0.22; C[k].y+=(Ctarget[k].y-C[k].y)*0.22; } }
   const W=ov.width=main.clientWidth, H=ov.height=main.clientHeight;
   ctx.clearRect(0,0,W,H);
-  // size the UI to the GRID cell (not the viewport) so it always fits the detected neck
-  const gwpx=Math.hypot((C.c10.x-C.c00.x)*W,(C.c10.y-C.c00.y)*H), ghpx=Math.hypot((C.c01.x-C.c00.x)*W,(C.c01.y-C.c00.y)*H);
-  const cell=Math.max(8, Math.min(gwpx/Math.max(1,NUM_FRETS), ghpx/5));
   const sA=0.6, fA=0.4;
-  ctx.lineWidth=Math.max(1.4,cell*0.07);
+  ctx.lineWidth=2.6;
   for(let s=1;s<=6;s++){ const c=STRING_COLORS[s-1]; ctx.strokeStyle=`rgba(${c.join(',')},${sA})`; ctx.beginPath();
     for(let f=0;f<=NUM_FRETS;f++){ const[x,y]=P(ufret(f),(s-1)/5,W,H); f?ctx.lineTo(x,y):ctx.moveTo(x,y);} ctx.stroke(); }
-  ctx.lineWidth=Math.max(1,cell*0.04);
+  ctx.lineWidth=1.2;
   for(let f=0;f<=NUM_FRETS;f++){ ctx.strokeStyle=`rgba(173,127,255,${f===0?fA+0.3:fA})`; ctx.beginPath();
     for(let s=1;s<=6;s++){ const[x,y]=P(ufret(f),(s-1)/5,W,H); s>1?ctx.lineTo(x,y):ctx.moveTo(x,y);} ctx.stroke(); }
-  const lblR=Math.max(7,cell*0.42), lblF=Math.max(8,Math.round(cell*0.5));
-  for(let s=1;s<=6;s++){ const c=STRING_COLORS[s-1].join(','); const[x,y]=P(-0.10,(s-1)/5,W,H);
-    ctx.fillStyle='rgba(58,42,74,0.82)'; roundRect(x-lblR,y-lblR*0.9,lblR*2,lblR*1.8,lblR*0.42); ctx.fill();
-    ctx.fillStyle=`rgb(${c})`; ctx.font=`600 ${lblF}px Fredoka,Nunito,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(STRING_NAMES[s-1],x,y+1); }
+  for(let s=1;s<=6;s++){ const c=STRING_COLORS[s-1].join(','); const[x,y]=P(-0.085,(s-1)/5,W,H);
+    ctx.fillStyle='rgba(58,42,74,0.82)'; roundRect(x-13,y-12,26,24,11); ctx.fill();
+    ctx.fillStyle=`rgb(${c})`; ctx.font='600 15px Fredoka,Nunito,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(STRING_NAMES[s-1],x,y+1); }
 
-  const R=Math.max(6, cell*0.40);
+  const R=Math.max(15,W*0.019);
   for(const n of NOTES){
-    if(n.fret>NUM_FRETS) continue;           // only draw notes within the shown fret window
     const lead=n.t-now, bright=envelope(lead,n.dur);
     if(bright<=0){ continue; }
     const sc=STRING_COLORS[n.string-1];
@@ -273,32 +293,71 @@ function draw(dt){
     const core=lerp(sc,[255,255,255],0.5).join(',');
     const[u,v]=cellUV(n.string,n.fret); const[x,y]=P(u,v,W,H);
     const[xa,ya]=P(Math.min(1,u+0.05),v,W,H); const ang=Math.atan2(ya-y,xa-x);
-    const w=R*2.0, h=R*1.4, rr=h*0.5;
+    const w=R*2.25, h=R*1.45, rr=h*0.5;
     ctx.save(); ctx.translate(x,y); ctx.rotate(ang);
-    ctx.shadowColor=`rgba(58,28,52,${0.34*bright+0.14})`; ctx.shadowBlur=8*bright+4;
+    ctx.shadowColor=`rgba(58,28,52,${0.34*bright+0.14})`; ctx.shadowBlur=10*bright+6;
     ctx.fillStyle=`rgba(58,28,52,${0.16+0.18*bright})`; roundRect(-w/2,-h/2,w,h,rr); ctx.fill();
-    ctx.shadowColor=`rgba(${rgb},${bright})`; ctx.shadowBlur=20*bright+5;
+    ctx.shadowColor=`rgba(${rgb},${bright})`; ctx.shadowBlur=26*bright+6;
     ctx.fillStyle=`rgba(${rgb},${0.44+0.5*bright})`; roundRect(-w/2,-h/2,w,h,rr); ctx.fill();
     ctx.shadowBlur=0;
-    ctx.strokeStyle=`rgba(48,22,44,${0.28+0.34*bright})`; ctx.lineWidth=Math.max(1,cell*0.04); roundRect(-w/2,-h/2,w,h,rr); ctx.stroke();
+    ctx.strokeStyle=`rgba(48,22,44,${0.28+0.34*bright})`; ctx.lineWidth=1.6; roundRect(-w/2,-h/2,w,h,rr); ctx.stroke();
     ctx.fillStyle=`rgba(${core},${0.22+0.7*bright})`; roundRect(-w*0.3,-h*0.3,w*0.6,h*0.6,h*0.34); ctx.fill();
-    if(n.fret>0){ ctx.fillStyle=`rgba(50,20,42,${Math.min(1,bright+0.35)})`; ctx.font=`700 ${Math.max(8,Math.round(h*0.6))}px Fredoka,Nunito,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(n.fret,0,0); }
-    if(lead>0){ const k=1+2.4*clamp(lead/WIN,0,1); ctx.strokeStyle=`rgba(${rgb},${0.28+0.55*bright})`; ctx.lineWidth=Math.max(1.5,cell*0.07); roundRect(-w*k/2,-h*k/2,w*k,h*k,rr*k); ctx.stroke(); }
+    if(n.fret>0){ ctx.fillStyle=`rgba(50,20,42,${Math.min(1,bright+0.35)})`; ctx.font=`700 ${Math.round(h*0.62)}px Fredoka,Nunito,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(n.fret,0,0); }
+    if(lead>0){ const k=1+2.4*clamp(lead/WIN,0,1); ctx.strokeStyle=`rgba(${rgb},${0.28+0.55*bright})`; ctx.lineWidth=2.8; roundRect(-w*k/2,-h*k/2,w*k,h*k,rr*k); ctx.stroke(); }
     ctx.restore();
     if(!n.popped && lead<=0){ n.popped=true; spawnPop(x,y,ang,w,h,sc.join(',')); }
   }
   for(let i=pops.length-1;i>=0;i--){ const p=pops[i]; p.life+=dt*3; const e=1-(1-p.life)*(1-p.life), a=Math.max(0,1-p.life*p.life), k=1+e*1.05;
-    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.ang); ctx.strokeStyle=`rgba(${p.rgb},${a})`; ctx.lineWidth=Math.max(2,cell*0.1);
+    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.ang); ctx.strokeStyle=`rgba(${p.rgb},${a})`; ctx.lineWidth=3.5+p.life*11;
     roundRect(-p.w*k/2,-p.h*k/2,p.w*k,p.h*k,p.h*0.5*k); ctx.stroke(); ctx.restore();
     if(p.life>=1) pops.splice(i,1); }
   placeHandles(W,H);
-  let cur=-1; for(let i=0;i<CHORDS.length;i++){ if(now>=CHORDS[i].t-0.2 && now<CHORDS[i].t+SECPC) cur=i; }
+  let cur=-1; for(let i=0;i<CHORDS.length;i++){ if(now>=CHORDS[i].t-0.2 && now<NEXT_T(i)) cur=i; }
   if(atReady){ const span=SONG_END-SONG.lead, frac=clamp((now-SONG.lead+0.3)/span,0,1), max=Math.max(0,tabAt.scrollWidth-tabWrap.clientWidth); tabAt.style.transform=`translateX(${-frac*max}px)`; }
-  else { CHORDS.forEach((c,i)=>{ const el=document.getElementById('row'+i); if(el) el.className='row '+(i===cur?'now':(now>c.t+SECPC?'done':'next')); }); }
-  const nc=document.getElementById('nowchip'); if(nc) nc.textContent=cur>=0?CHORDS[cur].name:'—';
+  else { CHORDS.forEach((c,i)=>{ const el=document.getElementById('row'+i); if(el) el.className='row '+(i===cur?'now':(now>NEXT_T(i)?'done':'next')); }); }
+  const nc=document.getElementById('nowchip'); if(nc) nc.textContent=cur>=0?CHORDS[cur].name:'·';
 }
 function frame(t){ const dt=Math.min(0.05,(t-last)/1000); last=t; if(playing){ now+=dt; if(now>SONG_END){ now=0; NOTES.forEach(n=>n.popped=false); } } draw(dt); requestAnimationFrame(frame); }
 requestAnimationFrame(frame);
+
+// ---- VOLUME ONSET -> visual hit (ultra simple: mic RMS over a threshold = "you played") ----
+(function(){
+  const dot=document.getElementById('vuDot'), fill=document.getElementById('vuFill'),
+        thMark=document.getElementById('vuTh'), range=document.getElementById('vuRange'),
+        cap=document.getElementById('vuCap'), edge=document.getElementById('edgeflash');
+  const MAXLVL=0.45;                          // RMS mapped to a full bar
+  let thresh=parseFloat(range.value), armed=true, lastHit=0;
+  thMark.style.left=(thresh/MAXLVL*100)+'%';
+  range.addEventListener('input',()=>{ thresh=parseFloat(range.value); thMark.style.left=(thresh/MAXLVL*100)+'%'; });
+
+  function fireHit(){
+    lastHit=performance.now();
+    dot.classList.add('hit'); setTimeout(()=>dot.classList.remove('hit'),120);
+    edge.classList.remove('on'); void edge.offsetWidth; edge.classList.add('on');   // restart the flash
+  }
+  function onLevel(l){
+    fill.style.width=Math.min(100,l/MAXLVL*100)+'%';
+    const t2=performance.now();
+    if(armed && l>thresh && t2-lastHit>120){ armed=false; fireHit(); }                // rising edge over threshold
+    if(l < thresh*0.7) armed=true;                                                    // hysteresis: re-arm after it drops
+  }
+  window.__tactusHit=fireHit;                 // test hooks (verify the visual path with no mic)
+  window.__tactusLevel=onLevel;
+  window.addEventListener('keydown',e=>{ if(e.key==='h'||e.key==='H') fireHit(); });
+
+  let ac=null;
+  (async function startMic(){
+    try{
+      const s=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+      ac=new (window.AudioContext||window.webkitAudioContext)();
+      const src=ac.createMediaStreamSource(s), an=ac.createAnalyser(); an.fftSize=1024; src.connect(an);
+      const buf=new Float32Array(an.fftSize); cap.textContent='mic: play to test';
+      (function loop(){ an.getFloatTimeDomainData(buf); let s2=0; for(let i=0;i<buf.length;i++) s2+=buf[i]*buf[i];
+        onLevel(Math.sqrt(s2/buf.length)); requestAnimationFrame(loop); })();
+    }catch(e){ cap.textContent='mic: allow it (or press H to test)'; }
+  })();
+  window.addEventListener('click',()=>{ if(ac&&ac.state==='suspended') ac.resume(); });
+})();
 </script>
 </body>
 </html>

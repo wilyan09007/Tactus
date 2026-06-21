@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tactus · Learn — Floating Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ivory:#FFFBF6; --ink:#3A2A4A; --berry:#FF4D8D; --line:#FBD9E6;
+    --peach:#FFE3D1; --mint:#D6F7E6; --lav:#E7DBFF; --grape:#AD7FFF; --tangy:#FF9F43;
+    --s1:#FF6B6B; --s2:#FF9F43; --s3:#FFD635; --s4:#26DEA0; --s5:#48B6FF; --s6:#AD7FFF;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:"Nunito",system-ui,sans-serif; color:var(--ink);
+    background:
+      radial-gradient(900px 620px at 8% -6%, var(--peach) 0%, rgba(255,227,209,0) 60%),
+      radial-gradient(820px 640px at 102% 14%, var(--lav) 0%, rgba(231,219,255,0) 58%),
+      radial-gradient(1000px 780px at 88% 108%, var(--mint) 0%, rgba(214,247,230,0) 60%),
+      radial-gradient(760px 560px at 18% 112%, #FFE9F1 0%, rgba(255,233,241,0) 62%),
+      var(--ivory);
+    min-height:100vh; overflow:hidden;
+  }
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+
+  /* ---------- Brand lockup ---------- */
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand .word{font-family:"Fredoka",sans-serif; font-weight:700; font-size:24px; letter-spacing:.02em; color:var(--ink);}
+  .pill-learn{
+    font-family:"Nunito",sans-serif; font-weight:900; font-size:11px; letter-spacing:.12em;
+    color:#7A3D00; background:linear-gradient(180deg,#FFD24D,#FF9F43);
+    padding:4px 10px; border-radius:999px; box-shadow:0 3px 0 #E0852E, 0 6px 10px #ff9f4333;
+  }
+
+  /* ---------- Generic chunky pill button ---------- */
+  .btn{
+    font-family:"Nunito",sans-serif; font-weight:800; font-size:16px; cursor:pointer;
+    border-radius:999px; border:2.5px solid #FFB8D4; background:#FFFFFFe6; color:#7A2A52;
+    box-shadow:0 4px 0 #FFD9E8, 0 8px 16px #ff4d8d1f; padding:13px 22px;
+    transition:transform .07s ease, box-shadow .07s ease; user-select:none; white-space:nowrap;
+  }
+  .btn:active{transform:translateY(3px); box-shadow:0 1px 0 #FFD9E8, 0 4px 10px #ff4d8d1f;}
+  .btn-primary{
+    background:linear-gradient(180deg,#FF6FA3,#FF4D8D); color:#fff; border-color:#FF6FA3;
+    box-shadow:0 4px 0 #C9356C, 0 8px 16px #ff4d8d33;
+  }
+  .btn-primary:active{box-shadow:0 1px 0 #C9356C, 0 4px 10px #ff4d8d33;}
+
+  /* ===================== LANDING ===================== */
+  #landing{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:40px 24px;
+  }
+  #landing .topbrand{position:absolute; top:30px; left:34px;}
+  .hero{width:100%; max-width:760px; text-align:center;}
+  .headline{
+    font-family:"Fredoka",sans-serif; font-weight:700; line-height:1.02;
+    font-size:clamp(46px,7.4vw,82px); letter-spacing:-.01em; color:var(--ink);
+  }
+  .headline .any{color:var(--berry);}
+  .sub{
+    font-weight:600; font-size:clamp(16px,1.8vw,20px); line-height:1.5;
+    color:#6A5A78; max-width:560px; margin:18px auto 0;
+  }
+  /* input group */
+  .inputgroup{
+    margin:34px auto 0; display:flex; align-items:center; gap:10px;
+    background:#fff; border:2.5px solid var(--line); border-radius:999px;
+    padding:7px 7px 7px 22px; max-width:620px;
+    box-shadow:0 10px 30px #ff4d8d14, 0 2px 0 #FFE7F0;
+  }
+  .inputgroup input{
+    flex:1; border:0; outline:0; background:transparent;
+    font-family:"Nunito",sans-serif; font-weight:700; font-size:16px; color:var(--ink);
+    min-width:0;
+  }
+  .inputgroup input::placeholder{color:#B7A6C4; font-weight:600;}
+  .inputgroup .btn-primary{padding:12px 24px;}
+  /* preset chips */
+  .presets{margin:22px auto 0; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;}
+  .chip{
+    font-family:"Nunito",sans-serif; font-weight:800; font-size:14.5px; cursor:pointer;
+    border-radius:999px; border:2px solid #EBDAF6; background:#FFFFFFcc; color:#5C3D7A;
+    padding:9px 16px; box-shadow:0 3px 0 #ECE0F8; transition:transform .07s ease, box-shadow .07s ease, border-color .12s;
+    user-select:none;
+  }
+  .chip:hover{border-color:var(--grape);}
+  .chip:active{transform:translateY(2px); box-shadow:0 1px 0 #ECE0F8;}
+  .helper{margin:20px auto 0; font-weight:700; font-size:13px; color:#A693B6; letter-spacing:.01em;}
+  .helper .dot{color:var(--grape);}
+
+  /* ===================== GAME ===================== */
+  #game{position:absolute; inset:0; display:none;}
+  #game.show{display:block;}
+  #cam{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#2a2030;}
+  #faux{position:absolute; inset:0; width:100%; height:100%;}
+  /* top HUD */
+  .hud{position:absolute; top:18px; left:20px; right:20px; display:flex; align-items:center; gap:12px; z-index:6;}
+  .hud .brand .word{color:#fff; text-shadow:0 2px 10px rgba(0,0,0,.45);}
+  .hud .spacer{flex:1;}
+  .status-pill{
+    display:inline-flex; align-items:center; gap:7px; font-family:"Nunito",sans-serif;
+    font-weight:800; font-size:13.5px; color:#0F6E56;
+    background:rgba(214,247,230,.92); border:2px solid #9FE1CB; border-radius:999px;
+    padding:7px 14px; box-shadow:0 6px 16px rgba(0,0,0,.18);
+  }
+  .status-pill .led{width:9px; height:9px; border-radius:50%; background:#26DEA0; box-shadow:0 0 0 3px #26dea03d; animation:led 1.8s ease-in-out infinite;}
+  @keyframes led{0%,100%{opacity:1;}50%{opacity:.45;}}
+  .back-pill{
+    font-family:"Nunito",sans-serif; font-weight:800; font-size:14px; cursor:pointer; color:#7A2A52;
+    background:rgba(255,255,255,.92); border:2px solid #FFB8D4; border-radius:999px;
+    padding:7px 15px; box-shadow:0 6px 16px rgba(0,0,0,.18); transition:transform .07s;
+    user-select:none;
+  }
+  .back-pill:active{transform:translateY(2px);}
+
+  /* ---------- FLOATING FROSTED CARD (top-right) ---------- */
+  .floatcard{
+    position:absolute; top:16px; right:16px; width:324px; z-index:7;
+    background:rgba(255,251,246,.82); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:2px solid var(--line); border-radius:24px;
+    box-shadow:0 18px 40px #ff4d8d22; padding:14px 16px 16px;
+    animation:cardIn .5s cubic-bezier(.2,.9,.3,1.2) both;
+  }
+  @keyframes cardIn{from{opacity:0; transform:translateY(-14px) scale(.97);}to{opacity:1; transform:none;}}
+  .grip{display:flex; justify-content:center; align-items:center; gap:3px; height:14px; margin:-4px 0 6px; cursor:grab;}
+  .grip i{width:3.5px; height:3.5px; border-radius:50%; background:#E9C3D5;}
+  .fc-head{display:flex; align-items:flex-end; justify-content:space-between; gap:10px;}
+  .fc-label{font-family:"Nunito",sans-serif; font-weight:800; font-size:11px; letter-spacing:.14em; color:#C77FA0; text-transform:uppercase;}
+  .fc-chord{font-family:"Fredoka",sans-serif; font-weight:700; font-size:50px; line-height:.9; color:var(--ink);}
+  .fc-chord .pulse{display:inline-block; animation:chordPulse 1.6s ease-in-out infinite; transform-origin:50% 60%;}
+  @keyframes chordPulse{0%,100%{transform:scale(1);}45%{transform:scale(1.07);}}
+  .next-chip{
+    display:inline-flex; align-items:center; gap:6px; font-family:"Nunito",sans-serif; font-weight:800;
+    font-size:13px; color:#5C3D7A; background:#F1E8FB; border:1.5px solid #E0CEF6;
+    border-radius:999px; padding:5px 11px; box-shadow:0 2px 0 #E7DBFF;
+  }
+  .next-chip b{color:var(--ink);}
+
+  /* mini notation snippet inside the card */
+  .snippet{
+    margin-top:12px; background:#fffafc; border:1.5px solid #FCE4EE; border-radius:16px;
+    padding:11px 12px 9px; position:relative; overflow:hidden;
+  }
+  .snippet .bars{position:relative; height:108px;}
+  .gstring{position:absolute; left:0; right:0; height:2px; border-radius:2px; opacity:.9;}
+  .gname{position:absolute; left:0; font-family:"Nunito",sans-serif; font-weight:900; font-size:10px; transform:translateY(-50%);}
+  .barline{position:absolute; top:6px; bottom:6px; width:1.5px; background:#F0D7E3; border-radius:2px;}
+  .fretdot{
+    position:absolute; transform:translate(-50%,-50%);
+    width:21px; height:21px; border-radius:7px; display:flex; align-items:center; justify-content:center;
+    font-family:"Nunito",sans-serif; font-weight:900; font-size:12px; color:#fff;
+    box-shadow:0 1px 4px rgba(0,0,0,.22);
+  }
+  .snippet .caret{position:absolute; top:4px; bottom:4px; width:3px; border-radius:3px; background:linear-gradient(180deg,#FF6FA3,#FF4D8D); box-shadow:0 0 10px #ff4d8d80; animation:caret 4s linear infinite;}
+  @keyframes caret{0%{left:13%;}100%{left:92%;}}
+
+  /* progress bar */
+  .progress{margin-top:13px; height:9px; border-radius:999px; background:#F6E4EC; overflow:hidden; box-shadow:inset 0 1px 2px #f0cede;}
+  .progress > span{display:block; height:100%; width:34%; border-radius:999px; background:linear-gradient(90deg,#FF9F43,#FF4D8D); box-shadow:0 0 8px #ff4d8d55; animation:prog 9s linear infinite;}
+  @keyframes prog{0%{width:8%;}100%{width:99%;}}
+  .pmeta{display:flex; justify-content:space-between; margin-top:7px; font-family:"Nunito",sans-serif; font-weight:800; font-size:11px; color:#B58CA6;}
+
+  /* vertical queue under the card */
+  .queue{position:absolute; top:392px; right:16px; width:118px; z-index:7; display:flex; flex-direction:column; gap:9px;
+    animation:cardIn .6s cubic-bezier(.2,.9,.3,1.2) .08s both;}
+  .qchip{
+    display:flex; align-items:center; justify-content:space-between; gap:6px;
+    background:rgba(255,251,246,.82); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:2px solid var(--line); border-radius:14px; padding:8px 11px;
+    box-shadow:0 8px 20px #ff4d8d18;
+  }
+  .qchip .qn{font-family:"Fredoka",sans-serif; font-weight:700; font-size:18px; color:var(--ink);}
+  .qchip .qbar{font-family:"Nunito",sans-serif; font-weight:800; font-size:10px; color:#B58CA6;}
+  .qchip .qdot{width:8px; height:8px; border-radius:50%;}
+</style>
+</head>
+<body>
+<h1 class="sr-only">Tactus Learn — paste a song link and play it on your real guitar with augmented-reality fret guidance.</h1>
+
+<!-- ===================== LANDING ===================== -->
+<section id="landing">
+  <div class="topbrand brand">
+    <span class="word">TACTUS</span>
+    <span class="pill-learn">LEARN</span>
+  </div>
+
+  <div class="hero">
+    <h2 class="headline">Learn <span class="any">any</span> song.</h2>
+    <p class="sub">Paste a link to your sheet music — we turn it into a live, on-your-guitar game.</p>
+
+    <div class="inputgroup">
+      <input id="link" type="text" placeholder="Paste a tab or MusicXML link…" autocomplete="off" />
+      <button class="btn btn-primary" onclick="startGame()">Start →</button>
+    </div>
+
+    <div class="presets">
+      <button class="chip" onclick="startGame()">🎸 Tactus Etude</button>
+      <button class="chip" onclick="startGame()">🌧 Wonderwall</button>
+      <button class="chip" onclick="startGame()">🥁 Seven Nation Army</button>
+    </div>
+
+    <p class="helper">works with Guitar Pro / MusicXML links <span class="dot">·</span> no account needed</p>
+  </div>
+</section>
+
+<!-- ===================== GAME ===================== -->
+<section id="game">
+  <video id="cam" autoplay muted playsinline></video>
+  <canvas id="faux"></canvas>
+
+  <!-- top HUD -->
+  <div class="hud">
+    <div class="brand"><span class="word">TACTUS</span><span class="pill-learn">LEARN</span></div>
+    <div class="spacer"></div>
+    <span class="status-pill"><span class="led"></span> auto-locked ✓</span>
+    <span class="back-pill" onclick="backHome()">‹ back</span>
+  </div>
+
+  <!-- FLOATING FROSTED CARD -->
+  <div class="floatcard">
+    <div class="grip"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="fc-head">
+      <div>
+        <div class="fc-label">Now playing</div>
+        <div class="fc-chord"><span class="pulse" id="chordNow">G</span></div>
+      </div>
+      <span class="next-chip">next ▸ <b id="nextName">Em</b></span>
+    </div>
+
+    <div class="snippet">
+      <div class="caret"></div>
+      <div class="bars" id="bars"></div>
+    </div>
+
+    <div class="progress"><span></span></div>
+    <div class="pmeta"><span id="songTitle">Tactus Etude</span><span>bar 3 / 8</span></div>
+  </div>
+
+  <!-- vertical queue -->
+  <div class="queue" id="queue"></div>
+</section>
+
+<script>
+  /* ---- shared model ---- */
+  var STRINGS = [
+    {n:'e', c:'#FF6B6B'}, {n:'B', c:'#FF9F43'}, {n:'G', c:'#FFD635'},
+    {n:'D', c:'#26DEA0'}, {n:'A', c:'#48B6FF'}, {n:'E', c:'#AD7FFF'}
+  ];
+  // fake looping song (chords G, Em, C, D), low-fret shapes for the snippet
+  var SONG = [
+    {name:'G',  notes:[{s:5,f:3},{s:4,f:2},{s:0,f:3}]},
+    {name:'Em', notes:[{s:4,f:2},{s:3,f:2}]},
+    {name:'C',  notes:[{s:4,f:3},{s:3,f:2},{s:1,f:1}]},
+    {name:'D',  notes:[{s:2,f:2},{s:1,f:3},{s:0,f:2}]}
+  ];
+
+  /* ---- screen switching ---- */
+  function startGame(){
+    document.getElementById('landing').style.display='none';
+    document.getElementById('game').classList.add('show');
+    initCamera();
+  }
+  function backHome(){
+    document.getElementById('game').classList.remove('show');
+    document.getElementById('landing').style.display='flex';
+    var v=document.getElementById('cam');
+    if(v.srcObject){v.srcObject.getTracks().forEach(function(t){t.stop();}); v.srcObject=null;}
+  }
+
+  /* ---- real camera with faux fallback ---- */
+  function initCamera(){
+    var v=document.getElementById('cam');
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+      navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
+        .then(function(stream){ v.srcObject=stream; document.getElementById('faux').style.display='none'; })
+        .catch(function(){ paintFaux(); });
+    } else { paintFaux(); }
+  }
+
+  /* ---- faux camera scene + AR fret glow (lower third) ---- */
+  function paintFaux(){
+    document.getElementById('cam').style.display='none';
+    var cv=document.getElementById('faux'); cv.style.display='block';
+    var dpr=Math.min(window.devicePixelRatio||1,2);
+    var W=cv.width=Math.floor(innerWidth*dpr), H=cv.height=Math.floor(innerHeight*dpr);
+    cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
+    var x=cv.getContext('2d'); x.scale(dpr,dpr);
+    var w=innerWidth, h=innerHeight;
+
+    /* warm out-of-focus room */
+    var g=x.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'#6f5550'); g.addColorStop(.45,'#5a4a52'); g.addColorStop(1,'#2e2630');
+    x.fillStyle=g; x.fillRect(0,0,w,h);
+    /* soft bokeh blobs */
+    var blobs=[['#ffcaa3',.16],['#caa6ff',.14],['#9fe1cb',.12],['#ffd24d',.10],['#ff9fc0',.13]];
+    for(var i=0;i<26;i++){
+      var b=blobs[i%blobs.length]; var r=30+Math.random()*90;
+      var bx=Math.random()*w, by=Math.random()*h*0.7;
+      var rg=x.createRadialGradient(bx,by,0,bx,by,r);
+      rg.addColorStop(0,hexA(b[0],b[1])); rg.addColorStop(1,hexA(b[0],0));
+      x.fillStyle=rg; x.beginPath(); x.arc(bx,by,r,0,7); x.fill();
+    }
+    /* head/shoulders silhouette near top-center (the player's face) */
+    x.fillStyle='rgba(20,14,24,.5)';
+    var cx=w*0.5, hy=h*0.16, hr=Math.min(w,h)*0.085;
+    x.beginPath(); x.arc(cx,hy,hr,0,7); x.fill();                 // head
+    x.beginPath();
+    x.moveTo(cx-hr*2.4, h*0.34);
+    x.quadraticCurveTo(cx, h*0.20, cx+hr*2.4, h*0.34);
+    x.lineTo(cx+hr*2.8, h*0.40); x.lineTo(cx-hr*2.8, h*0.40); x.closePath(); x.fill();   // shoulders
+
+    /* ---------- stylized guitar neck crossing the LOWER THIRD ---------- */
+    var nutX=w*0.06, nutYtop=h*0.78, nutYbot=h*0.985;            // nut lower-left
+    var endX=w*0.99, endYtop=h*0.66, endYbot=h*0.83;            // recedes up-right (slight perspective)
+    /* fretboard body */
+    x.save();
+    x.beginPath();
+    x.moveTo(nutX,nutYtop); x.lineTo(endX,endYtop);
+    x.lineTo(endX,endYbot); x.lineTo(nutX,nutYbot); x.closePath();
+    var fb=x.createLinearGradient(nutX,0,endX,0);
+    fb.addColorStop(0,'#4a2f24'); fb.addColorStop(1,'#37241d');
+    x.fillStyle=fb; x.fill();
+    x.lineWidth=3; x.strokeStyle='rgba(255,225,200,.18)'; x.stroke();
+    x.clip();
+
+    function lerp(a,b,t){return a+(b-a)*t;}
+    function topAt(t){return lerp(nutYtop,endYtop,t);}
+    function botAt(t){return lerp(nutYbot,endYbot,t);}
+    function xAt(t){return lerp(nutX,endX,t);}
+
+    /* fret wires (perspective: closer together as they recede) */
+    var fretT=[0,0.10,0.215,0.345,0.49,0.65,0.82];
+    for(var f=0;f<fretT.length;f++){
+      var t=fretT[f], fx0=xAt(t);
+      x.beginPath(); x.moveTo(fx0,topAt(t)); x.lineTo(fx0,botAt(t));
+      x.lineWidth=(f===0)?6:2.4; x.strokeStyle=(f===0)?'#d8c9a0':'rgba(225,215,190,.55)';
+      x.stroke();
+    }
+    /* fret position markers (3rd, 5th) */
+    x.fillStyle='rgba(255,250,235,.5)';
+    [0.155,0.28].forEach(function(t){var mx=xAt(t),my=(topAt(t)+botAt(t))/2;x.beginPath();x.arc(mx,my,3.5,0,7);x.fill();});
+
+    /* 6 colored strings high-e(top) -> low-E(bottom) */
+    var strColors=['#FF6B6B','#FF9F43','#FFD635','#26DEA0','#48B6FF','#AD7FFF'];
+    function stringYat(si,t){ // si 0..5 across the board height
+      var top=topAt(t), bot=botAt(t);
+      return lerp(top+ (bot-top)*0.10, bot-(bot-top)*0.10, si/5);
+    }
+    for(var s=0;s<6;s++){
+      x.beginPath();
+      x.moveTo(xAt(0),stringYat(s,0)); x.lineTo(xAt(1),stringYat(s,1));
+      x.lineWidth=1.4+s*0.45; x.strokeStyle=hexA(strColors[s],.92);
+      x.shadowColor=hexA(strColors[s],.55); x.shadowBlur=6; x.stroke(); x.shadowBlur=0;
+    }
+
+    /* glowing note cells (rhythm-game cue) — between fret wires, in string color */
+    var cells=[{s:5,fa:1,fb:2,n:3},{s:4,fa:2,fb:3,n:2},{s:0,fa:4,fb:5,n:3}];
+    cells.forEach(function(c){
+      var t0=fretT[c.fa], t1=fretT[c.fb], tm=(t0+t1)/2;
+      var cyx=xAt(tm), cyy=stringYat(c.s,tm);
+      var cw=(xAt(t1)-xAt(t0))*0.74, ch=Math.max(16,(botAt(tm)-topAt(tm))/6.4);
+      x.save();
+      x.shadowColor=hexA(strColors[c.s],.95); x.shadowBlur=22;
+      x.fillStyle=hexA(strColors[c.s],.92);
+      roundRect(x,cyx-cw/2,cyy-ch/2,cw,ch,7); x.fill();
+      x.shadowBlur=0;
+      x.fillStyle='rgba(255,255,255,.95)'; x.font='900 '+Math.round(ch*0.78)+'px Nunito, sans-serif';
+      x.textAlign='center'; x.textBaseline='middle'; x.fillText(c.n, cyx, cyy+0.5);
+      x.restore();
+    });
+    x.restore();
+
+    /* subtle vignette to sell depth-of-field */
+    var vg=x.createRadialGradient(w/2,h*0.42,h*0.2,w/2,h*0.5,h*0.85);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.34)');
+    x.fillStyle=vg; x.fillRect(0,0,w,h);
+  }
+
+  function roundRect(x,X,Y,W,H,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+W,Y,X+W,Y+H,r);x.arcTo(X+W,Y+H,X,Y+H,r);x.arcTo(X,Y+H,X,Y,r);x.arcTo(X,Y,X+W,Y,r);x.closePath();}
+  function hexA(hex,a){var n=parseInt(hex.slice(1),16);return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';}
+
+  /* ---- build the mini notation snippet inside the floating card ---- */
+  function buildSnippet(){
+    var bars=document.getElementById('bars');
+    bars.innerHTML='';
+    var H=108, padL=16, padR=6, top=8, bottom=H-8;
+    // 6 string lines + names
+    STRINGS.forEach(function(st,i){
+      var y=top+(bottom-top)*(i/5);
+      var line=document.createElement('div'); line.className='gstring';
+      line.style.top=y+'px'; line.style.left=padL+'px'; line.style.right=padR+'px';
+      line.style.background=st.c; bars.appendChild(line);
+      var nm=document.createElement('div'); nm.className='gname';
+      nm.style.top=y+'px'; nm.textContent=st.n; nm.style.color=st.c; bars.appendChild(nm);
+    });
+    // 4 bars of the looping song, fret dots placed across
+    var W=324-32, usable=W-padL-padR, nBars=4, barW=usable/nBars;
+    for(var b=0;b<nBars;b++){
+      if(b>0){var bl=document.createElement('div'); bl.className='barline'; bl.style.left=(padL+b*barW)+'px'; bars.appendChild(bl);}
+      var chord=SONG[b%SONG.length];
+      chord.notes.forEach(function(nt,k){
+        var y=top+(bottom-top)*(nt.s/5);
+        var cxp=padL+b*barW+barW*(0.30+0.22*k);
+        var d=document.createElement('div'); d.className='fretdot';
+        d.style.left=cxp+'px'; d.style.top=y+'px';
+        d.style.background=STRINGS[nt.s].c; d.style.color=(nt.s===2)?'#5A4A00':'#fff';
+        d.textContent=nt.f; bars.appendChild(d);
+      });
+    }
+  }
+
+  /* ---- vertical queue of upcoming chords ---- */
+  function buildQueue(){
+    var q=document.getElementById('queue'); q.innerHTML='';
+    var order=[1,2,3]; // Em, C, D
+    order.forEach(function(idx){
+      var ch=SONG[idx];
+      var el=document.createElement('div'); el.className='qchip';
+      var dotc=ch.notes[0]? STRINGS[ch.notes[0].s].c : '#FF4D8D';
+      el.innerHTML='<span class="qn">'+ch.name+'</span>'+
+                   '<span class="qbar">'+(idx+4)+'</span>'+
+                   '<span class="qdot" style="background:'+dotc+'"></span>';
+      q.appendChild(el);
+    });
+  }
+
+  /* ---- gentle live chord cycling (keeps it alive, still reads static) ---- */
+  function cycleChords(){
+    var seq=['G','Em','C','D'], nx=['Em','C','D','G'], titles=['Tactus Etude','Tactus Etude','Tactus Etude','Tactus Etude'];
+    var idx=0;
+    setInterval(function(){
+      if(!document.getElementById('game').classList.contains('show')) return;
+      idx=(idx+1)%seq.length;
+      document.getElementById('chordNow').textContent=seq[idx];
+      document.getElementById('nextName').textContent=nx[idx];
+    },2400);
+  }
+
+  buildSnippet(); buildQueue(); cycleChords();
+  window.addEventListener('resize',function(){ if(document.getElementById('faux').style.display!=='none' && document.getElementById('game').classList.contains('show')) paintFaux(); });
+</script>
+</body>
+</html>

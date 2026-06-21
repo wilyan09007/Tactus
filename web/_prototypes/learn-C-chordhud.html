@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tactus · LEARN — Chord-Coach HUD</title>
+<!--
+  THROWAWAY VISUAL DESIGN LAYOUT (light mode, "Sherbet" theme).
+  Two screens in one file: (1) #landing  (2) #game (full-screen camera + Chord-Coach HUD).
+  Tries the real environment camera; falls back to a painted faux scene (silhouette + neck)
+  so the layout reads in a webcam-less screenshot environment. Not the product UI.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ivory:#FFFBF6; --ink:#3A2A4A; --berry:#FF4D8D; --line:#FBD9E6;
+    --peach:#FFE3D1; --mint:#D6F7E6; --lav:#E7DBFF; --grape:#AD7FFF; --tangy:#FF9F43;
+    /* string colours high-e(1) -> low-E(6) */
+    --s1:#FF6B6B; --s2:#FF9F43; --s3:#FFD635; --s4:#26DEA0; --s5:#48B6FF; --s6:#AD7FFF;
+    --disp:'Fredoka',system-ui,sans-serif;
+    --body:'Nunito',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--ink); font-family:var(--body); font-weight:700;
+    -webkit-font-smoothing:antialiased; overflow:hidden;
+    background:
+      radial-gradient(900px 620px at 8% -6%, var(--peach) 0%, rgba(255,227,209,0) 60%),
+      radial-gradient(820px 640px at 102% 14%, var(--lav) 0%, rgba(231,219,255,0) 58%),
+      radial-gradient(1000px 780px at 88% 108%, var(--mint) 0%, rgba(214,247,230,0) 60%),
+      radial-gradient(760px 560px at 18% 112%, #FFE9F1 0%, rgba(255,233,241,0) 62%),
+      var(--ivory);
+  }
+  .screen{position:fixed; inset:0}
+  .hide{display:none !important}
+
+  /* ---------- brand lockup ---------- */
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--disp); font-weight:700}
+  .brand .word{font-size:26px; letter-spacing:.5px; color:var(--ink)}
+  .pill-tag{
+    font-family:var(--body); font-weight:900; font-size:11px; letter-spacing:.1em;
+    color:#7A3D00; background:linear-gradient(180deg,#FFD24D,#FF9F43);
+    padding:4px 10px; border-radius:999px; box-shadow:0 3px 0 #E0851F, 0 5px 10px #ff9f4333;
+  }
+
+  /* ---------- chunky pill buttons ---------- */
+  .btn{
+    font-family:var(--body); font-weight:800; font-size:16px; cursor:pointer;
+    border-radius:999px; border:2.5px solid #FFB8D4; background:#FFFFFFe6; color:#7A2A52;
+    padding:14px 22px; box-shadow:0 4px 0 #FFD9E8, 0 8px 16px #ff4d8d1f;
+    transition:transform .06s ease, box-shadow .06s ease; white-space:nowrap;
+  }
+  .btn:active{transform:translateY(3px); box-shadow:0 1px 0 #FFD9E8, 0 4px 10px #ff4d8d1f}
+  .btn.primary{
+    background:linear-gradient(180deg,#FF6FA3,#FF4D8D); color:#fff; border-color:#FF6FA3;
+    box-shadow:0 4px 0 #C9356C, 0 8px 16px #ff4d8d33;
+  }
+  .btn.primary:active{box-shadow:0 1px 0 #C9356C, 0 4px 10px #ff4d8d33}
+  .btn.ghost{padding:10px 16px; font-size:14px}
+  .chip{
+    font-family:var(--body); font-weight:800; font-size:14px; cursor:pointer;
+    border-radius:999px; border:2.5px solid #FFE0B8; background:#FFFFFFe6; color:#6A4A22;
+    padding:11px 18px; box-shadow:0 4px 0 #FFEAD2, 0 8px 14px #ff9f4318;
+    transition:transform .06s ease, box-shadow .06s ease;
+  }
+  .chip:active{transform:translateY(3px); box-shadow:0 1px 0 #FFEAD2}
+
+  /* ====================================================================
+     SCREEN 1 — LANDING
+     ==================================================================== */
+  #landing{display:flex; flex-direction:column; padding:34px 7vw}
+  #landing .top{display:flex; align-items:center}
+  #landing .hero{flex:1; display:flex; flex-direction:column; justify-content:center; max-width:880px}
+  .headline{
+    font-family:var(--disp); font-weight:700; line-height:1.02;
+    font-size:clamp(48px,7.5vw,92px); margin:0 0 18px; letter-spacing:-1px;
+  }
+  .headline .any{color:var(--berry)}
+  .sub{font-size:clamp(17px,1.7vw,21px); font-weight:700; color:#6B5A78; max-width:620px; margin:0 0 30px; line-height:1.45}
+
+  .inputrow{
+    display:flex; align-items:center; gap:12px; background:#FFFFFFcc;
+    border:2.5px solid #FFB8D4; border-radius:999px; padding:8px 8px 8px 24px;
+    max-width:680px; box-shadow:0 6px 0 #FFE3EE, 0 14px 28px #ff4d8d18; backdrop-filter:blur(4px);
+  }
+  .inputrow input{
+    flex:1; border:none; background:transparent; outline:none; font-family:var(--body);
+    font-weight:700; font-size:17px; color:var(--ink); min-width:0;
+  }
+  .inputrow input::placeholder{color:#C49DB4}
+
+  .chips{display:flex; gap:12px; flex-wrap:wrap; margin-top:24px}
+  .helper{margin-top:22px; font-size:13px; font-weight:700; color:#9B86A8; display:flex; align-items:center; gap:7px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--s4); box-shadow:0 0 0 4px #26dea024}
+
+  /* ====================================================================
+     SCREEN 2 — GAME (full-screen camera + HUD)
+     ==================================================================== */
+  #cam, #faux{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block}
+  #faux{z-index:0}
+  #cam{z-index:1}
+  .vign{position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:radial-gradient(120% 90% at 50% 42%, rgba(0,0,0,0) 52%, rgba(40,20,55,.34) 100%);}
+
+  /* top brand bar over camera */
+  .gtop{position:absolute; z-index:6; top:20px; left:24px; right:24px; display:flex; align-items:center; gap:12px}
+  .gtop .brand .word{color:#fff; text-shadow:0 2px 10px #00000055}
+  .spacer{flex:1}
+  .glasspill{
+    font-family:var(--body); font-weight:800; font-size:13px; color:#fff;
+    background:rgba(38,20,55,.42); border:1.5px solid rgba(255,255,255,.32);
+    padding:9px 14px; border-radius:999px; backdrop-filter:blur(8px);
+    display:inline-flex; align-items:center; gap:7px; box-shadow:0 6px 16px #00000026;
+  }
+  .glasspill.ok{color:#C7FFE9; border-color:#26dea077; background:rgba(8,50,40,.4)}
+  .glasspill.back{cursor:pointer}
+  .glasspill.back:active{transform:translateY(2px)}
+  .led{width:8px;height:8px;border-radius:50%;background:#26DEA0; box-shadow:0 0 8px #26DEA0}
+
+  /* ---------- CHORD-COACH HUD card (upper, over the face / top dead zone) ---------- */
+  .hudwrap{position:absolute; z-index:6; top:74px; left:0; right:0; display:flex; justify-content:center; pointer-events:none}
+  .ring{position:relative; width:300px; height:300px}
+  .ring svg{position:absolute; inset:0; transform:rotate(-90deg)}
+  .ring .track{fill:none; stroke:rgba(255,255,255,.30); stroke-width:7}
+  .ring .prog{fill:none; stroke:url(#ringgrad); stroke-width:7; stroke-linecap:round;
+    stroke-dasharray:879; stroke-dashoffset:0; filter:drop-shadow(0 0 7px #ff4d8d66)}
+
+  .card{
+    position:absolute; inset:18px; border-radius:34px;
+    background:rgba(255,251,246,.93); border:3px solid #FFD0E2;
+    box-shadow:0 14px 40px #4a1b3033, 0 0 0 6px rgba(255,255,255,.18);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    backdrop-filter:blur(10px); padding:14px;
+    transition:transform .18s cubic-bezier(.2,1.4,.4,1);
+  }
+  .card.beat{animation:pop .42s ease}
+  @keyframes pop{0%{transform:scale(.9); opacity:.55}55%{transform:scale(1.04)}100%{transform:scale(1)}}
+  .card .lead{font-family:var(--body); font-weight:900; font-size:11px; letter-spacing:.16em; color:#C77FA0; text-transform:uppercase; margin-bottom:-2px}
+  .card .cname{font-family:var(--disp); font-weight:700; font-size:62px; line-height:.9; color:var(--berry); margin:2px 0 8px}
+
+  /* mini chord diagram */
+  .diagram{width:138px}
+  .mk{display:flex; justify-content:space-between; padding:0 7px; height:15px; margin-bottom:3px}
+  .mk span{font-family:var(--body); font-weight:900; font-size:13px; width:18px; text-align:center; color:#8A6E9C}
+  .mk span.x{color:#C77FA0}
+  .mk span.o{color:#26B98A}
+  .grid{position:relative; height:104px; border-radius:9px;
+    background:linear-gradient(180deg,#FFF6FA,#FFEAF1); border:2px solid #FBD9E6; overflow:hidden}
+  .nut{position:absolute; top:0; left:0; right:0; height:6px; background:#E3A6C0}
+  .frets{position:absolute; inset:6px 0 0; }
+  .fretrow{position:absolute; left:0; right:0; height:1px; background:#F2C2D6}
+  .strings{position:absolute; inset:6px 9px 4px; display:flex; justify-content:space-between}
+  .strings i{width:2.5px; border-radius:2px; display:block}
+  .strings i:nth-child(1){background:var(--s1)} .strings i:nth-child(2){background:var(--s2)}
+  .strings i:nth-child(3){background:var(--s3)} .strings i:nth-child(4){background:var(--s4)}
+  .strings i:nth-child(5){background:var(--s5)} .strings i:nth-child(6){background:var(--s6)}
+  .finger{position:absolute; width:21px; height:21px; border-radius:50%;
+    background:var(--ink); color:#fff; font-family:var(--body); font-weight:900; font-size:12px;
+    display:flex; align-items:center; justify-content:center; transform:translate(-50%,-50%);
+    box-shadow:0 3px 7px #3a2a4a55; border:2px solid #fff}
+
+  /* queue of next chords */
+  .queue{position:absolute; z-index:6; top:392px; left:0; right:0; display:flex; justify-content:center; gap:10px; pointer-events:none}
+  .qchip{font-family:var(--disp); font-weight:600; font-size:18px; color:#7A2A52;
+    background:rgba(255,251,246,.86); border:2px solid #FFD0E2; padding:7px 16px; border-radius:999px;
+    box-shadow:0 6px 16px #4a1b3022; display:flex; align-items:center; gap:10px}
+  .qchip.lead2{color:var(--berry)}
+  .qsep{color:#E39ABC; font-weight:700}
+
+  /* ---------- slim progress bar pinned to very bottom ---------- */
+  .progbar{position:absolute; z-index:6; left:0; right:0; bottom:0; height:14px;
+    background:rgba(58,42,74,.28); backdrop-filter:blur(6px); overflow:hidden;
+    border-top:1px solid rgba(255,255,255,.22)}
+  .progfill{position:absolute; left:0; top:0; bottom:0; width:38%;
+    background:linear-gradient(90deg,var(--s2),var(--berry),var(--grape));
+    box-shadow:0 0 14px #ff4d8d66; border-radius:0 999px 999px 0}
+  .ticks{position:absolute; inset:0; display:flex; justify-content:space-between; padding:0 0%; pointer-events:none}
+  .ticks i{width:1.5px; background:rgba(255,255,255,.30)}
+  .playhead{position:absolute; top:-3px; width:4px; height:20px; border-radius:3px; background:#fff;
+    box-shadow:0 0 10px #fff, 0 0 4px var(--berry); transform:translateX(-2px)}
+  .reduced * {animation:none !important; transition:none !important}
+</style>
+</head>
+<body>
+
+<!-- ================= SCREEN 1 : LANDING ================= -->
+<section id="landing" class="screen">
+  <div class="top">
+    <div class="brand"><span class="word">TACTUS</span><span class="pill-tag">LEARN</span></div>
+  </div>
+
+  <div class="hero">
+    <h1 class="headline">Learn <span class="any">any</span> song.</h1>
+    <p class="sub">Paste a link to your sheet music — we turn it into a live, on-your-guitar game.</p>
+
+    <div class="inputrow">
+      <input id="songlink" type="text" placeholder="Paste a tab or MusicXML link…" />
+      <button class="btn primary" onclick="startGame()">Start →</button>
+    </div>
+
+    <div class="chips">
+      <button class="chip" onclick="startGame('Tactus Etude')">🎸 Tactus Etude</button>
+      <button class="chip" onclick="startGame('Wonderwall')">🌧 Wonderwall</button>
+      <button class="chip" onclick="startGame('Seven Nation Army')">🥁 Seven Nation Army</button>
+    </div>
+
+    <div class="helper"><span class="dot"></span> works with Guitar Pro / MusicXML links</div>
+  </div>
+</section>
+
+<!-- ================= SCREEN 2 : GAME ================= -->
+<section id="game" class="screen hide">
+  <canvas id="faux"></canvas>
+  <video id="cam" autoplay muted playsinline></video>
+  <div class="vign"></div>
+
+  <!-- top bar -->
+  <div class="gtop">
+    <div class="brand"><span class="word">TACTUS</span><span class="pill-tag">LEARN</span></div>
+    <span class="spacer"></span>
+    <span class="glasspill ok"><span class="led"></span>auto-locked ✓</span>
+    <span class="glasspill back" onclick="backHome()">‹ back</span>
+  </div>
+
+  <!-- CHORD-COACH HUD : countdown ring + flashcard, high (top dead zone) -->
+  <div class="hudwrap">
+    <div class="ring">
+      <svg viewBox="0 0 300 300" aria-hidden="true">
+        <defs>
+          <linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#FFD635"/><stop offset=".5" stop-color="#FF4D8D"/><stop offset="1" stop-color="#AD7FFF"/>
+          </linearGradient>
+        </defs>
+        <circle class="track" cx="150" cy="150" r="140"/>
+        <circle id="ringProg" class="prog" cx="150" cy="150" r="140"/>
+      </svg>
+
+      <div class="card" id="card">
+        <div class="lead">next chord</div>
+        <div class="cname" id="cname">G</div>
+        <div class="diagram" id="diagram"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- queue of next 3 chords -->
+  <div class="queue">
+    <div class="qchip lead2"><span id="q0">Em</span></div>
+    <div class="qchip"><span class="qsep">▸</span><span id="q1">C</span></div>
+    <div class="qchip"><span class="qsep">▸</span><span id="q2">D</span></div>
+  </div>
+
+  <!-- slim progress bar at very bottom -->
+  <div class="progbar">
+    <div class="progfill" id="progfill"></div>
+    <div class="ticks" id="ticks"></div>
+    <div class="playhead" id="playhead" style="left:38%"></div>
+  </div>
+</section>
+
+<script>
+/* ---------- screen switching ---------- */
+const $ = id => document.getElementById(id);
+function startGame(preset){
+  $('landing').classList.add('hide');
+  $('game').classList.remove('hide');
+  bootCamera();
+  startLoop();
+}
+function backHome(){
+  $('game').classList.add('hide');
+  $('landing').classList.remove('hide');
+  stopLoop();
+  const v=$('cam'); if(v.srcObject){v.srcObject.getTracks().forEach(t=>t.stop()); v.srcObject=null;}
+}
+
+/* ---------- fake song : repeating chord loop ---------- */
+const SONG = ['G','Em','C','D'];
+// chord shapes: per string [fret, finger]  fret 0=open, -1=muted (X). string order low-E..high-e
+const SHAPES = {
+  G:  [[3,2],[2,1],[0,0],[0,0],[0,0],[3,3]],
+  Em: [[0,0],[2,2],[2,3],[0,0],[0,0],[0,0]],
+  C:  [[-1,0],[3,3],[2,2],[0,0],[1,1],[0,0]],
+  D:  [[-1,0],[-1,0],[0,0],[2,1],[3,3],[2,2]],
+};
+
+/* ---------- build mini chord diagram ---------- */
+function drawDiagram(chord){
+  const sh = SHAPES[chord];
+  const d = $('diagram');
+  // markers row (X / O) — rendered high-e(left)..low-E? We display low-E left to match neck-left nut.
+  let mk='<div class="mk">';
+  for(let s=0;s<6;s++){
+    const f=sh[s][0];
+    if(f===-1) mk+='<span class="x">×</span>';
+    else if(f===0) mk+='<span class="o">○</span>';
+    else mk+='<span>&nbsp;</span>';
+  }
+  mk+='</div>';
+
+  // grid with 4 fret rows
+  let frets='';
+  for(let r=1;r<=3;r++) frets+=`<div class="fretrow" style="top:${r*25}px"></div>`;
+  let strings='<div class="strings">'+ '<i></i>'.repeat(6) +'</div>';
+
+  // finger dots positioned by fret (1..3) and string column
+  let dots='';
+  const colXs=[9,32,55,78,101,124]; // approx x for 6 strings inside 138px
+  for(let s=0;s<6;s++){
+    const f=sh[s][0];
+    if(f>0){
+      const x=colXs[s];
+      const y=6 + (f*25) - 12; // center of that fret cell
+      dots+=`<div class="finger" style="left:${x}px;top:${y}px">${sh[s][1]||''}</div>`;
+    }
+  }
+
+  d.innerHTML = mk + `<div class="grid"><div class="nut"></div><div class="frets">${frets}</div>${strings}${dots}</div>`;
+}
+
+/* ---------- build progress-bar ticks ---------- */
+(function(){
+  let t=''; for(let i=0;i<48;i++) t+='<i></i>';
+  $('ticks').innerHTML=t;
+})();
+
+/* ---------- beat / animation loop ---------- */
+let idx=0, raf=null, t0=0;
+const BEAT=2200;        // ms per chord
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduced) document.body.classList.add('reduced');
+
+function setChord(i){
+  const cur=SONG[i%4];
+  $('cname').textContent=cur;
+  drawDiagram(cur);
+  $('q0').textContent=SONG[(i+1)%4];
+  $('q1').textContent=SONG[(i+2)%4];
+  $('q2').textContent=SONG[(i+3)%4];
+  const card=$('card');
+  card.classList.remove('beat'); void card.offsetWidth; card.classList.add('beat');
+}
+
+function frame(ts){
+  if(!t0) t0=ts;
+  const elapsed=ts-t0;
+  const phase=(elapsed % BEAT)/BEAT;          // 0..1 within current beat
+  const beatNum=Math.floor(elapsed/BEAT);
+  if(beatNum!==idx){ idx=beatNum; setChord(idx); }
+
+  // countdown ring depletes toward next beat
+  const C=879;                                 // 2πr, r=140
+  $('ringProg').style.strokeDashoffset = (C*phase).toFixed(1);
+
+  // progress bar: full song = 8 beats long, loops
+  const songPct = ((elapsed % (BEAT*8))/(BEAT*8))*100;
+  $('progfill').style.width = (4+songPct*0.96)+'%';
+  $('playhead').style.left  = songPct+'%';
+
+  raf=requestAnimationFrame(frame);
+}
+function startLoop(){ idx=-1; t0=0; setChord(0); idx=0; if(!reduced) raf=requestAnimationFrame(frame); else { drawDiagram('G'); $('ringProg').style.strokeDashoffset='300'; } }
+function stopLoop(){ if(raf) cancelAnimationFrame(raf); raf=null; }
+
+/* ---------- camera : try real env cam, else paint faux scene ---------- */
+async function bootCamera(){
+  const v=$('cam');
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    v.srcObject=stream; $('faux').classList.add('hide');
+  }catch(e){
+    v.classList.add('hide'); paintFaux();
+  }
+}
+
+/* believable warm out-of-focus room + face silhouette (top) + guitar neck (lower third) */
+function paintFaux(){
+  const c=$('faux'); const dpr=Math.min(devicePixelRatio||1,2);
+  const W=c.clientWidth||1280, H=c.clientHeight||800;
+  c.width=W*dpr; c.height=H*dpr; const x=c.getContext('2d'); x.scale(dpr,dpr);
+
+  // warm room gradient
+  const g=x.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,'#C9A98F'); g.addColorStop(.5,'#A98570'); g.addColorStop(1,'#6E4F45');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+
+  // soft out-of-focus bokeh blobs (warm window light)
+  const blobs=[['#FFE6C2',.30],['#FFCF9E',.22],['#E9C7AA',.18],['#FFF0D8',.16]];
+  for(let i=0;i<26;i++){
+    const b=blobs[i%blobs.length];
+    const bx=Math.random()*W, by=Math.random()*H*.7, r=30+Math.random()*120;
+    const rg=x.createRadialGradient(bx,by,0,bx,by,r);
+    rg.addColorStop(0,hexA(b[0],b[1])); rg.addColorStop(1,hexA(b[0],0));
+    x.fillStyle=rg; x.beginPath(); x.arc(bx,by,r,0,7); x.fill();
+  }
+
+  // head/shoulders silhouette near TOP-CENTER (the player's face)
+  x.fillStyle='rgba(40,24,30,.55)';
+  // shoulders
+  x.beginPath();
+  x.moveTo(W*0.30,H*0.40);
+  x.bezierCurveTo(W*0.34,H*0.20, W*0.66,H*0.20, W*0.70,H*0.40);
+  x.lineTo(W*0.70,H*0.46); x.lineTo(W*0.30,H*0.46); x.closePath(); x.fill();
+  // head
+  x.beginPath(); x.ellipse(W*0.5,H*0.20,W*0.085,H*0.16,0,0,7); x.fill();
+
+  // ---- stylized GUITAR NECK crossing the LOWER THIRD at a slight angle ----
+  // nut lower-left, neck rises gently to the right
+  const nx=W*0.06, ny=H*0.92;          // nut bottom-left
+  const ex=W*0.96, ey=H*0.66;          // far end upper-right
+  const ang=Math.atan2(ey-ny, ex-nx);
+  const len=Math.hypot(ex-nx,ey-ny);
+  const nw=H*0.165, fw=H*0.115;         // neck width at nut / far end (taper)
+  const px=Math.cos(ang+Math.PI/2), py=Math.sin(ang+Math.PI/2); // perpendicular unit
+
+  // fingerboard quad (dark warm wood)
+  const A=[nx+px*nw/2, ny+py*nw/2], B=[nx-px*nw/2, ny-py*nw/2];
+  const Cc=[ex-px*fw/2, ey-py*fw/2],  D=[ex+px*fw/2, ey+py*fw/2];
+  x.fillStyle='#3A2A22';
+  x.beginPath(); x.moveTo(...A); x.lineTo(...B); x.lineTo(...Cc); x.lineTo(...D); x.closePath(); x.fill();
+  // wood sheen
+  const ws=x.createLinearGradient(A[0],A[1],B[0],B[1]);
+  ws.addColorStop(0,'rgba(120,86,64,.5)'); ws.addColorStop(.5,'rgba(60,42,32,0)'); ws.addColorStop(1,'rgba(20,12,8,.5)');
+  x.fillStyle=ws; x.beginPath(); x.moveTo(...A); x.lineTo(...B); x.lineTo(...Cc); x.lineTo(...D); x.closePath(); x.fill();
+  // nut
+  x.strokeStyle='#E8D6B8'; x.lineWidth=Math.max(3,H*0.012); x.lineCap='round';
+  x.beginPath(); x.moveTo(...A); x.lineTo(...B); x.stroke();
+
+  // store neck geometry for the glow overlay
+  window.__neck={nx,ny,ex,ey,ang,len,nw,fw,px,py,W,H};
+  drawNeckGlow();
+}
+
+function lerp(a,b,t){return a+(b-a)*t;}
+function hexA(hex,a){const n=parseInt(hex.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
+
+/* 6 colored string lines + fret wires + a few glowing note cells, all LOWER region */
+function drawNeckGlow(){
+  const c=$('faux'); const x=c.getContext('2d');
+  const N=window.__neck; if(!N) return;
+  const cols=['#AD7FFF','#48B6FF','#26DEA0','#FFD635','#FF9F43','#FF6B6B']; // low-E..high-e left->right offset
+
+  // point on neck centerline at param u (0=nut..1=end), offset v across width (-0.5..0.5)
+  const pt=(u,v)=>{
+    const cx=lerp(N.nx,N.ex,u), cy=lerp(N.ny,N.ey,u);
+    const w=lerp(N.nw,N.fw,u);
+    return [cx + N.px*v*w, cy + N.py*v*w];
+  };
+
+  // fret wires
+  x.strokeStyle='rgba(220,205,180,.55)'; x.lineWidth=2;
+  for(let f=1;f<=6;f++){
+    const u=f/6.6;
+    const p1=pt(u,-0.5), p2=pt(u,0.5);
+    x.beginPath(); x.moveTo(...p1); x.lineTo(...p2); x.stroke();
+    // fret dot inlays at 3 & 5
+    if(f===3||f===5){ const m=pt(u+0.04,0); x.fillStyle='rgba(235,225,205,.5)'; x.beginPath(); x.arc(m[0],m[1],3,0,7); x.fill(); }
+  }
+
+  // 6 colored string lines
+  x.lineCap='round';
+  for(let s=0;s<6;s++){
+    const v=-0.40 + s*0.16;
+    const a=pt(0,v), b=pt(1,v);
+    x.strokeStyle=cols[s]; x.lineWidth= (s<3?3.2:2.4);
+    x.shadowColor=cols[s]; x.shadowBlur=8;
+    x.beginPath(); x.moveTo(...a); x.lineTo(...b); x.stroke();
+  }
+  x.shadowBlur=0;
+
+  // 2-3 glowing note cells (rhythm-game cue) = rounded rects in string colour w/ fret number
+  const notes=[ {s:5,f:1,n:'1'}, {s:4,f:3,n:'3'}, {s:2,f:2,n:'2'} ];
+  notes.forEach(nt=>{
+    const v=-0.40+nt.s*0.16; const u=(nt.f-0.5)/6.6;
+    const ctr=pt(u,v); const col=cols[nt.s];
+    const w=lerp(N.nw,N.fw,u);
+    const cellW = w*0.16*1.5, cellH = w*0.16*1.5;
+    x.save(); x.translate(ctr[0],ctr[1]); x.rotate(N.ang);
+    // glow
+    x.shadowColor=col; x.shadowBlur=22; x.fillStyle=hexA(col,.9);
+    roundRect(x,-cellW/2,-cellH/2,cellW,cellH,9); x.fill();
+    x.shadowBlur=0; x.fillStyle='rgba(255,255,255,.85)';
+    roundRect(x,-cellW/2+3,-cellH/2+3,cellW-6,cellH-6,7); x.fill();
+    // fret number
+    x.fillStyle='#3A2A4A'; x.font='800 '+Math.round(cellH*0.5)+'px Nunito, sans-serif';
+    x.textAlign='center'; x.textBaseline='middle'; x.fillText(nt.n,0,1);
+    x.restore();
+  });
+}
+function roundRect(x,X,Y,w,h,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();}
+
+window.addEventListener('resize',()=>{ if(!$('game').classList.contains('hide') && !$('faux').classList.contains('hide')) paintFaux(); });
+
+/* init diagram so card looks right even pre-loop */
+drawDiagram('G');
+</script>
+</body>
+</html>

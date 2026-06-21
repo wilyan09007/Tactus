@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tactus — feel every note</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#FFFBF6; --ink:#3A2A4A; --berry:#FF4D8D; --line:#FBD9E6;
+    --peach:#FFE3D1; --mint:#D6F7E6; --lav:#E7DBFF; --grape:#AD7FFF; --tangy:#FF9F43;
+    --s1:#FF6B6B; --s2:#FF9F43; --s3:#FFD635; --s4:#26DEA0; --s5:#48B6FF; --s6:#AD7FFF;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;}
+  body{
+    font-family:'Nunito',-apple-system,Segoe UI,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(900px 620px at 8% -6%, var(--peach) 0%, rgba(255,227,209,0) 60%),
+      radial-gradient(820px 640px at 102% 14%, var(--lav) 0%, rgba(231,219,255,0) 58%),
+      radial-gradient(1000px 780px at 88% 108%, var(--mint) 0%, rgba(214,247,230,0) 60%),
+      radial-gradient(760px 560px at 18% 112%, #FFE9F1 0%, rgba(255,233,241,0) 62%),
+      #FFFBF6;
+    min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;
+  }
+
+  /* ---- brand ---- */
+  .nav{position:relative;z-index:5;display:flex;align-items:center;gap:10px;padding:26px 34px}
+  .brand{font-family:'Fredoka','Nunito';font-weight:700;font-size:23px;color:var(--ink);letter-spacing:-.3px}
+  .dot{color:#D9B7E8;margin:0 2px;font-weight:600}
+  .learn{background:linear-gradient(180deg,#FFD24D,var(--tangy));color:#7A3D00;font-weight:800;
+    font-size:12px;padding:4px 12px;border-radius:999px;letter-spacing:.1em;box-shadow:0 4px 10px #ff9f4340}
+
+  /* ---- stage ---- */
+  .stage{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;text-align:center;padding:14px 24px 60px}
+
+  /* oversized decorative string motif behind headline */
+  .motif{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .motif svg{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);
+    width:min(1180px,118vw);height:auto;opacity:.5;filter:saturate(1.05)}
+  .blob{position:absolute;border-radius:50%;filter:blur(2px);pointer-events:none;z-index:0;opacity:.55}
+  .blob.b1{width:340px;height:340px;left:-90px;top:8%;
+    background:radial-gradient(circle at 35% 35%, #FFE9F1, rgba(255,233,241,0))}
+  .blob.b2{width:300px;height:300px;right:-70px;bottom:6%;
+    background:radial-gradient(circle at 40% 40%, var(--mint), rgba(214,247,230,0))}
+
+  .wrap{position:relative;z-index:2;max-width:920px;width:100%}
+
+  .eyebrow{font-family:'Fredoka','Nunito';font-weight:600;font-size:14px;letter-spacing:.16em;
+    text-transform:uppercase;color:#B06A92;margin:0 0 18px}
+
+  h1{font-family:'Fredoka','Nunito';font-weight:700;color:var(--ink);
+    font-size:clamp(58px,10.5vw,138px);line-height:.9;letter-spacing:-.035em;
+    margin:0;text-shadow:0 3px 0 #FFFFFF, 0 5px 22px #ff4d8d12}
+  h1 .pink{color:var(--berry);
+    text-shadow:0 3px 0 #FFFFFF, 0 8px 26px #ff4d8d2e}
+  h1 .line2{display:block}
+
+  .subhead{font-size:clamp(17px,2.1vw,22px);font-weight:700;color:#6E5685;
+    max-width:620px;margin:26px auto 0;line-height:1.45}
+  .subhead b{color:var(--ink)}
+
+  /* ---- action group ---- */
+  .actions{margin:38px auto 0;max-width:660px;width:100%}
+  .inputrow{display:flex;gap:12px;align-items:stretch}
+  #link{flex:1;min-width:0;font-family:'Nunito';font-weight:700;font-size:17px;color:var(--ink);
+    background:#FFFFFFf2;border:2.5px solid #FFB8D4;border-radius:999px;padding:17px 24px;
+    box-shadow:0 4px 0 #FFD9E8, 0 8px 16px #ff4d8d12;outline:none;transition:box-shadow .15s,border-color .15s,transform .06s}
+  #link::placeholder{color:#C4A7BC;font-weight:700}
+  #link:focus{border-color:var(--berry);box-shadow:0 4px 0 #FFD9E8, 0 0 0 5px #ff4d8d22, 0 10px 22px #ff4d8d1f}
+
+  .btn{font-family:'Fredoka','Nunito';font-weight:700;cursor:pointer;white-space:nowrap;
+    border-radius:999px;border:2.5px solid #FFB8D4;background:#FFFFFFe6;color:#7A2A52;
+    font-size:17px;padding:16px 22px;box-shadow:0 4px 0 #FFD9E8, 0 8px 16px #ff4d8d1f;
+    transition:transform .06s ease, box-shadow .12s ease;-webkit-tap-highlight-color:transparent}
+  .btn:hover{box-shadow:0 4px 0 #FFD9E8, 0 10px 22px #ff4d8d29}
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #FFD9E8, 0 5px 12px #ff4d8d22}
+  .btn.primary{padding:16px 34px;color:#fff;border-color:#FF8FB6;
+    background:linear-gradient(180deg,#FF6FA3,#FF4D8D);
+    box-shadow:0 4px 0 #C9356C, 0 8px 16px #ff4d8d33}
+  .btn.primary:hover{box-shadow:0 4px 0 #C9356C, 0 11px 24px #ff4d8d44}
+  .btn.primary:active{transform:translateY(3px);box-shadow:0 1px 0 #C9356C, 0 5px 12px #ff4d8d33}
+
+  .presets{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0 0}
+  .chip{font-family:'Nunito';font-weight:800;font-size:14.5px;cursor:pointer;
+    border-radius:999px;border:2.5px solid #FFCBDE;background:#FFFFFFcc;color:#9A4A72;
+    padding:9px 16px;box-shadow:0 3px 0 #FFE0EC, 0 6px 12px #ff4d8d12;
+    transition:transform .06s ease, box-shadow .12s ease, background .12s}
+  .chip:hover{background:#fff;box-shadow:0 3px 0 #FFE0EC, 0 8px 16px #ff4d8d20}
+  .chip:active{transform:translateY(2px);box-shadow:0 1px 0 #FFE0EC, 0 4px 9px #ff4d8d18}
+
+  .helper{font-size:13px;font-weight:700;color:#B49AD0;margin:14px 0 0;letter-spacing:.01em}
+
+  /* ---- proof chips: single horizontal row ---- */
+  .proof{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:46px auto 0}
+  .pchip{display:inline-flex;align-items:center;gap:9px;font-family:'Nunito';font-weight:800;
+    font-size:14px;color:#6E5685;background:#FFFFFFcc;border:2px solid var(--line);
+    border-radius:999px;padding:9px 17px;box-shadow:0 4px 12px #ad7fff14}
+  .pchip .ic{font-size:16px;line-height:1}
+  .pchip.access{border-color:#CFE0FF;color:#3C5C8A;background:#F2F7FF}
+
+  @media (max-width:560px){
+    .nav{padding:20px}
+    .inputrow{flex-direction:column}
+    .btn.primary{padding:16px 22px}
+    h1{font-size:clamp(46px,15vw,84px)}
+  }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <span class="brand">TACTUS</span>
+    <span class="dot">·</span>
+    <span class="learn">LEARN</span>
+  </nav>
+
+  <main class="stage">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <div class="motif" aria-hidden="true">
+      <svg viewBox="0 0 1200 360" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <path d="M0 40 C 360 40, 840 40, 1200 40" stroke="#FF6B6B" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M0 100 C 360 100, 840 100, 1200 100" stroke="#FF9F43" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M0 160 C 360 160, 840 160, 1200 160" stroke="#FFD635" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M0 220 C 360 220, 840 220, 1200 220" stroke="#26DEA0" stroke-width="6.5" stroke-linecap="round"/>
+        <path d="M0 280 C 360 280, 840 280, 1200 280" stroke="#48B6FF" stroke-width="7.5" stroke-linecap="round"/>
+        <path d="M0 340 C 360 340, 840 340, 1200 340" stroke="#AD7FFF" stroke-width="8.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="wrap">
+      <p class="eyebrow">A haptic guitar coach</p>
+      <h1>
+        Feel every<span class="line2"><span class="pink">note.</span></span>
+      </h1>
+      <p class="subhead">
+        Learn guitar <b>by feel</b> — twelve haptic channels turn strings and frets into touch.
+        Built for Deaf &amp; hard-of-hearing players, and anyone who learns by doing.
+      </p>
+
+      <div class="actions">
+        <div class="inputrow">
+          <input id="link" type="text" autocomplete="off" spellcheck="false"
+                 placeholder="Paste a tab or MusicXML link…" aria-label="Paste a tab or MusicXML link" />
+          <button class="btn primary" id="start" type="button">Start →</button>
+        </div>
+        <div class="presets">
+          <button class="chip preset" type="button">🎸 Tactus Etude</button>
+          <button class="chip preset" type="button">🌧 Wonderwall</button>
+          <button class="chip preset" type="button">🥁 Seven Nation Army</button>
+        </div>
+        <p class="helper">Guitar Pro / MusicXML — or pick a preset</p>
+      </div>
+
+      <div class="proof">
+        <span class="pchip"><span class="ic">👁</span> vision + 👂 audio, fused</span>
+        <span class="pchip"><span class="ic">✋</span> 12 haptic channels</span>
+        <span class="pchip access"><span class="ic">♿</span> built for the Deaf</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function go(){
+      const v = (document.querySelector('#link')?.value || '').trim();
+      location.href = 'glow.html' + (v ? ('?src=' + encodeURIComponent(v)) : '');
+    }
+    document.getElementById('start').addEventListener('click', go);
+    const link = document.getElementById('link');
+    link.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); go(); } });
+    document.querySelectorAll('.preset').forEach(function(c){ c.addEventListener('click', go); });
+    link.focus();
+  </script>
+</body>
+</html>

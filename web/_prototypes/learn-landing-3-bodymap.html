@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tactus — feel the fretboard on your body</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#FFFBF6; --ink:#3A2A4A; --berry:#FF4D8D; --line:#FBD9E6;
+    --peach:#FFE3D1; --mint:#D6F7E6; --lav:#E7DBFF; --grape:#AD7FFF; --tangy:#FF9F43;
+    /* high-E(1) -> low-E(6) */
+    --s1:#FF6B6B; --s2:#FF9F43; --s3:#FFD635; --s4:#26DEA0; --s5:#48B6FF; --s6:#AD7FFF;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:'Nunito',-apple-system,Segoe UI,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(900px 620px at 8% -6%, var(--peach) 0%, rgba(255,227,209,0) 60%),
+      radial-gradient(820px 640px at 102% 14%, var(--lav) 0%, rgba(231,219,255,0) 58%),
+      radial-gradient(1000px 780px at 88% 108%, var(--mint) 0%, rgba(214,247,230,0) 60%),
+      radial-gradient(760px 560px at 18% 112%, #FFE9F1 0%, rgba(255,233,241,0) 62%),
+      #FFFBF6;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
+  }
+
+  /* ---------- nav ---------- */
+  .nav{position:relative;z-index:3;display:flex;align-items:center;gap:11px;padding:26px 40px}
+  .brand{font-family:'Fredoka','Nunito';font-weight:700;font-size:23px;letter-spacing:.4px;color:var(--ink);text-shadow:0 2px 0 #FFFFFFcc}
+  .dot{color:#E3B6CC;font-weight:700;margin:0 -2px}
+  .learn{background:linear-gradient(180deg,#FFD24D,var(--tangy));color:#7A3D00;font-weight:800;font-size:11px;padding:5px 12px;border-radius:999px;letter-spacing:.12em;box-shadow:0 4px 10px #ff9f4340}
+  .nav .right{margin-left:auto;font-weight:800;font-size:13px;color:#A77FC9;display:flex;align-items:center;gap:8px}
+  .nav .right .pip{width:9px;height:9px;border-radius:50%;background:var(--s4);box-shadow:0 0 9px var(--s4);animation:beat 2.4s ease-in-out infinite}
+
+  /* ---------- hero shell ---------- */
+  .hero{position:relative;z-index:1;flex:1;width:100%;max-width:1240px;margin:0 auto;
+        display:grid;grid-template-columns:1.06fr .94fr;gap:54px;align-items:center;
+        padding:8px 40px 54px}
+
+  /* ---------- left: copy ---------- */
+  .copy{max-width:560px}
+  .kicker{display:inline-flex;align-items:center;gap:9px;background:#FFFFFFcc;border:2px solid var(--line);border-radius:999px;padding:7px 16px 7px 12px;font-weight:800;font-size:13px;color:#9A5C7E;box-shadow:0 4px 0 #FFE2EE,0 8px 18px #ff4d8d14;margin-bottom:24px}
+  .kicker .taps{display:inline-flex;gap:4px}
+  .kicker .taps i{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .kicker .taps i:nth-child(1){background:var(--s1)} .kicker .taps i:nth-child(2){background:var(--s3)}
+  .kicker .taps i:nth-child(3){background:var(--s4)} .kicker .taps i:nth-child(4){background:var(--s5)}
+
+  h1{font-family:'Fredoka','Nunito';font-weight:700;font-size:clamp(40px,5.4vw,68px);line-height:1.0;letter-spacing:-1.4px;margin:0 0 20px}
+  h1 .hl{color:var(--berry);position:relative;white-space:nowrap}
+  h1 .hl::after{content:"";position:absolute;left:1%;right:1%;bottom:.04em;height:.13em;border-radius:99px;background:linear-gradient(90deg,var(--s1),var(--s3),var(--s4),var(--s5),var(--s6));opacity:.88}
+
+  .sub{font-weight:700;font-size:clamp(15.5px,1.45vw,19px);line-height:1.5;color:#6B5780;max-width:520px;margin:0 0 4px}
+  .sub b{color:#3A2A4A;font-weight:900}
+  .sub .chip{display:inline-block;font-weight:900;color:#7A2A52;background:#FFE3EF;border-radius:8px;padding:0 7px;white-space:nowrap}
+  .sub .chip.arm{color:#08543F;background:var(--mint)}
+
+  /* ---------- input group ---------- */
+  .form{margin-top:30px;width:100%;max-width:540px}
+  .group{display:flex;gap:11px;align-items:stretch}
+  #link{
+    flex:1;min-width:0;font-family:'Nunito';font-weight:700;font-size:16px;color:#5A4470;
+    background:#FFFFFFf2;border:2.5px solid #FFCBE0;border-radius:999px;padding:0 22px;height:58px;
+    box-shadow:0 4px 0 #FFE2EE,0 10px 22px #ff4d8d12;outline:none;transition:border-color .15s,box-shadow .15s;
+  }
+  #link::placeholder{color:#C29FB8;font-weight:700}
+  #link:focus{border-color:var(--berry);box-shadow:0 4px 0 #FFD0E2,0 0 0 4px #ff4d8d22,0 12px 26px #ff4d8d22}
+
+  .btn{font-family:'Nunito';font-weight:800;border-radius:999px;cursor:pointer;border:2.5px solid #FFB8D4;background:#FFFFFFe6;color:#7A2A52;transition:transform .06s,box-shadow .06s;white-space:nowrap}
+  .btn:active{transform:translateY(3px)}
+  .start{
+    height:58px;padding:0 30px;font-size:18px;letter-spacing:.2px;color:#fff;border-color:#FF8FB6;
+    background:linear-gradient(180deg,#FF6FA3,#FF4D8D);
+    box-shadow:0 4px 0 #C9356C,0 8px 16px #ff4d8d33;
+  }
+  .start:active{box-shadow:0 1px 0 #C9356C,0 4px 10px #ff4d8d33}
+  .start .ar{font-weight:900;margin-left:4px}
+
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .chip-btn{
+    height:42px;padding:0 16px;font-size:13.5px;border-radius:999px;border:2.5px solid #FFB8D4;background:#FFFFFFe6;color:#7A2A52;font-weight:800;cursor:pointer;
+    box-shadow:0 4px 0 #FFD9E8,0 8px 16px #ff4d8d1f;transition:transform .06s,box-shadow .06s,background .15s;display:inline-flex;align-items:center;gap:7px;
+  }
+  .chip-btn:hover{background:#FFF4F9}
+  .chip-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #FFD9E8,0 4px 10px #ff4d8d1f}
+  .chip-btn .em{font-size:15px}
+
+  .helper{margin-top:15px;font-weight:800;font-size:12.5px;color:#B08FC8;letter-spacing:.2px}
+  .mission{font-weight:800;font-size:13.5px;color:#9A5C7E;margin:20px 0 0;max-width:520px;line-height:1.5}
+  .mission b{color:#7A2A52;font-weight:900}
+
+  /* ---------- right: body map ---------- */
+  .figwrap{position:relative;display:flex;justify-content:center;align-items:center}
+  .card{
+    position:relative;width:100%;max-width:430px;
+    background:linear-gradient(180deg,#FFFFFFEE,#FFF6FBE6);
+    border:2.5px solid #FFE0EC;border-radius:34px;
+    box-shadow:0 4px 0 #FFE2EE,0 26px 60px #ff4d8d22, inset 0 1px 0 #fff;
+    padding:22px 22px 18px;backdrop-filter:blur(6px);
+  }
+  .card .cap{
+    position:absolute;left:50%;transform:translateX(-50%);bottom:-15px;
+    background:#FFFFFFf2;border:2px solid var(--line);border-radius:999px;
+    padding:8px 16px;font-weight:800;font-size:12px;color:#7A6690;white-space:nowrap;
+    box-shadow:0 6px 16px #ff4d8d1c;
+  }
+  .card .cap b{color:var(--berry)}
+  .card .cap .arm{color:#08543F}
+  .figure{width:100%;height:auto;display:block;overflow:visible}
+
+  /* small legend tags floating on the card */
+  .tag{position:absolute;display:inline-flex;align-items:center;gap:7px;background:#FFFFFFf2;border:2px solid var(--line);border-radius:999px;padding:5px 12px;font-weight:800;font-size:11.5px;color:#6B5780;box-shadow:0 6px 14px #ff4d8d18}
+  .tag .sw{width:9px;height:9px;border-radius:50%}
+  .tag.t-chest{top:18px;left:-14px}
+  .tag.t-chest .sw{background:var(--berry);box-shadow:0 0 8px var(--berry)}
+  .tag.t-arm{bottom:42px;right:-16px}
+  .tag.t-arm .sw{background:var(--tangy);box-shadow:0 0 8px var(--tangy)}
+
+  /* SVG node animation */
+  @keyframes beat{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.12);opacity:.78}}
+  .node{transform-box:fill-box;transform-origin:center}
+  .node.live{animation:nodepulse 1.9s ease-in-out infinite}
+  @keyframes nodepulse{
+    0%,100%{transform:scale(1)}
+    45%{transform:scale(1.34)}
+  }
+  .ring{transform-box:fill-box;transform-origin:center;opacity:0}
+  .ring.live{animation:ripple 1.9s ease-out infinite}
+  @keyframes ripple{
+    0%{transform:scale(.6);opacity:.55}
+    70%{transform:scale(2.6);opacity:0}
+    100%{transform:scale(2.6);opacity:0}
+  }
+  .glab{font-family:'Nunito';font-weight:900;font-size:11px;fill:#7A6690}
+  .glab.dim{fill:#A88BC4;font-size:9.5px;letter-spacing:.04em}
+  .zlab{font-family:'Nunito';font-weight:800;font-size:9.5px;fill:#9A6A3C}
+
+  /* ---------- footer ---------- */
+  .foot{position:relative;z-index:1;text-align:center;font-weight:800;font-size:12px;color:#C0A3D6;padding:0 24px 26px}
+  .foot b{color:#A77FC9}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:980px){
+    .hero{grid-template-columns:1fr;gap:40px;padding-top:6px}
+    .copy{max-width:600px;margin:0 auto;text-align:center}
+    .kicker{margin-left:auto;margin-right:auto}
+    .sub,.mission{margin-left:auto;margin-right:auto}
+    .form{margin-left:auto;margin-right:auto}
+    .chips{justify-content:center}
+    .figwrap{order:-1}
+    .card{max-width:380px}
+  }
+  @media (max-width:560px){
+    .nav{padding:20px}
+    .hero{padding:0 20px 48px}
+    .group{flex-direction:column}
+    .start{width:100%}
+    .tag{display:none}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .node.live,.ring.live,.pip{animation:none}
+    .ring.live{opacity:0}
+  }
+</style>
+</head>
+<body>
+
+  <header class="nav">
+    <span class="brand">TACTUS</span>
+    <span class="dot">·</span>
+    <span class="learn">LEARN</span>
+    <span class="right"><span class="pip"></span>haptic guitar coach</span>
+  </header>
+
+  <main class="hero">
+
+    <!-- LEFT: copy -->
+    <section class="copy">
+      <div class="kicker">
+        <span class="taps"><i></i><i></i><i></i><i></i></span>
+        12 taps that teach your hands
+      </div>
+
+      <h1>Feel the fretboard<br>on your <span class="hl">body</span>.</h1>
+
+      <p class="sub">
+        Tactus wears like a vest. <span class="chip">6 taps on your chest</span> are your six strings,
+        <span class="chip arm">6 on your forearm</span> are the fret zones — so your hands learn
+        <b>by feel, not by ear</b>.
+      </p>
+
+      <div class="form">
+        <div class="group">
+          <input id="link" type="text" inputmode="url" autocomplete="off" spellcheck="false"
+                 placeholder="Paste a tab or MusicXML link…" aria-label="Paste a tab or MusicXML link" />
+          <button class="btn start" id="startBtn" type="button">Start <span class="ar">→</span></button>
+        </div>
+
+        <div class="chips" role="group" aria-label="Preset songs">
+          <button class="chip-btn preset" type="button" data-src="songs/tactus-etude.gp"><span class="em">🎸</span> Tactus Etude</button>
+          <button class="chip-btn preset" type="button" data-src="songs/wonderwall.gp"><span class="em">🌧</span> Wonderwall</button>
+          <button class="chip-btn preset" type="button" data-src="songs/seven-nation-army.gp"><span class="em">🥁</span> Seven Nation Army</button>
+        </div>
+
+        <div class="helper">Guitar Pro / MusicXML — or pick a preset</div>
+        <p class="mission">Built for <b>Deaf &amp; hard-of-hearing players</b> — and anyone who learns by doing.</p>
+      </div>
+    </section>
+
+    <!-- RIGHT: body map -->
+    <section class="figwrap" aria-label="The 12-channel haptic wearable, mapped to a torso and forearm">
+      <div class="card">
+        <span class="tag t-chest"><span class="sw"></span>your 6 strings</span>
+        <span class="tag t-arm"><span class="sw"></span>fret zones</span>
+
+        <svg class="figure" viewBox="0 0 400 410" role="img" aria-labelledby="figTitle figDesc" xmlns="http://www.w3.org/2000/svg">
+          <title id="figTitle">Haptic wearable body map</title>
+          <desc id="figDesc">A torso silhouette with six colored dots down the chest representing the six guitar strings (high E at top to low E at bottom), and six warm dots down the forearm representing fret zones from near the nut to the elbow. Twelve haptic channels in total.</desc>
+
+          <defs>
+            <linearGradient id="torsoFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FFFDFB"/>
+              <stop offset="1" stop-color="#FFF1F7"/>
+            </linearGradient>
+            <linearGradient id="armFill" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#FFF6EC"/>
+              <stop offset="1" stop-color="#FFE9D6"/>
+            </linearGradient>
+            <!-- forearm zone gradient: peach -> tangy (near-nut -> elbow) -->
+            <linearGradient id="zoneGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0"  stop-color="#FFD7A8"/>
+              <stop offset="1"  stop-color="#FF8F2E"/>
+            </linearGradient>
+          </defs>
+
+          <!-- ===== torso silhouette ===== -->
+          <!-- shoulders + body, soft and rounded -->
+          <path d="
+            M150 70
+            C150 48 250 48 250 70
+            C300 78 318 112 322 150
+            C326 186 320 220 312 248
+            C306 270 300 300 300 330
+            C300 360 286 378 200 378
+            C114 378 100 360 100 330
+            C100 300 94 270 88 248
+            C80 220 74 186 78 150
+            C82 112 100 78 150 70 Z"
+            fill="url(#torsoFill)" stroke="#C9A9DE" stroke-width="3" stroke-linejoin="round"/>
+          <!-- neck -->
+          <path d="M178 60 C178 44 222 44 222 60 L222 74 C222 84 178 84 178 74 Z"
+                fill="url(#torsoFill)" stroke="#C9A9DE" stroke-width="3" stroke-linejoin="round"/>
+          <!-- collar hint -->
+          <path d="M150 70 C175 92 225 92 250 70" fill="none" stroke="#EAD2F0" stroke-width="2.5" stroke-linecap="round"/>
+
+          <!-- chest header -->
+          <text x="200" y="118" text-anchor="middle" class="glab dim">YOUR 6 STRINGS</text>
+
+          <!-- ===== 6 chest string nodes (high-E top -> low-E bottom) ===== -->
+          <!-- group: x=200 center, y from 138..278 -->
+          <g>
+            <!-- s1 e (high-E) -->
+            <circle class="ring live" cx="200" cy="138" r="11" fill="#FF6B6B" style="animation-delay:.0s"/>
+            <circle class="node live" cx="200" cy="138" r="11" fill="#FF6B6B" stroke="#fff" stroke-width="3" style="animation-delay:.0s"/>
+            <text x="232" y="142" text-anchor="middle" class="glab">e</text>
+            <!-- s2 B -->
+            <circle class="node" cx="200" cy="166" r="11" fill="#FF9F43" stroke="#fff" stroke-width="3"/>
+            <text x="232" y="170" text-anchor="middle" class="glab">B</text>
+            <!-- s3 G -->
+            <circle class="node" cx="200" cy="194" r="11" fill="#FFD635" stroke="#fff" stroke-width="3"/>
+            <text x="232" y="198" text-anchor="middle" class="glab">G</text>
+            <!-- s4 D -->
+            <circle class="ring live" cx="200" cy="222" r="11" fill="#26DEA0" style="animation-delay:.95s"/>
+            <circle class="node live" cx="200" cy="222" r="11" fill="#26DEA0" stroke="#fff" stroke-width="3" style="animation-delay:.95s"/>
+            <text x="232" y="226" text-anchor="middle" class="glab">D</text>
+            <!-- s5 A -->
+            <circle class="node" cx="200" cy="250" r="11" fill="#48B6FF" stroke="#fff" stroke-width="3"/>
+            <text x="232" y="254" text-anchor="middle" class="glab">A</text>
+            <!-- s6 E (low-E) -->
+            <circle class="node" cx="200" cy="278" r="11" fill="#AD7FFF" stroke="#fff" stroke-width="3"/>
+            <text x="232" y="282" text-anchor="middle" class="glab">E</text>
+          </g>
+
+          <!-- vertical "string" guide behind the dots -->
+          <line x1="200" y1="132" x2="200" y2="284" stroke="#F2DCEA" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+
+          <!-- ===== forearm (extends from lower-left of torso) ===== -->
+          <!-- arm tube angled down-left -->
+          <path d="
+            M120 300
+            C96 318 70 344 54 374
+            C46 388 56 402 72 400
+            C92 398 116 384 138 364
+            C156 348 168 330 164 312
+            C161 300 138 290 120 300 Z"
+            fill="url(#armFill)" stroke="#E8B488" stroke-width="3" stroke-linejoin="round"/>
+
+          <text x="118" y="328" text-anchor="middle" class="zlab" transform="rotate(-34 118 328)">FRET ZONES · near-nut → elbow</text>
+
+          <!-- 6 forearm fret-zone nodes along the arm axis -->
+          <!-- positions step down the arm; z1 near nut (top, near wrist) -> z6 elbow (bottom-left) -->
+          <g>
+            <circle class="node" cx="132" cy="316" r="8.5" fill="url(#zoneGrad)" stroke="#fff" stroke-width="2.6"/>
+            <text x="146" y="306" class="zlab">z1</text>
+
+            <circle class="ring live" cx="116" cy="332" r="8.5" fill="#FFB463" style="animation-delay:1.45s"/>
+            <circle class="node live" cx="116" cy="332" r="8.5" fill="url(#zoneGrad)" stroke="#fff" stroke-width="2.6" style="animation-delay:1.45s"/>
+            <text x="130" y="322" class="zlab">z2</text>
+
+            <circle class="node" cx="100" cy="348" r="8.5" fill="url(#zoneGrad)" stroke="#fff" stroke-width="2.6"/>
+            <text x="114" y="338" class="zlab">z3</text>
+
+            <circle class="node" cx="86" cy="362" r="8.5" fill="url(#zoneGrad)" stroke="#fff" stroke-width="2.6"/>
+            <text x="100" y="376" class="zlab">z4</text>
+
+            <circle class="node" cx="72" cy="376" r="8.5" fill="url(#zoneGrad)" stroke="#fff" stroke-width="2.6"/>
+            <text x="86" y="390" class="zlab">z5</text>
+
+            <circle class="ring live" cx="62" cy="388" r="8.5" fill="#FF8F2E" style="animation-delay:.5s"/>
+            <circle class="node live" cx="62" cy="388" r="8.5" fill="url(#zoneGrad)" stroke="#fff" stroke-width="2.6" style="animation-delay:.5s"/>
+            <text x="50" y="402" class="zlab">z6</text>
+          </g>
+        </svg>
+
+        <span class="cap">6 strings on your chest <b>·</b> 6 fret-zones on your <span class="arm">arm</span> <b>·</b> 12 channels</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">Vision <b>+</b> audio cross-check every note — granular per-finger correction, instant on your skin.</footer>
+
+<script>
+  function go(src){
+    var v = (typeof src === 'string' && src)
+      ? src
+      : ((document.querySelector('#link')?.value || '').trim());
+    location.href = 'glow.html' + (v ? ('?src=' + encodeURIComponent(v)) : '');
+  }
+
+  document.getElementById('startBtn').addEventListener('click', function(){ go(); });
+
+  var input = document.getElementById('link');
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); go(); }
+  });
+
+  document.querySelectorAll('.preset').forEach(function(btn){
+    btn.addEventListener('click', function(){ go(btn.getAttribute('data-src')); });
+  });
+
+  input.focus();
+</script>
+</body>
+</html>
