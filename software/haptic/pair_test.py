@@ -42,8 +42,8 @@ import sounddevice as sd
 from engine import HapticEngine
 from rig import (
     RigError, bypass_adapters_noprobe, configure_logging, get_logger, is_bypass_api,
-    load_channel_plan, load_pulse_defaults, make_glide, make_tone, resolve_device,
-    shared_would_fold,
+    list_output_devices, load_channel_plan, load_pulse_defaults, make_glide, make_tone,
+    resolve_device, shared_would_fold,
 )
 
 log = get_logger("tactus.haptic.pair_test")
@@ -63,17 +63,6 @@ _REPLUG = (
     "No-KS alternative: set BOTH USB Sound Devices to '7.1 Surround' in Windows Sound,\n"
     "then:  python pair_test.py --streaming   (DirectSound then routes discretely).\n"
     + "=" * 74)
-
-
-def _reinit_portaudio():
-    """Re-init PortAudio so device enumeration is fresh and stuck KS pins from a
-    prior run are released WITHOUT a physical replug (often enough on its own)."""
-    try:
-        sd._terminate()
-        sd._initialize()
-        log.debug("PortAudio re-initialized (fresh device enumeration)")
-    except Exception as e:  # noqa: BLE001
-        log.debug("PortAudio reinit skipped: %s", e)
 
 
 def _preflight_open(dev: int, sr: int):
@@ -119,7 +108,6 @@ def run_discrete_sweep(args, plan) -> None:
                            once via KS). For simultaneous cross-Vantec use macOS
                            CoreAudio, or set both devices to 7.1 and run --streaming.
     """
-    _reinit_portaudio()  # release any stuck KS pins from a prior run (often avoids a manual replug)
     amp = args.amp if args.amp is not None else DISCRETE_INTENSITY_AMP.get(args.intensity, 0.6)
     # resolve the two WDM-KS (bypass) adapters by ENUMERATION ONLY -- no probe, so the
     # KS pins stay healthy and open cleanly (the resonance_check pattern).
@@ -128,8 +116,16 @@ def run_discrete_sweep(args, plan) -> None:
     else:
         eps = bypass_adapters_noprobe()
         if len(eps) < 2:
-            sys.exit(f"discrete sweep needs two bypass (WDM-KS) adapters; found {eps}. "
-                     f"Plug in both Vantecs, or pass --v1/--v2 (see `low_note_all.py --list`).")
+            usb = [(i, a) for i, n, c, a in list_output_devices() if "usb sound" in n.lower()]
+            log.error("PortAudio sees %d WDM-KS Vantec endpoint(s) %s. USB Sound endpoints visible "
+                      "right now: %s", len(eps), eps, usb or "(NONE)")
+            sys.exit(
+                "\n" + "=" * 70 + "\n"
+                "No two WDM-KS Vantecs available -- they're not enumerating right now.\n"
+                "FIX: unplug BOTH Vantec USB dongles, wait ~3s, replug (or reboot), then run\n"
+                "     `python low_note_all.py --list` to confirm two 'USB Sound Device' WDM-KS\n"
+                "     entries appear, and retry. Or pass --v1/--v2 explicitly.\n"
+                + "=" * 70)
         if len(eps) > 2:
             log.warning("%d bypass adapters %s; using first two -- override with --v1/--v2", len(eps), eps)
         v1, v2 = eps[0], eps[1]
