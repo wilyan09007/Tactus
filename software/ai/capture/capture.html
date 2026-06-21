@@ -89,7 +89,7 @@
             <li>Terminal (new tab): <code>python3 software/ai/capture/serve.py</code> → open the printed URL in <b>Chrome</b> (this page).</li>
             <li>Pick the <b>Saramonic</b> mic + <b>front cam</b>. Leave <b>both checkboxes OFF</b> (video on, no marker).</li>
             <li>Set the framing (card on the right →). <b>Block = Core grid → Build run plan.</b></li>
-            <li>Per prompt: <b>● Record</b> → play to the <b>FRET 1→6</b> click → <b>■ Stop</b> → <b>Yes/No</b> (redo if a buzz run rang clean).</li>
+            <li>Per prompt: <b>● Record</b> → 👏 clap (1st run) → <b>3·2·1 count-in</b> → play <b>FRET 1→6</b> to the click → <b>■ Stop</b> → <b>Yes/No</b> (redo if a buzz run rang clean).</li>
             <li>~2–3 passes, then switch <b>Block → Pose-variation</b> for a couple passes (it tells you to change finger/wrist/angle).</li>
           </ol>
         </div>
@@ -446,17 +446,32 @@ function startRec(){
   t0=performance.now();
   const r=plan[idx], bpm=+$("#bpm").value||50, beatMs=60000/bpm;
   const sweep = r.frets&&r.frets.length>1;
+  const COUNT_IN = sweep ? 3 : 1;     // count-off beats so you feel the tempo BEFORE the first note
+  const CLAP_MS = 1300;               // recording rolls now -> clap window before the metronome starts
   let beat=0;
+  // recording is ALREADY rolling, so the clap is captured. Metronome is a GUIDE only;
+  // exact note timing is recovered offline from the audio (librosa onsets), not these beats.
   $("#beatDot").classList.add("on");
+  $("#beatBig").textContent="👏 GET SET";
+  $("#beatHint").textContent="clap once if this is the first run (sync) — count-in starts in a sec…";
   const tick=()=>{
     beat++; beatTimes.push(+(performance.now()-t0).toFixed(1));
     $("#beatDot").classList.toggle("on");
     if($("#clickAudible").checked) click();
-    if(sweep){ $("#beatBig").textContent = beat<=6? ("FRET "+beat):"done";
-               $("#beatHint").textContent = beat<=6?"play this fret now":"hit Stop"; }
-    else { $("#beatBig").textContent="● "+beat; $("#beatHint").textContent="keep going · hit Stop when done"; }
+    if(beat<=COUNT_IN){
+      $("#beatBig").textContent="● "+(COUNT_IN-beat+1);            // 3 … 2 … 1
+      $("#beatHint").textContent="get ready — THIS is the tempo";
+    } else if(sweep){
+      const f=beat-COUNT_IN;
+      $("#beatBig").textContent = f<=6 ? ("FRET "+f) : "done";
+      $("#beatHint").textContent = f<=6 ? ("play fret "+f+" now") : "hit Stop";
+    } else {
+      $("#beatBig").textContent="● "+(beat-COUNT_IN);
+      $("#beatHint").textContent="keep going · hit Stop when done";
+    }
   };
-  tick(); beatTimer=setInterval(tick,beatMs);
+  // wait out the clap window, THEN start the count-in + fret metronome
+  beatTimer=setTimeout(()=>{ tick(); beatTimer=setInterval(tick,beatMs); }, CLAP_MS);
   gate(true); $("#recBtn").disabled=true; $("#stopBtn").disabled=false; $("#skipBtn").disabled=true;
 }
 function click(){ try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=1000;
