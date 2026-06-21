@@ -1,0 +1,214 @@
+{
+  "experiment": "viz_eigen \u2014 eigenvector + feature-clustering demo centerpiece",
+  "data": {
+    "matrix": "/Users/aditya/Desktop/tactus/data/analysis/all/matrix.csv",
+    "n_rows": 1032,
+    "n_single_notes": 432,
+    "n_chord_strums": 600,
+    "single_note_counts": {
+      "clean": 144,
+      "buzz": 144,
+      "muted": 144
+    }
+  },
+  "rigor": {
+    "player": "aditya (single)",
+    "split": "stratified 5-fold (NOT LOPO)",
+    "preprocessing": "impute+scale+PCA+LDA fit on train folds only for all predictive numbers; scree/loadings are descriptive full-data geometry",
+    "chance_accuracy": 0.333,
+    "base_rates": "clean/buzz/muted balanced at 144 each"
+  },
+  "panel1_eigen": {
+    "n_features": 28,
+    "n_components_for_95": 18,
+    "explained_variance_ratio": [
+      0.2587,
+      0.1869,
+      0.061,
+      0.0598,
+      0.0567,
+      0.0463,
+      0.0381,
+      0.0351
+    ],
+    "cumulative_at_95_pcs": 0.962,
+    "pc_named": {
+      "PC1": {
+        "variance_pct": 25.9,
+        "top_features": [
+          {
+            "feature": "spec_centroid",
+            "loading": 0.361
+          },
+          {
+            "feature": "spec_rolloff",
+            "loading": 0.351
+          },
+          {
+            "feature": "spec_bandwidth",
+            "loading": 0.33
+          },
+          {
+            "feature": "spec_flatness",
+            "loading": 0.294
+          }
+        ]
+      },
+      "PC2": {
+        "variance_pct": 18.7,
+        "top_features": [
+          {
+            "feature": "mfcc_1",
+            "loading": 0.363
+          },
+          {
+            "feature": "mfcc_9",
+            "loading": -0.34
+          },
+          {
+            "feature": "mfcc_10",
+            "loading": -0.292
+          },
+          {
+            "feature": "mfcc_11",
+            "loading": -0.28
+          }
+        ]
+      },
+      "PC3": {
+        "variance_pct": 6.1,
+        "top_features": [
+          {
+            "feature": "attack_slope",
+            "loading": 0.587
+          },
+          {
+            "feature": "log_attack_time",
+            "loading": -0.477
+          },
+          {
+            "feature": "mfcc_5",
+            "loading": 0.367
+          },
+          {
+            "feature": "buzz_band_ratio",
+            "loading": 0.251
+          }
+        ]
+      }
+    },
+    "artifacts": {
+      "scree_png": "viz_eigen_scree.png",
+      "scree_html": "viz_eigen_scree.html",
+      "loadings_png": "viz_eigen_loadings.png",
+      "loadings_html": "viz_eigen_loadings.html"
+    }
+  },
+  "panel2_lda3d": {
+    "kfold_accuracy": 0.637,
+    "kfold_accuracy_std": 0.051,
+    "chance": 0.333,
+    "per_class_recall": {
+      "clean": 0.632,
+      "buzz": 0.514,
+      "muted": 0.764
+    },
+    "axis_titles": [
+      "LD1: harmonic-to-noise + chroma peak",
+      "LD2: chroma peak + mfcc 6",
+      "residual PC (display)"
+    ],
+    "artifacts": {
+      "lda3d_html": "viz_eigen_lda3d.html",
+      "lda3d_png": "viz_eigen_lda3d.png"
+    }
+  },
+  "panel3_clustering": {
+    "n_features": 36,
+    "chance_ARI": 0.0004,
+    "chance_AMI": 0.0003,
+    "methods": {
+      "KMeans (k=3)": {
+        "ARI": 0.11,
+        "AMI": 0.118,
+        "silhouette": 0.185,
+        "n_clusters": 3,
+        "n_noise": 0,
+        "named_clusters": {
+          "cluster_0": {
+            "n": 110,
+            "desc": "high RMS energy, low spectral bandwidth, high mfcc 2"
+          },
+          "cluster_1": {
+            "n": 274,
+            "desc": "low mfcc 1, low RMS energy, high spectral bandwidth"
+          },
+          "cluster_2": {
+            "n": 48,
+            "desc": "high resid centroid, high zero-crossing rate, high buzz-band ratio (>4kHz)"
+          }
+        }
+      },
+      "GMM (k=3)": {
+        "ARI": 0.043,
+        "AMI": 0.044,
+        "silhouette": 0.113,
+        "n_clusters": 3,
+        "n_noise": 0,
+        "named_clusters": {
+          "cluster_0": {
+            "n": 178,
+            "desc": "high RMS energy, low spectral bandwidth, low spectral centroid"
+          },
+          "cluster_1": {
+            "n": 198,
+            "desc": "low mfcc 1, low RMS energy, high spectral bandwidth"
+          },
+          "cluster_2": {
+            "n": 56,
+            "desc": "high resid centroid, high zero-crossing rate, high buzz-band ratio (>4kHz)"
+          }
+        }
+      },
+      "HDBSCAN": {
+        "ARI": 0.034,
+        "AMI": 0.052,
+        "silhouette": 0.13,
+        "n_clusters": 2,
+        "n_noise": 315,
+        "named_clusters": {
+          "noise": {
+            "n": 315,
+            "desc": "HDBSCAN noise / outliers"
+          },
+          "cluster_0": {
+            "n": 34,
+            "desc": "high log attack time, low attack slope, low harmonic-to-noise"
+          },
+          "cluster_1": {
+            "n": 83,
+            "desc": "low mfcc 1, low RMS energy, high mfcc 8"
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "clustering_png": "viz_eigen_clustering.png",
+      "clustering_html": "viz_eigen_clustering.html"
+    }
+  },
+  "panel4_transfer": {
+    "mono_kfold_dprime": 0.227,
+    "mono_kfold_accuracy": 0.538,
+    "n_chords": 600,
+    "chord_position_0clean_1buzz": 1.613,
+    "frac_chords_buzz_side": 0.985,
+    "frac_chords_in_mono_range": 1.0,
+    "transfer_note": "scale-invariant harmonic-residual axis transfers (chords on mono manifold); full-audio axis separates mono better (d'~1.1) but does NOT transfer (chords blow ~8x past buzz under mono->poly domain shift)",
+    "artifacts": {
+      "transfer_png": "viz_eigen_transfer.png",
+      "transfer_html": "viz_eigen_transfer.html"
+    }
+  },
+  "gallery": "viz_eigen_gallery.html"
+}

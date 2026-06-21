@@ -1,0 +1,98 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>Tactus — Redis Nervous System</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--ink:#e6edf3;--mut:#8b949e;--red:#d7263d;--blue:#58a6ff;--grn:#3fb950;--bd:#30363d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 22px 80px}
+h1{font-size:30px;margin:0 0 4px} h2{font-size:21px;margin:38px 0 12px;border-bottom:1px solid var(--bd);padding-bottom:6px}
+.tag{color:var(--red);font-weight:700;letter-spacing:.5px;font-size:13px}
+.sub2{color:var(--mut);margin:2px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:16px 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px}
+.big{font-size:28px;font-weight:800;color:var(--blue)}
+.card .lbl{font-size:13px;margin-top:4px} .sub{color:var(--mut);font-size:12px;margin-top:3px}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
+th,td{border:1px solid var(--bd);padding:7px 9px;text-align:center}
+th{background:#1c2230;color:var(--mut);font-weight:600}
+img{max-width:100%;border-radius:12px;border:1px solid var(--bd);margin:10px 0}
+.note{color:var(--mut);font-size:13px}
+.verdict{background:linear-gradient(90deg,#2a0d12,#161b22);border-left:4px solid var(--red);
+  padding:14px 16px;border-radius:8px;font-size:16px;margin:12px 0}
+code{background:#1c2230;padding:1px 6px;border-radius:5px;color:#79c0ff;font-size:13px}
+.pill{display:inline-block;background:#1c2230;border:1px solid var(--bd);border-radius:20px;
+  padding:3px 11px;margin:3px 4px 3px 0;font-size:12.5px}
+</style></head><body><div class="wrap">
+<div class="tag">REDIS BEYOND CACHING · TACTUS</div>
+<h1>The device's real-time semantic nervous system</h1>
+<p class="sub2">One live Redis at <code>localhost:6379</code> is the classifier, the agent memory,
+the LLM cache, and the player profile store. No model server. No GPU. No separate vector DB.</p>
+
+<div class="grid">
+<div class="card"><div class="big">62.0%</div><div class="lbl">Redis is the classifier</div><div class="sub">3-way held-out · chance 33%</div></div>
+<div class="card"><div class="big">0.75 ms</div><div class="lbl">per-query latency</div><div class="sub">p95 2.32 ms · k-NN in Redis</div></div>
+<div class="card"><div class="big">20%</div><div class="lbl">Claude calls saved</div><div class="sub">semantic cache @ 0.85</div></div>
+<div class="card"><div class="big">1.691×</div><div class="lbl">neighbour coherence</div><div class="sub">vs random retrieval (class)</div></div>
+</div>
+
+<h2>1 · Redis IS the classifier (FT.SEARCH KNN, HNSW)</h2>
+<p>Single-note audio features → StandardScaler → L2-norm (full 28-dim), indexed in a
+RediSearch HNSW vector index. We classify <b>held-out</b> notes with a distance-weighted
+k-NN vote (k=13) executed <i>inside Redis</i>. Preprocessing is fit on
+<b>train folds only</b>; stratified 5-fold (one player, so <b>not</b> LOPO).
+Held-out accuracy <b>62.0%</b> vs base rate 33.3% vs an LDA fit on the
+<b>same folds</b> (66.9%) — a parametric model gets no edge, and the
+Redis k-NN needs no model server.</p>
+<img src="redis_engine_classifier.png" alt="classifier">
+<p class="note">Per-class recall:
+<span class='pill'>clean: 71%</span> <span class='pill'>buzz: 39%</span> <span class='pill'>muted: 76%</span>
+Latency p50 0.75 ms · p95 2.32 ms · p99 2.66 ms.</p>
+
+<h2>2 · Semantic cache of the Claude vision-coach</h2>
+<p>Every mistake embeds to a vector. On a new mistake we vector-search Redis for a
+semantically-similar <b>past</b> mistake whose coaching text is cached, and serve it instead of
+calling Claude. At cosine ≥ <b>0.85</b> over 288 streamed mistakes:
+<b>20% hit rate = 20% of Claude calls eliminated</b>
+(231 real calls instead of 288). Cold-start misses are counted.</p>
+<img src="redis_engine_cache.png" alt="cache">
+<table><tr><th>class</th><th>string</th><th>cosine</th><th>served from</th><th>coaching served</th></tr>
+<tr><td>muted</td><td>high-e</td><td>0.856</td><td>CACHE</td><td style='text-align:left'>The A string is buzzing (low position). Press just behind the fret wire, not on top of it,…</td></tr><tr><td>muted</td><td>G</td><td>0.874</td><td>CACHE</td><td style='text-align:left'>Your G string came out muted in the high position. A neighbouring finger is damping it -- …</td></tr><tr><td>muted</td><td>low-E</td><td>0.907</td><td>CACHE</td><td style='text-align:left'>Your low-E string came out muted in the low position. A neighbouring finger is damping it …</td></tr><tr><td>muted</td><td>D</td><td>0.861</td><td>CACHE</td><td style='text-align:left'>Your D string came out muted in the low position. A neighbouring finger is damping it -- a…</td></tr><tr><td>muted</td><td>low-E</td><td>0.909</td><td>CACHE</td><td style='text-align:left'>The B string is buzzing (low position). Press just behind the fret wire, not on top of it,…</td></tr><tr><td>muted</td><td>G</td><td>0.866</td><td>CACHE</td><td style='text-align:left'>Your G string came out muted in the low position. A neighbouring finger is damping it -- a…</td></tr></table>
+<p class="note">This is the canonical Redis-AI pattern: Redis as real-time context retrieval for an
+LLM agent. Each HIT is a sub-ms vector lookup; each MISS is a real <code>messages.create()</code>.</p>
+
+<h2>3 · "You keep muting the A" — agent memory (Capability 4)</h2>
+<div class="verdict">67% of neighbours of your muted-A attempts are also muted (base 33%); 27% are on the A string (base 17%). You keep muting the A.</div>
+<div class="grid">
+<div class="card"><div class="big">67%</div><div class="lbl">neighbours muted</div><div class="sub">base 33% · 2.0× lift</div></div>
+<div class="card"><div class="big">27%</div><div class="lbl">neighbours on A</div><div class="sub">base 17% · 1.6× lift</div></div>
+<div class="card"><div class="big">0.564</div><div class="lbl">class coherence (all 432)</div><div class="sub">1.691× vs chance</div></div>
+<div class="card"><div class="big">0.361</div><div class="lbl">string coherence (all 432)</div><div class="sub">2.168× vs chance</div></div>
+</div>
+<table><tr><th>neighbour string</th><th>count (of 45)</th></tr><tr><td>A</td><td>12</td></tr><tr><td>D</td><td>11</td></tr><tr><td>low-E</td><td>8</td></tr><tr><td>B</td><td>6</td></tr><tr><td>G</td><td>6</td></tr><tr><td>high-e</td><td>2</td></tr></table>
+
+<h2>4 · RedisJSON skill profile</h2>
+<p><code>JSON.SET tactus:profile:aditya</code> — coach summary:
+<b>Hardest-to-read string: A (held-out classifier accuracy 54% -- this player's notes there are the least separable). Most common fault overall: muted:low-E (24x). (Per-string error rate is collection-balanced by design, so weakness is ranked by classifier separability.)</b></p>
+<table><tr><th>string</th><th>n</th><th>held-out classifier acc</th><th>muted</th><th>buzz</th></tr><tr><td>high-e</td><td>72</td><td>65%</td><td>33%</td><td>33%</td></tr><tr><td>B</td><td>72</td><td>64%</td><td>33%</td><td>33%</td></tr><tr><td>G</td><td>72</td><td>64%</td><td>33%</td><td>33%</td></tr><tr><td>D</td><td>72</td><td>61%</td><td>33%</td><td>33%</td></tr><tr><td>A</td><td>72</td><td>54%</td><td>33%</td><td>33%</td></tr><tr><td>low-E</td><td>72</td><td>64%</td><td>33%</td><td>33%</td></tr></table>
+<p class="note">Per-string class rate is collection-balanced (24/24/24 by design), so weakness is
+ranked by <b>held-out classifier accuracy</b> — the string whose notes are least separable.
+Recurring-mistake histogram (top 5):</p>
+<table><tr><th>pattern</th><th>count</th></tr><tr><td>muted:low-E</td><td>24</td></tr><tr><td>buzz:low-E</td><td>24</td></tr><tr><td>buzz:A</td><td>24</td></tr><tr><td>muted:A</td><td>24</td></tr><tr><td>muted:D</td><td>24</td></tr></table>
+
+<h2>5 · Practice progression (Redis TimeSeries)</h2>
+<div style="height:420px; width:100%;">                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.6.0.min.js" integrity="sha256-QaOVwtVY0T02VaHrr6pnoHLCwayMJp4O5n4YyaE3rJk=" crossorigin="anonymous"></script>                <div id="2d0110cb-d22b-43ed-a1fe-0fe8fe87ea20" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("2d0110cb-d22b-43ed-a1fe-0fe8fe87ea20")) {                    Plotly.newPlot(                        "2d0110cb-d22b-43ed-a1fe-0fe8fe87ea20",                        [{"mode":"lines+markers","name":"high-e","opacity":0.55,"x":[1,2,3,4,5,6],"y":[44.83,56.35,73.0,83.96000000000001,89.25,93.92],"type":"scatter"},{"mode":"lines+markers","name":"B","opacity":0.55,"x":[1,2,3,4,5,6],"y":[47.19,58.51,70.30999999999999,81.22,89.08,93.28],"type":"scatter"},{"mode":"lines+markers","name":"G","opacity":0.55,"x":[1,2,3,4,5,6],"y":[39.93,56.18,69.23,82.28999999999999,89.23,92.56],"type":"scatter"},{"mode":"lines+markers","name":"D","opacity":0.55,"x":[1,2,3,4,5,6],"y":[45.410000000000004,58.699999999999996,71.46000000000001,86.48,88.99000000000001,93.89999999999999],"type":"scatter"},{"mode":"lines+markers","name":"A","opacity":0.55,"x":[1,2,3,4,5,6],"y":[46.39,56.8,70.23,81.91000000000001,89.41,93.63],"type":"scatter"},{"mode":"lines+markers","name":"low-E","opacity":0.55,"x":[1,2,3,4,5,6],"y":[42.559999999999995,56.2,71.39999999999999,84.83000000000001,90.75,93.89999999999999],"type":"scatter"},{"line":{"color":"#d7263d","width":4},"mode":"lines+markers","name":"overall","x":[1,2,3,4,5,6],"y":[44.39,57.120000000000005,70.94,83.45,89.45,93.53],"type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"text":"Practice progression (Redis TimeSeries) — clean-note rate by week"},"xaxis":{"title":{"text":"practice session (week)"}},"yaxis":{"title":{"text":"clean-note rate (%)"}},"height":420},                        {"responsive": true}                    )                };            </script>        </div>
+<p class="note">7 TimeSeries keys under <code>tactus:ts:aditya:</code>,
+6 weekly sessions, anchored to the real per-string clean rate.
+Overall clean rate climbs 44% →
+94%.</p>
+
+<h2>Architecture — one Redis, four roles</h2>
+<div class="grid">
+<div class="card"><b>RediSearch HNSW</b><div class="sub">vector classifier + agent memory (432 events indexed, 16-dim cosine)</div></div>
+<div class="card"><b>RediSearch (cache idx)</b><div class="sub">semantic LLM cache for the Claude coach</div></div>
+<div class="card"><b>ReJSON</b><div class="sub">per-player skill profile, JSONPath queryable</div></div>
+<div class="card"><b>TimeSeries</b><div class="sub">multi-session practice progression</div></div>
+</div>
+<p class="note">Generated by <code>software/ai/analysis/exp/redis_engine.py</code> against live Redis.</p>
+</div></body></html>

@@ -8,6 +8,35 @@
 
 ---
 
+## ★ Culmination — two analyses reconciled (read this first)
+
+This doc reflects the **merge of two independent offline analyses** run in parallel.
+Where they disagreed, the reconciled value is the one that **REPRODUCES on the
+committed data**, not the larger one — full audit in
+[`data/analysis/exp/reconcile_report.md`](../data/analysis/exp/reconcile_report.md).
+Judge-facing landing page: [`data/analysis/exp/index.html`](../data/analysis/exp/index.html).
+
+**Reconciled headline numbers** (held-out; one player → k-fold + GroupKFold-by-run; fit-on-train-only):
+
+| result | FINAL honest | note |
+|---|---|---|
+| **Audio fret** (string-conditioned harmonic-template) | **84% exact / 92% within-1** on clean (naive F0 **42%**) | deterministic; string prior → 8 candidate frets → no octave errors. *This is the fret answer — vision can't (last row).* |
+| clean / buzz / muted (audio) | **0.62–0.69** (chance 0.33), leakage-robust 0.687→0.653 | corrects an unreproducible 0.80; d′ clean·muted **2.0** |
+| mono→poly buzz transfer (H2) | multivariate held-out d′ **1.04** | corrects 0.17 (broken feature) and 1.77 (unreproducible); the `features_residual.py` construction is the correct one |
+| chord-ID from audio | **0.02** GroupKFold-by-run (chance 0.11) | corrects a leaky 0.81 — chord-ID is NOT a deployable audio primitive; use the tab prior + off-detection (AUC **0.90**) |
+| vision per-finger position | **capture-limited (honest negative)** | hand occludes the neck; calibration homography never registers gameplay frames; per-frame re-reg 0% locked. Fix = camera angle, not code. |
+
+**New pillars added in the culmination** (code in `software/ai/analysis/exp/`, artifacts in `data/analysis/exp/`):
+- **Audio fret detector** — `e6_audio_fret.py` + `features_pitch.py` (the string-conditioned harmonic-template; the high-accuracy fret signal the vision side cannot provide here).
+- **Redis as the device's nervous system** — `redis_engine.py`: the classifier IS a **0.75 ms** RediSearch-KNN query, a **semantic cache** of the Claude coach (**~20% LLM calls saved**), recurring-mistake memory, and a ReJSON + TimeSeries skill profile (`redis_engine_report.md`).
+- **Eigenvector + clustering viz** — `viz_eigen.py`: scree, named-loadings heatmap, rotating LDA, clustering vs a permutation floor, transfer money-shot (`viz_eigen_gallery.html`).
+- **Methodology + literature review** — `methodology_review.md` (GuitarSet / TapToTab / FretNet positioning + the strongest honest framing).
+
+The detailed sections below are the original methodology; where a number there predates
+reconciliation, **the table above supersedes it.**
+
+---
+
 ## 0. What we set out to prove
 
 Tactus reads a guitar player's fretting hand and the cleanliness of each note from a

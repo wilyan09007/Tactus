@@ -1,0 +1,47 @@
+{
+  "deterministic": true,
+  "leakage_possible": false,
+  "chance_exact": 0.167,
+  "n_runs_full": 72,
+  "n_runs_kept_subset": 51,
+  "coverage_kept_fraction": 0.708,
+  "by_class": {
+    "clean": {
+      "n": 144,
+      "exact": 0.84,
+      "within1": 0.917
+    },
+    "buzz": {
+      "n": 144,
+      "exact": 0.604,
+      "within1": 0.875
+    },
+    "muted": {
+      "n": 144,
+      "exact": 0.146,
+      "within1": 0.486
+    }
+  },
+  "by_class_kept_subset_9x_claim": {
+    "clean": {
+      "n": 90,
+      "exact": 0.933,
+      "within1": 0.933
+    },
+    "buzz": {
+      "n": 120,
+      "exact": 0.642,
+      "within1": 0.933
+    },
+    "muted": {
+      "n": 96,
+      "exact": 0.188,
+      "within1": 0.573
+    }
+  },
+  "pitched_clean_plus_buzz": {
+    "n": 288,
+    "exact": 0.722,
+    "within1": 0.896
+  }
+}

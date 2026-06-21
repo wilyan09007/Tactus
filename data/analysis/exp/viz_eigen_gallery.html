@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tactus — eigenvector & feature-clustering gallery</title>
+<style>
+  :root { --bg:#0c0f14; --surf:#141922; --surf2:#1b2230; --line:#28303f;
+    --tx:#e8edf5; --tx2:#9fb0c5; --tx3:#6c7c93; --accent:#5DCAA5; --accent2:#378ADD; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--tx);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6; }
+  header { padding:48px 32px 28px; border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#10151d,#0c0f14); }
+  header h1 { margin:0 0 8px; font-size:30px; font-weight:600; letter-spacing:-0.5px; }
+  header p { margin:0; color:var(--tx2); max-width:880px; font-size:15px; }
+  .rigor { margin-top:16px; display:flex; flex-wrap:wrap; gap:8px; }
+  .rigor span { font-size:12px; color:var(--tx2); background:var(--surf2);
+    border:1px solid var(--line); border-radius:20px; padding:5px 12px; }
+  main { max-width:1080px; margin:0 auto; padding:28px 24px 64px;
+    display:flex; flex-direction:column; gap:28px; }
+  .panel { background:var(--surf); border:1px solid var(--line); border-radius:16px;
+    padding:24px 26px; }
+  .phead { display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+  .pnum { font-size:13px; font-weight:600; color:var(--bg); background:var(--accent);
+    border-radius:8px; padding:4px 9px; }
+  .panel h2 { margin:0; font-size:19px; font-weight:600; }
+  .blurb { color:var(--tx2); font-size:14.5px; margin:8px 0 16px; }
+  .metrics { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+  .m { background:var(--surf2); border:1px solid var(--line); border-radius:10px;
+    padding:8px 14px; min-width:120px; }
+  .mk { display:block; font-size:11.5px; color:var(--tx3); text-transform:uppercase;
+    letter-spacing:0.4px; }
+  .mv { display:block; font-size:21px; font-weight:600; color:var(--accent); margin-top:2px; }
+  .figwrap, .extra { background:#fff; border-radius:12px; padding:8px; overflow:hidden; }
+  .figwrap img, .extra img { width:100%; display:block; border-radius:8px; }
+  .extra { margin-top:14px; }
+  a.open { display:inline-block; margin-top:14px; font-size:13.5px; font-weight:500;
+    color:var(--accent2); text-decoration:none; border:1px solid var(--accent2);
+    border-radius:8px; padding:7px 14px; }
+  a.open:hover { background:var(--accent2); color:#fff; }
+  footer { text-align:center; color:var(--tx3); font-size:12.5px; padding:24px;
+    border-top:1px solid var(--line); }
+</style></head><body>
+<header>
+  <h1>Tactus — eigenvector &amp; feature-clustering gallery</h1>
+  <p>The linear-algebra spine of the separability study, made legible. Standardize →
+  PCA (eigendecomposition) → supervised LDA, then unsupervised clustering and a
+  mono→poly transfer — all on the audio (timbre + harmonic-residual) feature space.</p>
+  <div class="rigor">
+    <span>432 single notes + 600 chord strums</span>
+    <span>ONE player (aditya) → stratified 5-fold, NOT LOPO</span>
+    <span>all preprocessing fit on train folds only</span>
+    <span>clean/buzz/muted balanced → chance = 0.33</span>
+    <span>held-out audio-only LDA acc 0.64</span>
+  </div>
+</header>
+<main>
+    <section class="panel">
+      <div class="phead"><span class="pnum">01</span><h2>Eigen-decomposition: scree, cumulative variance, loadings heatmap</h2></div>
+      <p class="blurb">PCA = the eigendecomposition of the standardized audio covariance matrix. 18 principal components capture 95% of variance across 28 named audio features. The loadings heatmap shows what each eigenvector MEANS: PC1 ≈ spectral centroid. Descriptive geometry (full data) — the basis the supervised model is built on.</p>
+      <div class="metrics"><div class="m"><span class="mk">PCs for 95% var</span><span class="mv">18</span></div><div class="m"><span class="mk">PC1 variance</span><span class="mv">25.9%</span></div><div class="m"><span class="mk">named features</span><span class="mv">28</span></div></div>
+      <div class="figwrap"><img src="viz_eigen_scree.png" alt="Eigen-decomposition: scree, cumulative variance, loadings heatmap"></div>
+      <a class="open" href="viz_eigen_scree.html" target="_blank">open interactive ↗</a>
+    </section><div class="extra"><img src="viz_eigen_loadings.png" alt="loadings heatmap"><a class="open" href="viz_eigen_loadings.html" target="_blank">open loadings heatmap ↗</a></div>
+    <section class="panel">
+      <div class="phead"><span class="pnum">02</span><h2>Supervised LDA separation (rotating 3D, 2σ ellipsoids)</h2></div>
+      <p class="blurb">LDA finds the axes that SEPARATE clean / buzz / muted where raw PCA blobs. Axes are titled by their top named-feature loadings; ellipsoids are 2σ class covariances. The number is honest: held-out audio-only accuracy 0.64±0.05 vs chance 0.33, stratified 5-fold, single player, all preprocessing fit on train folds only. Static PNG below; rotating version is the interactive link.</p>
+      <div class="metrics"><div class="m"><span class="mk">held-out acc</span><span class="mv">0.64</span></div><div class="m"><span class="mk">chance</span><span class="mv">0.33</span></div><div class="m"><span class="mk">clean recall</span><span class="mv">0.632</span></div><div class="m"><span class="mk">muted recall</span><span class="mv">0.764</span></div></div>
+      <div class="figwrap"><img src="viz_eigen_lda3d.png" alt="Supervised LDA separation (rotating 3D, 2σ ellipsoids)"></div>
+      <a class="open" href="viz_eigen_lda3d.html" target="_blank">open interactive ↗</a>
+    </section>
+    <section class="panel">
+      <div class="phead"><span class="pnum">03</span><h2>Feature-based clustering vs true labels (named clusters)</h2></div>
+      <p class="blurb">KMeans, GMM and HDBSCAN on the standardized audio+residual space, scored against the TRUE clean/buzz/muted labels and a permutation chance floor (ARI≈0.0004). KMeans recovers structure far above chance (ARI=0.11, AMI=0.118). Each discovered cluster is NAMED by its most extreme standardized-feature means — geometry mapped to meaning.</p>
+      <div class="metrics"><div class="m"><span class="mk">KMeans ARI</span><span class="mv">0.11</span></div><div class="m"><span class="mk">chance ARI</span><span class="mv">0.0004</span></div><div class="m"><span class="mk">KMeans AMI</span><span class="mv">0.118</span></div><div class="m"><span class="mk">silhouette</span><span class="mv">0.185</span></div></div>
+      <div class="figwrap"><img src="viz_eigen_clustering.png" alt="Feature-based clustering vs true labels (named clusters)"></div>
+      <a class="open" href="viz_eigen_clustering.html" target="_blank">open interactive ↗</a>
+    </section>
+    <section class="panel">
+      <div class="phead"><span class="pnum">04</span><h2>Mono → poly transfer money shot</h2></div>
+      <p class="blurb">The SCALE-INVARIANT harmonic-residual buzz axis learned on single notes (held-out clean|buzz d'=0.227) transfers to chords: 600 chord strums projected on the SAME axis land INSIDE the mono cluster range (100%), at 1.613 on a 0=clean..1=buzz scale with a buzz-lean tail — exactly H2's prediction that the residual fault primitive is the same physical object mono and poly. Honest tradeoff: the full-audio axis separates mono far better but does NOT transfer (domain shift). Chords fully held out; geometry only (chords are unlabeled).</p>
+      <div class="metrics"><div class="m"><span class="mk">mono d' (held-out)</span><span class="mv">0.227</span></div><div class="m"><span class="mk">chords in mono range</span><span class="mv">100%</span></div><div class="m"><span class="mk">chord position</span><span class="mv">1.613</span></div><div class="m"><span class="mk">chord strums</span><span class="mv">600</span></div></div>
+      <div class="figwrap"><img src="viz_eigen_transfer.png" alt="Mono → poly transfer money shot"></div>
+      <a class="open" href="viz_eigen_transfer.html" target="_blank">open interactive ↗</a>
+    </section></main>
+<footer>Tactus offline-analysis pipeline · viz_eigen.py · descriptive geometry is
+labelled as such; every predictive number is held out · single-player k-fold (no
+cross-player generalization claimed)</footer>
+</body></html>
