@@ -12,3 +12,8 @@ opencv-contrib-python   # includes ArUco
 # coach + memory
 anthropic
 redis                   # optional: per-user mistake history
+# analysis (offline pipeline: segment -> features -> PCA/LDA -> audit)
+scikit-learn            # PCA, LDA, confusion, silhouette
+pandas                  # event/feature tables
+soundfile               # WAV read for feature windows
+matplotlib              # audit charts (Agg backend)
