@@ -13,7 +13,7 @@ Two-point discrimination (minimum separation to feel two points as two):
 - palm ≈ **10 mm**
 - forearm ≈ **35–40 mm**
 - torso / back ≈ **40–50 mm**
-Consequences: keep actuators **≥ ~4–5 cm apart** (a tight row funnels into one blob); put the **higher-resolution info (frets) on the forearm**, the coarser info (strings) on the chest; the hands/fingers carry the most bits if you ever add them.
+Consequences: keep actuators **≥ ~4–5 cm apart** (a tight row funnels into one blob); put the **higher-resolution info (frets) on the torso**, the coarser info (strings) on the back; the hands/fingers carry the most bits if you ever add them.
 
 ## Temporal acuity — the skin's strength
 - Gap/successiveness detection ≈ **5 ms**. Skin times far better than it pitches.
@@ -32,7 +32,7 @@ Consequences: keep actuators **≥ ~4–5 cm apart** (a tight row funnels into o
 | Finding | Design choice |
 |---|---|
 | Can't feel pitch | encode pitch as location + timing ([07](07-haptic-encoding.md)) |
-| Coarse spatial acuity on torso | 12 sites, ≥4–5 cm apart, frets on forearm |
+| Coarse spatial acuity on torso | 12 sites, ≥4–5 cm apart, frets on torso |
 | Excellent temporal acuity | sharp pulses; strum = timed sweep |
 | Funneling | separate simultaneous cues across body regions |
 | Few-actuator precedents work | 12 channels is plenty; structure + learnability > raw count |

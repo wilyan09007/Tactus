@@ -23,13 +23,13 @@ The repo says *what* to build. This says *why*, so nobody re-opens a settled que
 - **Harvesting a transducer from a Joy-Con / phone / controller** — those are **LRA/ERM** (single-frequency rumble buzzers), need a special haptic driver IC, and can't be driven from an audio amp. Wrong technology. Only **voice-coil exciters / shakers / woofers** are audio-drivable; the one MicroCenter sells (Dayton BST-2) wasn't needed once bass left scope.
 
 ## Encoding — location + timing, not frequency
-**Chosen:** a note = (string → chest actuator) + (fret → forearm zone + intensity), as a short ~160 Hz pulse (tune on-body; 200–250 Hz was a pre-teardown estimate).
+**Chosen:** a note = (string → back actuator) + (fret → torso zone + intensity), as a short ~160 Hz pulse (tune on-body; 200–250 Hz was a pre-teardown estimate).
 **Why:** skin can't discriminate pitch (vibrotactile Weber ~25%; ~5–9 distinguishable buzz-pitches total). A one-fret frequency change is unfeelable *as frequency*. But skin resolves *location* and *timing* well, so we render pitch there instead. See [12-perception-references.md](12-perception-references.md).
 **Rejected:** mapping pitch → one speaker's vibration frequency (the obvious first idea) — physically unfeelable.
 
 ## Channel count — 12
-**Chosen:** 12 = 6 strings (chest) + 6 fret-zones (forearm); 12 frets map onto the 6 zones via zone + intensity.
-**Why:** we use 6 SK473 = 12 amp channels; that's the binding constraint. It's also within skin's spatial resolution on the torso+forearm, so 12 distinct sites is already near the useful ceiling. The 2 reserved upper-back zones (old ch 13–14) are **dropped**.
+**Chosen:** 12 = 6 strings (back) + 6 fret-zones (torso); 12 frets map onto the 6 zones via zone + intensity.
+**Why:** we use 6 SK473 = 12 amp channels; that's the binding constraint. It's also within skin's spatial resolution on the back+torso, so 12 distinct sites is already near the useful ceiling. The 2 reserved upper-back zones (old ch 13–14) are **dropped**.
 
 ## Brain — laptop (Pi cut from critical path)
 **Chosen:** the laptop (M4 Pro 16" 48 GB) runs the full stack — browser (vision + UI) + Python (audio + model + 12-ch haptic out) — and drives the Vantecs.

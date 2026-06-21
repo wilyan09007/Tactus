@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 560" font-family="ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">Tactus body map — 12 channels</title>
+  <desc id="d">Six string channels (1 to 6, high E to low E) sit on the back; six fret-zone channels (7 to 12) sit on the torso. All 12 are torso-mounted, not the forearm.</desc>
+  <defs>
+    <style>
+      .title{font-weight:800;fill:#0f172a;font-size:20px}
+      .sub{fill:#64748b;font-size:12.5px}
+      .body{fill:#f1f5f9;stroke:#cbd5e1;stroke-width:1.5}
+      .lab{fill:#0f172a;font-size:13px;font-weight:600}
+      .cap{fill:#475569;font-size:11.5px}
+      .num{fill:#fff;font-size:12px;font-weight:800}
+      .hdr{font-size:12px;font-weight:800;letter-spacing:.05em}
+    </style>
+  </defs>
+
+  <text x="34" y="34" class="title">TACTUS — body map (12 channels)</text>
+  <text x="34" y="55" class="sub">string → a back site (which string) · fret → a torso site (which fret-zone) · all torso-mounted, not forearm · source: config/channel_map.json</text>
+
+  <!-- ===================== CHEST (strings, ch 1-6) ===================== -->
+  <text x="240" y="92" text-anchor="middle" class="hdr" fill="#e11d48">BACK — 6 STRINGS · ch 1–6</text>
+  <!-- torso silhouette -->
+  <circle cx="240" cy="128" r="22" class="body"/>
+  <path d="M150 196 Q150 168 186 162 L294 162 Q330 168 330 196 L322 452 Q322 470 304 470 L176 470 Q158 470 158 452 Z" class="body"/>
+  <!-- 6 string dots -->
+  <g>
+    <circle cx="210" cy="210" r="14" fill="#f43f5e"/><text x="210" y="214" text-anchor="middle" class="num">1</text>
+    <text x="234" y="214" class="lab">high E</text>
+    <circle cx="210" cy="252" r="14" fill="#f43f5e"/><text x="210" y="256" text-anchor="middle" class="num">2</text>
+    <text x="234" y="256" class="lab">B</text>
+    <circle cx="210" cy="294" r="14" fill="#f43f5e"/><text x="210" y="298" text-anchor="middle" class="num">3</text>
+    <text x="234" y="298" class="lab">G</text>
+    <circle cx="210" cy="336" r="14" fill="#fb7185"/><text x="210" y="340" text-anchor="middle" class="num">4</text>
+    <text x="234" y="340" class="lab">D</text>
+    <circle cx="210" cy="378" r="14" fill="#fb7185"/><text x="210" y="382" text-anchor="middle" class="num">5</text>
+    <text x="234" y="382" class="lab">A</text>
+    <circle cx="210" cy="420" r="14" fill="#fb7185"/><text x="210" y="424" text-anchor="middle" class="num">6</text>
+    <text x="234" y="424" class="lab">low E</text>
+  </g>
+
+  <!-- ===================== FOREARM (fret-zones, ch 7-12) ===================== -->
+  <text x="620" y="92" text-anchor="middle" class="hdr" fill="#9333ea">TORSO — 6 FRET-ZONES · ch 7–12</text>
+  <!-- forearm silhouette -->
+  <path d="M560 132 Q620 124 680 132 L700 452 Q700 472 660 472 L580 472 Q540 472 540 452 Z" class="body"/>
+  <!-- 6 fret-zone dots -->
+  <g>
+    <circle cx="600" cy="170" r="14" fill="#a855f7"/><text x="600" y="174" text-anchor="middle" class="num">7</text>
+    <text x="624" y="174" class="lab">zone 1 <tspan class="cap">(nut)</tspan></text>
+    <circle cx="600" cy="218" r="14" fill="#a855f7"/><text x="600" y="222" text-anchor="middle" class="num">8</text>
+    <text x="624" y="222" class="lab">zone 2</text>
+    <circle cx="600" cy="266" r="14" fill="#b06bf8"/><text x="600" y="270" text-anchor="middle" class="num">9</text>
+    <text x="624" y="270" class="lab">zone 3</text>
+    <circle cx="600" cy="314" r="14" fill="#b06bf8"/><text x="595" y="318" text-anchor="middle" class="num">10</text>
+    <text x="624" y="318" class="lab">zone 4</text>
+    <circle cx="600" cy="362" r="14" fill="#c084fc"/><text x="595" y="366" text-anchor="middle" class="num">11</text>
+    <text x="624" y="366" class="lab">zone 5</text>
+    <circle cx="600" cy="410" r="14" fill="#c084fc"/><text x="595" y="414" text-anchor="middle" class="num">12</text>
+    <text x="624" y="414" class="lab">zone 6 <tspan class="cap">(body)</tspan></text>
+  </g>
+
+  <!-- footnote -->
+  <rect x="34" y="506" width="792" height="0.6" fill="#e2e8f0"/>
+  <text x="34" y="528" class="sub">Each channel = one de-housed Ø52 mm driver. Sites ≥4–5 cm apart (foam-isolated) so neighbours don't blur (docs/07).</text>
+  <text x="34" y="547" class="sub">Two reserved back zones (old z7/z8) were dropped when the count settled at 12 = 6 boxes × 2 (docs/15 §11).</text>
+</svg>

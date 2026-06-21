@@ -1,8 +1,8 @@
 // ============================================================================
-// TACTUS — Actuator coupling puck for a 40 mm cone speaker
+// TACTUS — Actuator coupling puck for the Ø52 mm SK473 KHD driver
 // ----------------------------------------------------------------------------
 // WHY THIS PART EXISTS (see docs/15-build-refinements.md §4):
-// A 40 mm cone speaker is built to throw sound into AIR. Pressed naively to a
+// A Ø52 mm cone driver is built to throw sound into AIR. Pressed naively to a
 // shirt it is HEARD, barely FELT. This puck turns it into a tactor:
 //   - a closed, rigid CUP grips the speaker frame and kills air-radiation
 //     (more energy goes into the body, less into the room),
@@ -10,14 +10,16 @@
 //     pokes straight into the skin,
 //   - a WIRE NOTCH + zip-tie hole take all cable load off the speaker tabs,
 //   - EARS let you zip-tie / sew the puck to the compression garment.
-// Print ~16 cups + ~16 buttons (14 channels + spares). PETG, no supports.
+// Print ~14 cups + ~14 buttons (12 channels + spares). PETG, no supports.
+// NOTE: render headless with `python cad/_puck_render.py` (manifold3d) — OpenSCAD
+// is x86 and will not run on an arm64 Mac. The .scad stays the human-readable source.
 // ============================================================================
 
 part = "both";   // "cup" | "button" | "both" (both = side by side for preview/plate)
 
-// ---- speaker + fit parameters (edit if your 40 mm speaker differs) ----------
-spk_dia        = 40.0;   // speaker frame outer diameter
-spk_depth      = 7.0;    // speaker total depth (frame face -> magnet back)
+// ---- driver + fit parameters (Ø52 mm SK473 KHD driver — web-verified) -------
+spk_dia        = 52.0;   // SK473 driver frame OD — Ø52 web-verified (Havit HV-SK473, "Φ52mm*2"); caliper to confirm cone-vs-frame
+spk_depth      = 27.0;   // driver depth (est ~22-27; generous so the rim always seats — measure to confirm)
 spk_fit_gap    = 0.6;    // radial clearance so the speaker drops in (PETG shrink-safe)
 rim_lip        = 2.0;    // inward lip that the speaker rim rests against
 wall           = 2.4;    // cup wall thickness
@@ -102,11 +104,12 @@ else {                       // both -> for a quick visual / single small plate
   translate([cup_od + 8, 0, 0]) button();
 }
 
-// ASSEMBLY (per actuator):
-//  1. Solder the 2-wire pair to the speaker tabs; thread the wire out the notch.
-//  2. Zip-tie the wire to the cup through the strain-relief hole (cable load now
-//     on the cup, never on the solder tab — see docs/06-safety.md).
-//  3. Drop the speaker into the cup, cone facing OUT (toward the open rim).
+// ASSEMBLY (per actuator) — NO SOLDERING (truth.md §3.3, docs/15 §11-12):
+//  1. De-house the driver: pop the cone from the SK473 shell with its factory
+//     leads still attached to the amp board (no solder); thread the lead out the notch.
+//  2. Zip-tie the lead to the cup through the strain-relief hole (cable load now
+//     on the cup, never on the driver's own joint — see docs/06-safety.md).
+//  3. Drop the driver into the cup, cone facing OUT (toward the open rim).
 //  4. Super-glue / VHB a contact BUTTON to the centre of the dust cap so it
 //     stands ~2-3 mm proud of the cup rim -> it hits skin first.
 //  5. Zip-tie or sew the ears to the compression garment, button to the body,

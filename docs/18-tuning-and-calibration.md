@@ -11,14 +11,14 @@
 | **Per-channel gain (software)** | equal feel across all 12 sites | per-site, set by ear/feel | Body sensitivity varies by site; drivers vary unit-to-unit. **This is the volume control — in software, not the pots** (see docs/15 §12). |
 
 ## Experiment 1 — drive-frequency sweep (do this FIRST, per zone)
-1. Mount one driver + puck on a chest site, firm strap.
+1. Mount one driver + puck on a back site, firm strap.
 2. Play 500 ms tones at **60 / 100 / 150 / 200 / 250 Hz**; rate **felt strength 0–5** and how **localized** it feels.
-3. Pick the strongest+cleanest. Repeat on a **forearm** site (chest and forearm may prefer different freqs).
+3. Pick the strongest+cleanest. Repeat on a **torso** site (back and torso may prefer different freqs).
 
 | Site | 60 | 100 | 150 | 200 | 250 | chosen Hz |
 |---|---|---|---|---|---|---|
-| chest |  |  |  |  |  |  |
-| forearm |  |  |  |  |  |  |
+| back |  |  |  |  |  |  |
+| torso |  |  |  |  |  |  |
 
 ## Experiment 2 — punchiness (pulse shape)
 At the chosen freq, play pulses of **30 / 50 / 80 ms**, each with (a) flat envelope and (b) sharp-attack→fast-decay. Rate **punch** and **distinctness** (can you tell two quick taps apart?).
@@ -42,7 +42,7 @@ Play the chosen pulse on **every** site at equal digital gain; rate relative str
 
 ## Record the winners (these become the renderer defaults)
 ```
-drive_freq_chest:   ___ Hz      drive_freq_forearm: ___ Hz
+drive_freq_back:   ___ Hz      drive_freq_torso: ___ Hz
 pulse:              ___ ms, envelope = ___
 strap/coupling:     ___
 per-channel gains:  [ ... 12 values ... ]

@@ -11,7 +11,7 @@ Notes fly in from **depth (Z axis)** and land on the exact **(string, fret)** ce
 
 - **Registration:** ArUco marker on the **headstock** (+ optional 2nd on the body) → per-frame **6-DoF neck pose**, **temporally smoothed** (one-euro / Kalman) to remove jitter. Notes are rendered in the **neck coordinate frame** and projected through the pose, so they stick to the real frets as the neck moves.
 - **Occlusion-friendly by construction:** notes fly in **above** the board (visible until the instant of contact); the marker is on the headstock, away from the fretting hand.
-- **Color = per-string (6 colors), SAME palette as the chest body-zones** → one color language across screen + body + haptics. Finger = a numeral/icon on the note.
+- **Color = per-string (6 colors), SAME palette as the back body-zones** → one color language across screen + body + haptics. Finger = a numeral/icon on the note.
 - **Sustain = a depth "tail"** (length = duration) — the visual twin of the haptic looped-shimmer (`docs/21`). **Chord** = notes arriving together (bloom) or as a strum sweep.
 - **Customization:** speed (slow/fast = approach speed + lead distance), **loop-any-segment**, left-handed mirror, difficulty (note density), color themes.
 

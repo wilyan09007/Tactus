@@ -21,7 +21,7 @@
 LAPTOP (M4 Pro) ──USB──► 2× Vantec NBA-200U (USB→8 ch; V3 spare)
                             └► 6× SK473 PAM8403 stereo amp boards (gutted)
                                  └► 12× KHD 3 Ω/5 W drivers (de-housed) on the body
-                                      = 12 channels: 6 chest (strings) + 6 forearm (fret-zones)
+                                      = 12 channels: 6 back (strings) + 6 torso (fret-zones)
 ```
 - **Software split (locked):** the **browser** owns camera + MediaPipe + ArUco + AR + viz; a **Python** process owns mic + F0 + the fusion model + 12-ch haptic output; they sync over one localhost WebSocket (vision features flow browser→Python, timestamped).
 - **Power:** wall (10-port hub) for the judged run, or cordless (Anker 737). Only ~2–3 channels fire at once (sequential strum sweep), so real peak is ~2–3 W.

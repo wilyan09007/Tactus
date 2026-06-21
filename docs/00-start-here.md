@@ -3,7 +3,7 @@
 > **Canonical source of truth:** [`../truth.md`](../truth.md). If any doc disagrees with it, truth.md wins and the other doc is stale.
 
 ## What tactus is (30 seconds)
-A Deaf-accessible guitar-coaching wearable with two modes: **LEARN** (coach a target song) and **PLAY** (real-time "flat / sharp / in tune / on beat" on a real guitar). Every note becomes a vibration at a specific body spot (string = chest spot, fret = forearm spot). A laptop watches (webcam) + listens (mic), uses AI to figure out exactly what you played — notes, fingers, how clean — compares to any song, and gives feedback + a live fretboard map. For Deaf/HoH players and for learning by touch.
+A Deaf-accessible guitar-coaching wearable with two modes: **LEARN** (coach a target song) and **PLAY** (real-time "flat / sharp / in tune / on beat" on a real guitar). Every note becomes a vibration at a specific body spot (string = back spot, fret = torso spot). A laptop watches (webcam) + listens (mic), uses AI to figure out exactly what you played — notes, fingers, how clean — compares to any song, and gives feedback + a live fretboard map. For Deaf/HoH players and for learning by touch.
 
 **The one idea everything hangs on:** skin can't feel pitch, but it's great at *location* and *timing*. So we encode pitch as **where + when**, not as vibration frequency. See [07-haptic-encoding.md](07-haptic-encoding.md).
 
@@ -20,7 +20,7 @@ A Deaf-accessible guitar-coaching wearable with two modes: **LEARN** (coach a ta
 Diagrams for everything live in [../diagrams/](../diagrams/) (system flow, power modes, wiring map, body map).
 
 ## Build-tonight TL;DR
-- **12 channels** (6 SK473 × 2) = **6 strings (chest) + 6 fret-zones (forearm)**. The 2 reserved back zones are dropped.
+- **12 channels** (6 SK473 × 2) = **6 strings (back) + 6 fret-zones (torso)**. The 2 reserved upper-back zones are dropped.
 - **Actuators = the SK473's own KHD 3 Ω / 5 W drivers, de-housed** (not the 40 mm LEO speakers — those are spares).
 - **Power for the judged run: Mode A (wall).** A chord renders as a sequential strum sweep, so ≤2 channels fire at once → real peak ~2–3 W; the hub powers all amps with huge margin → cannot brown out.
 - **Cordless (Mode B): split amps 3/2/2 across Anker ports, the 3-amp bus on USB-C.** And a cut USB-C feed needs **5.1 kΩ CC resistors** or it stays dead.

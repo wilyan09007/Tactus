@@ -21,7 +21,7 @@ use <tactus_socket.scad>
 part      = "both";   // "base" | "barrel" | "both"
 
 // driver (measure!) + derived barrel size
-drv_dia   = 58;  drv_depth = 24;  drv_mag_dia = 30;     // ⚠️ PLACEHOLDER estimate — MEASURE the SK473 driver, update, re-render
+drv_dia   = 52;  drv_depth = 27;  drv_mag_dia = 30;     // Ø52 web-verified (Havit HV-SK473); depth/magnet — caliper to confirm, re-render in OpenSCAD
 sock_od   = socket_outer_d(drv_dia);
 bar_od    = sock_od + 5;          // sleeve around the socket
 bore_id   = bar_od + 0.8;         // slide clearance (telescope fit) — loose, the clamp takes up slack

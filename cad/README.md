@@ -1,80 +1,65 @@
-# CAD — the printed enclosure (FlashForge Adventurer 5M)
+# CAD — the printed enclosure + body-coupling pucks (FlashForge Adventurer 5M)
 
-Three parametric OpenSCAD parts that house **everything that is not the vest or the subwoofers**, plus the actuator coupling pucks that turn a 40 mm cone speaker into a body tactor.
+Everything printed for the **12-channel, no-solder** rig in [`truth.md`](../truth.md) (canonical). One **enclosure** that houses the audio source + amp boards + power, and the **coupling pucks** that turn each de-housed **Ø52 mm SK473 KHD driver** into a body tactor.
 
-| File | What it is | Print qty |
-|---|---|---|
-| `tactus_box.scad` | Main "brain-pack": 3× Vantec + 7× SK473/PAM8403 amp bricks + Pi 5, vented, with strain-relief comb + zip-tie floor. Renders `base` and `lid`. | 1 base + 1 lid |
-| `tactus_power_cradle.scad` | Open vented sled for the **Anker 737** (Mode B) / **10-port hub** (Mode A). Removable, screen + ports stay accessible. | 1 |
-| `actuator_puck.scad` | Cup that grips a 40 mm speaker + a dust-cap **contact button** → couples vibration into skin (docs/15 §4). Renders `cup`, `button`, or `both`. | ~16 cups + 16 buttons |
-
-All three fit the **5M's 220 × 220 × 220 mm bed** with margin (largest part, the box base, is **199.8 × 161.8 × 60.4 mm** — verified).
-
-> **Pre-rendered STLs are already in this folder** (`tactus_box_base.stl`, `tactus_box_lid.stl`, `tactus_power_cradle.stl`, `actuator_cup.stl`, `actuator_button.stl`) — drop them straight into the slicer. Re-render only if you change a parameter.
+> ⚙️ **Render note:** the installed **OpenSCAD is x86 and will not run on this arm64 Mac** (no Rosetta). So the print-ready parts are generated **headless with manifold3d** (the exact-boolean kernel modern OpenSCAD uses) via Python — no GUI. The `.scad` files remain the human-readable sources; the OpenSCAD-only parts (§ "Reference parts") need an OpenSCAD machine to re-render.
 
 ---
 
-## Why these shapes (the 3 things they solve)
-1. **Strain relief is built in, not bolted on.** The box's `comb_ledge` + per-wire holes + internal `cable_anchors` take the 14-wire umbilical load off the amp output pads — the single most-documented failure mode (`docs/06-safety.md`). Every actuator puck has its own wire notch + zip-tie hole.
-2. **The cone speakers become tactors.** The puck seals the speaker (less sound to the room), and the **contact button** on the dust cap pokes the cone's motion straight into the body (`docs/15 §4`). Without this they are *heard, barely felt*.
-3. **Dimension-tolerant.** Several of our part sizes are estimated, so boards mount with **VHB foam + zip-ties through a floor slot grid**, not tight press-fit pockets that fail if a number is off by 2 mm. Only the Pi's mount is a precise boss pattern (its holes are a known 58 × 49 mm).
+## ★ PRINT THIS — the verified print-ready set
+
+All four are **single watertight bodies, no supports, fit the 220³ bed.** Drop the STLs straight into the slicer.
+
+| File | Size (mm) | Qty | Orient | Material | Time |
+|---|---|---|---|---|---|
+| **`tactus_enclosure_plate.stl`** — base + lid, **ONE print** | base 175×97×63, lid 175×97×8 (plate 175×202) | 1 | as-exported, support-free | PETG | ~7–10 h |
+| `actuator_cup.stl` (Ø52 driver) | 75.4 × 57.4 × 30.4 | ~14 | open-side up | PETG/TPU | ~14 min |
+| `actuator_button.stl` | 14 × 14 × 9 | ~14 | flat-side down | PETG/TPU | ~6 min |
+
+Common: 0.2 mm layer · 3 walls · 4 top/bottom · 15–20 % gyroid · **supports NONE** · brim 5 mm (enclosure) / skirt (pucks) · PETG 235/80 °C.
+
+**The new box** — rounded, one compartment, **TACTUS** engraved big + bold (Arial Black) on the lid; base + lid print side-by-side as one plate:
+![TACTUS enclosure — assembled box + lid, red PETG](enclosure_render.png)
+
+### What lives inside (per truth.md §3 — laptop is the brain, no Pi)
+| Bay | Holds |
+|---|---|
+| One compartment (lidded) | **2× Vantec NBA-200U** (100×58×26; the 6 SK473 **audio jacks** plug in here) + **1× 10-port hub** (the 6 SK473 **USB** leads + 2 Vantec data leads plug in here). **No Pi, no ESP32, no boards** — the SK473 amp+driver units are on the **vest**; their 12 cables enter the wall holes. |
+| Power | **Mode A** = the 10-port hub (in the box). **Mode B** = **Anker 737** (155.7×54.6×49.5) — has its own plug, so it velcros **outside** the box / on the belt. |
+
+> **Why this enclosure (not `tactus_box`):** truth.md names `tactus_box` for the enclosure, but its pre-rendered STL is **non-watertight (8 disconnected chunks)** and **can't be re-rendered here** (OpenSCAD won't run). `tactus_enclosure` is the **manifold3d** equivalent — same contents, **verified watertight single body**, integrated power bay (so no separate `tactus_power_cradle`), re-renders headless. Use it for the print.
 
 ---
 
-## Render → STL
-The team slices these, so export STL first:
-
-**GUI:** open each `.scad` in OpenSCAD → set the `part =` line at the top → **F6** (full render) → **File ▸ Export ▸ Export as STL**.
-
-**Headless (one-liner per part):**
+## Render → STL (headless, no OpenSCAD)
 ```bash
-OS="/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD"   # macOS cask path
-$OS -D 'part="base"' -o tactus_box_base.scad.stl  tactus_box.scad
-$OS -D 'part="lid"'  -o tactus_box_lid.stl         tactus_box.scad
-$OS -o tactus_power_cradle.stl                     tactus_power_cradle.scad
-$OS -D 'part="cup"'    -o actuator_cup.stl         actuator_puck.scad
-$OS -D 'part="button"' -o actuator_button.stl      actuator_puck.scad
+/tmp/tactuscad/bin/python cad/tactus_enclosure.py   # → _base.stl, _lid.stl, and _plate.stl (the ONE-print file) + bed-fit assert
+/tmp/tactuscad/bin/python cad/_puck_render.py       # → actuator_cup.stl + actuator_button.stl (at spk_dia=52)
 ```
+The venv `/tmp/tactuscad` has `trimesh` + `manifold3d`. `tactus_enclosure.py` **errors out if any feature would print disconnected** — a single watertight body is guaranteed or the build fails.
 
-Edit the parameters at the top of each file to fit your *measured* parts (e.g. `inner_z`, `dev_l`, `spk_dia`). They're all named and commented.
+## ⚠️ The one open dimension — the driver Ø
+- **Ø52 mm is web-verified** (OEM Havit HV-SK473, literal "Φ52 mm*2" from two independent retailers; zero dissenting sources). The puck bore is **Ø52.6** (52 + 0.6 fit gap) and `spk_dia=52` is set across `actuator_puck.scad`, `tactus_node_mount.scad`, `tactus_chest_plate.scad`.
+- **Caliper the physical driver before the full run** (truth.md §8 #1): published "52 mm" is the nominal *frame* OD (what the cup grips), but no source separates cone vs frame, and driver *depth* / magnet Ø are unpublished (puck uses a generous `spk_depth=27`). **Print one cup, drop the driver in, confirm the grip, then batch the rest.**
 
----
+## Reference parts (OpenSCAD-only — need an OpenSCAD machine to re-render)
+- `tactus_box.scad` / `tactus_power_cradle.scad` — truth.md's original split enclosure. Superseded for printing by `tactus_enclosure` (above). Their STLs are non-watertight; don't print them.
+- `tactus_node_mount.scad` + `tactus_socket.scad` / `tactus_chest_plate.scad` — the **adjustable** body-mount alternative to the puck (split-clamp collar + depth micro-adjust). `drv_dia` is set to the verified **52 mm**; the pre-rendered STLs are still at the old 58 mm placeholder — **re-render in OpenSCAD** before printing these. The `actuator_puck` (above) is the working coupler if you don't need the adjustable mount.
 
-## Slicing for the FlashForge Adventurer 5M
-The 5M is **open-frame** (no chamber). Use **PETG** for the box + cradle (better heat tolerance than PLA near warm amps + the power bank; tougher screw bosses). **PLA is fine** if you want the easiest, fastest print and keep volume low. Pucks: **PETG or TPU** (TPU = softer, kinder skin contact).
+## Slicing (FlashForge Adventurer 5M — open-frame, web-confirmed)
+PETG for the enclosure (heat tolerance near the warm boards + bank; tougher bosses); PLA fine for a fast start. Pucks: PETG or TPU (TPU = softer skin contact). 0.2 mm · 3 walls · 4 top/bottom · 15–20 % gyroid · **no supports** · brim 5 mm on the base. Queue base / lid / a tray of pucks across printers — all hands-off.
 
-| Setting | Box base / lid | Power cradle | Actuator puck |
-|---|---|---|---|
-| Material | PETG (PLA ok) | PETG | PETG or TPU |
-| Layer height | 0.2 mm | 0.2 mm | 0.2 mm |
-| Walls / perimeters | 3 | 3 | 3 |
-| Top/bottom layers | 4 | 4 | 4 |
-| Infill | 15–20% gyroid | 15% gyroid | 20% |
-| Supports | **none** | **none** | **none** |
-| Build plate adhesion | brim (5 mm) — the base footprint is large | brim | skirt |
-| Orientation | as-modelled (floor down, open top up) | floor down | cup open-side **up**; button flat-side down |
-| Nozzle / bed (PETG) | 235 / 80 °C | 235 / 80 | 235 / 80 |
-| Est. print time | base ~6–9 h, lid ~3–4 h | ~3–4 h | ~12 min each |
-
-**Use the multiple printers + queue in parallel:** base on one, lid on a second, cradle + a tray of pucks on a third. Nothing here needs supports, so prints are hands-off.
-
-> Bed margin check: box base is ~200 × 155 mm on a 220 mm bed → ~10 mm/side for brim. If you want more margin, drop `inner_x`/`inner_y` to 185/145 in `tactus_box.scad` (boards then stack 2-high — they're light).
-
----
-
-## Assembly order (matches `docs/09-assembly-checklist.md`)
-1. Print everything. Tap the Pi standoffs (M2.5) and lid bosses (M3) with the screw itself — self-tapping into PETG.
-2. **Pucks first** (they gate Stage 2 tone-tests): solder the 2-wire pair to each 40 mm speaker, strain-relieve through the puck, glue a contact button to the dust cap. Verify *one* feels strong on skin before building 14.
-3. Mount Pi (if used) on the standoffs; lash the 3 Vantecs + 7 amp bricks to the floor grid with zip-ties over foam; amps nearest the comb wall.
-4. Run all 14 actuator wires out the comb; lash the bundle to the internal `cable_anchors`, then again at the comb → both-end strain relief.
-5. USB cables out the −Y glands to the laptop; power feed out its gland to the cradle.
-6. Drop the Anker (or hub) into the cradle; velcro it; belt the cradle beside the box.
-7. Lid on, 4× M3.
+## Assembly (no soldering — truth.md §3, docs/09)
+1. Self-tap the 4 lid bosses with the M3 screw (PETG self-taps).
+2. Lash the **2 Vantec + 6 SK473 boards** to the floor zip-tie grid over foam. Each board: 3.5 mm plug → a Vantec jack; USB-A → the hub.
+3. De-house each Ø52 mm driver (leads stay on the board — no solder), seat in a cup, glue a button to the dust cap, run the lead out the comb; strain-relieve both ends.
+4. Drop the Anker/hub into the open back bay → velcro through the floor strap slots → screen out the back.
+5. Lid on, 4× M3. *(Optional wear: waistband through the 2 floor belt slots, or zip-tie via the 4 corner lash holes.)*
 
 ## ArUco marker (vision)
-The fretboard homography (`docs/08`) is far more robust with a fiducial. Print an **ArUco marker** (e.g. 4×4_50, id 0, ~30 mm) on paper and tape it to the guitar headstock — no CAD needed; generate one at any ArUco generator or with `cv2.aruco`. (A small printed clip for it is a nice-to-have, not modelled here.)
+Print a **4×4_50, id 0, ~30 mm ArUco marker on paper**, tape it to the headstock — no CAD needed (truth.md §3.8).
 
 ## Parameters you'll most likely touch
-- `tactus_box.scad`: `inner_x/y/z` (volume), `n_wires` (comb slots), `pi_holes` (move the Pi).
-- `tactus_power_cradle.scad`: `dev_l/w/h` (set to whatever you actually belt in).
-- `actuator_puck.scad`: `spk_dia`, `spk_depth` (measure your speaker), `btn_dome_h` (skin poke).
+- `tactus_enclosure.py`: `IX` / `IY` / `IZ` (compartment size), `PLATE_GAP` (base↔lid spacing on the one-print bed).
+- `actuator_puck.scad` (+ `_puck_render.py`): `spk_dia`, `spk_depth` (your measured driver), `btn_dome_h` (skin poke).
+- `tactus_node_mount.scad` / `tactus_chest_plate.scad`: `drv_dia` / `drv_depth`, `torso_r`.

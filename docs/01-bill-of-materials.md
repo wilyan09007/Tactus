@@ -60,5 +60,5 @@ Resistors (1/4W 1kΩ SKU 796854 ×2, 2W 5.6kΩ SKU 796938). Keep for ESP32 senso
 
 - Vantec DAC channels available: **16** used (2 cards × 8); 12 routed, V3 spare
 - SK473 amp channels: **12** (6 boards × 2) ← the limit
-- Actuators driven: **12** KHD 3 Ω drivers = 6 strings (chest) + 6 fret-zones (forearm)
+- Actuators driven: **12** KHD 3 Ω drivers = 6 strings (back) + 6 fret-zones (torso)
 - Spare actuators: 24 LEO 40 mm speakers

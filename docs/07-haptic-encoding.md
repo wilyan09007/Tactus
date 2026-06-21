@@ -4,29 +4,29 @@
 
 Skin **cannot feel pitch**. Vibrotactile frequency discrimination is ~25% (Weber); the skin resolves maybe 5–9 distinct "buzz pitches" across its whole range, not the 100+ a musician hears. So a one-fret change (~6% frequency) is **unfeelable as a frequency**.
 
-The fix: encode pitch as **location + timing**, which skin *is* excellent at (temporal resolution ~5 ms; spatial two-point: fingertip ~2–4 mm, forearm ~35–40 mm, back ~40–50 mm). This is a sensory-substitution code, like Braille or the Neosensory Buzz — structured and learnable, not arbitrary.
+The fix: encode pitch as **location + timing**, which skin *is* excellent at (temporal resolution ~5 ms; spatial two-point: fingertip ~2–4 mm, torso ~35–40 mm, back ~40–50 mm). This is a sensory-substitution code, like Braille or the Neosensory Buzz — structured and learnable, not arbitrary.
 
 ## The 2-axis code
 
 A note = **(string, fret)**. Render it as two simultaneous cues on two body axes:
 
 ```
-STRING axis  -> which chest actuator  (6 actuators, high E top -> low E bottom)
-FRET axis    -> which forearm zone + intensity  (6 forearm zones x 2 levels = 12 frets)
+STRING axis  -> which back actuator  (6 actuators, high E top -> low E bottom)
+FRET axis    -> which torso zone + intensity  (6 torso zones x 2 levels = 12 frets)
 ```
 
-A played note fires **one chest actuator (string) + one fret-zone actuator (fret)** together as a short pulse.
+A played note fires **one back actuator (string) + one fret-zone actuator (fret)** together as a short pulse.
 
 ### Worked example — string 6, fret 1 vs fret 2
-- Both fire **chest-actuator-6** (tells you: low-E string).
+- Both fire **back-actuator-6** (tells you: low-E string).
 - Fret 1 → fret-zone 1 at intensity-low. Fret 2 → fret-zone 1 at intensity-high (or fret-zone 2).
 - Two distinguishable cues on the fret axis → you feel the difference. The unfeelable frequency delta became a feelable location/intensity delta.
 
-## Fret → 6 forearm zones (12 frets onto 12 channels)
+## Fret → 6 torso zones (12 frets onto 12 channels)
 
-The **6 fret-zone actuators z1–z6 sit on the fretting forearm and carry the 12 frets** via **zone + intensity** (2 levels each).
+The **6 fret-zone actuators z1–z6 sit on the torso and carry the 12 frets** via **zone + intensity** (2 levels each).
 
-| Frets | Zone (forearm) | Intensity |
+| Frets | Zone (torso) | Intensity |
 |---|---|---|
 | 0 (open) | — | brief double-tap on the string actuator only |
 | 1–2 | zone 1 | low / high |
@@ -45,13 +45,13 @@ Skin resolves ~4–8 intensity steps, so 2 levels per zone is safe.
 
 ## Chords / strums
 - **Sequential (recommended):** fire each note's (string+fret) pair in fast succession low→high string, ~40 ms apart. Skin's timing acuity makes this feel like a *strum sweep* — and a wrong note feels like a wrong spot in the sweep. This is what makes "feel that you played it wrong" work.
-- **Gestalt (optional):** common chord shapes get one memorized pattern (faster to recognize, less granular). The chord root rides the corresponding chest string actuator (the 2 upper-back cue zones from the old layout are dropped).
+- **Gestalt (optional):** common chord shapes get one memorized pattern (faster to recognize, less granular). The chord root rides the corresponding back string actuator (the 2 upper-back cue zones from the old layout are dropped).
 
 ## Design rules (or it turns to mush)
-1. **Separate simultaneous activations spatially** (chest vs forearm). Two close actuators firing together *funnel* into one perceived blob.
+1. **Separate simultaneous activations spatially** (back vs torso). Two close actuators firing together *funnel* into one perceived blob.
 2. **Sharp pulses, not drones.**
 3. **Structured mapping only** — neighbors in music → neighbors on body. Arbitrary maps are unlearnable.
-4. Keep the highest-resolution info (fret detail) on the higher-acuity sites (forearm over the broader chest column).
+4. Keep the highest-resolution info (fret detail) on the higher-acuity sites (torso over the broader back).
 
 ## Relationship to the coach
 The same encoder renders the **target** (what to play) and can flag the **error** (a buzz/wrong-spot pulse) from the AI diff. The screen carries the precise fretboard map; the body carries string + coarse fret + correctness. See [truth.md](../truth.md) and [22-interface-ar-and-correction.md](22-interface-ar-and-correction.md).

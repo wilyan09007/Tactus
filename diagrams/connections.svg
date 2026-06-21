@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 530" font-family="ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">Tactus connections — no soldering</title>
+  <desc id="d">Four plug-together links: laptop to Vantec by USB; Vantec to SK473 by 3.5 mm; hub to SK473 by USB-A for 5 V; SK473 to its drivers is factory-wired. Plus a list of connections that must never be made.</desc>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#94a3b8"/>
+    </marker>
+    <style>
+      .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.5}
+      .frm{font-weight:700;fill:#0f172a;font-size:13.5px}
+      .sub{fill:#64748b;font-size:11.5px}
+      .conn{font-weight:700;fill:#0f766e;font-size:12px}
+      .title{font-weight:800;fill:#0f172a;font-size:20px}
+      .flow{stroke:#94a3b8;stroke-width:2;fill:none}
+      .badge{fill:#ecfdf5;stroke:#34d399;stroke-width:1.2}
+      .bt{fill:#047857;font-size:11px;font-weight:700}
+    </style>
+  </defs>
+
+  <text x="34" y="34" class="title">TACTUS — connections (no soldering)</text>
+  <text x="34" y="55" class="sub">the whole rig plugs together: 3.5 mm + USB-A. Each SK473's driver↔board wiring is factory-made — never touched.</text>
+
+  <!-- column headers -->
+  <text x="150" y="86" text-anchor="middle" class="sub" font-weight="700">FROM</text>
+  <text x="365" y="86" text-anchor="middle" class="sub" font-weight="700">CONNECTOR · CARRIES</text>
+  <text x="600" y="86" text-anchor="middle" class="sub" font-weight="700">TO</text>
+
+  <!-- row 1 -->
+  <g>
+    <rect x="40" y="100" width="220" height="48" rx="10" class="card"/>
+    <text x="56" y="121" class="frm">Laptop USB-A ×3</text>
+    <text x="56" y="139" class="sub">the brain</text>
+    <line x1="262" y1="124" x2="468" y2="124" class="flow" marker-end="url(#ah)"/>
+    <text x="365" y="116" text-anchor="middle" class="conn">USB</text>
+    <text x="365" y="140" text-anchor="middle" class="sub">data + Vantec's own 5 V</text>
+    <rect x="470" y="100" width="220" height="48" rx="10" class="card" stroke="#0ea5e9"/>
+    <text x="486" y="121" class="frm">3× Vantec NBA-200U</text>
+    <text x="486" y="139" class="sub">USB → 8 analog ch each</text>
+    <rect x="704" y="110" width="92" height="28" rx="14" class="badge"/>
+    <text x="750" y="128" text-anchor="middle" class="bt">No solder</text>
+  </g>
+
+  <!-- row 2 -->
+  <g>
+    <rect x="40" y="166" width="220" height="48" rx="10" class="card" stroke="#0ea5e9"/>
+    <text x="56" y="187" class="frm">Vantec output jack</text>
+    <text x="56" y="205" class="sub">1 of 4 stereo jacks</text>
+    <line x1="262" y1="190" x2="468" y2="190" class="flow" marker-end="url(#ah)"/>
+    <text x="365" y="182" text-anchor="middle" class="conn">3.5 mm TRS</text>
+    <text x="365" y="206" text-anchor="middle" class="sub">line-level 2 ch · Tip=L Ring=R</text>
+    <rect x="470" y="166" width="220" height="48" rx="10" class="card" stroke="#14b8a6"/>
+    <text x="486" y="187" class="frm">SK473 captive 3.5 mm plug</text>
+    <text x="486" y="205" class="sub">= that box's 2 channels</text>
+    <rect x="704" y="176" width="92" height="28" rx="14" class="badge"/>
+    <text x="750" y="194" text-anchor="middle" class="bt">No solder</text>
+  </g>
+
+  <!-- row 3 -->
+  <g>
+    <rect x="40" y="232" width="220" height="48" rx="10" class="card" stroke="#22c55e"/>
+    <text x="56" y="253" class="frm">Powered hub / Anker 737</text>
+    <text x="56" y="271" class="sub">5 V source (Mode A / B)</text>
+    <line x1="262" y1="256" x2="468" y2="256" class="flow" marker-end="url(#ah)"/>
+    <text x="365" y="248" text-anchor="middle" class="conn">USB-A</text>
+    <text x="365" y="272" text-anchor="middle" class="sub">5 V power only — no audio</text>
+    <rect x="470" y="232" width="220" height="48" rx="10" class="card" stroke="#14b8a6"/>
+    <text x="486" y="253" class="frm">SK473 captive USB-A lead</text>
+    <text x="486" y="271" class="sub">powers the PAM8403</text>
+    <rect x="704" y="242" width="92" height="28" rx="14" class="badge"/>
+    <text x="750" y="260" text-anchor="middle" class="bt">No solder</text>
+  </g>
+
+  <!-- row 4 -->
+  <g>
+    <rect x="40" y="298" width="220" height="48" rx="10" class="card" stroke="#14b8a6"/>
+    <text x="56" y="319" class="frm">SK473 board (L / R out)</text>
+    <text x="56" y="337" class="sub">inside the master speaker</text>
+    <line x1="262" y1="322" x2="468" y2="322" class="flow" marker-end="url(#ah)"/>
+    <text x="365" y="314" text-anchor="middle" class="conn">factory-wired</text>
+    <text x="365" y="338" text-anchor="middle" class="sub">amplified drive — leave it</text>
+    <rect x="470" y="298" width="220" height="48" rx="10" class="card" stroke="#f59e0b"/>
+    <text x="486" y="319" class="frm">its 2 KHD Ø52 mm drivers</text>
+    <text x="486" y="337" class="sub">de-house → couple to body</text>
+    <rect x="704" y="308" width="92" height="28" rx="14" class="badge"/>
+    <text x="750" y="326" text-anchor="middle" class="bt">No solder</text>
+  </g>
+
+  <!-- never connect -->
+  <rect x="40" y="378" width="756" height="118" rx="12" fill="#fef2f2" stroke="#f87171" stroke-width="1.5"/>
+  <text x="60" y="404" font-weight="800" fill="#b91c1c" font-size="14">⛔ NEVER connect</text>
+  <text x="60" y="430" class="sub" font-size="12.5">• amp 5 V ↔ any 3.5 mm pin &#160;&#160; • a bare driver lead ↔ a Vantec jack &#160;&#160; • box power from the laptop's own USB ports</text>
+  <text x="60" y="454" class="sub" font-size="12.5">• never parallel extra speakers on a channel (PAM8403 is bridge-tied — see docs/15 §1) — every channel is one isolated pair</text>
+  <text x="60" y="478" class="sub" font-size="12.5">Meter every USB-A lead for 5 V / polarity / no short <tspan font-weight="700" fill="#0f172a">before</tspan> plugging in (docs/06-safety.md).</text>
+</svg>

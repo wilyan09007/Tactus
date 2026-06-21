@@ -31,7 +31,7 @@ Three layers: **sense → understand → render**. The brain (laptop) does sense
              | 18 AWG SPEAKER WIRE (soldered to output pads)
              v
  +-------------------------+
- | 12x KHD 3 Ω/5 W drivers |  6 strings (chest) + 6 fret-zones (forearm)
+ | 12x KHD 3 Ω/5 W drivers |  6 strings (back) + 6 fret-zones (torso)
  |  (de-housed)            |
  +-------------------------+
 ```
@@ -62,4 +62,4 @@ These are independent layers; a dongle is a fallback for the *Vantec* (audio), n
 
 ## Channel budget
 
-12 amp channels (6 SK473). Mapped as **6 string (chest) + 6 fret-zone (forearm)**. Vantec capacity and driver count exceed this; amps are the limit. The 2 reserved upper-back zones (old ch 13–14) are dropped.
+12 amp channels (6 SK473). Mapped as **6 string (back) + 6 fret-zone (torso)**. Vantec capacity and driver count exceed this; amps are the limit. The 2 reserved upper-back zones (old ch 13–14) are dropped.

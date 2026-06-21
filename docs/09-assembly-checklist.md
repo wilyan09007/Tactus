@@ -33,7 +33,7 @@ Build in this order. Each stage has a go/no-go gate — do not proceed past a fa
 - **Gate:** no brown-out, no cut-outs. If Mode B dips → add the 3rd port / lower gain.
 
 ## Stage 5 — mount + couple
-- [ ] Mount actuators per [05-wiring-map.md](05-wiring-map.md): 6 strings on chest column, 6 fret-zones on forearm.
+- [ ] Mount actuators per [05-wiring-map.md](05-wiring-map.md): 6 strings on back, 6 fret-zones on torso.
 - [ ] VHB + rigid backer, firm coupling. Service loops + garment anchors so no actuator bears wire weight ([06-safety.md](06-safety.md)).
 - **Gate:** each site is clearly felt and mechanically secure under arm movement.
 

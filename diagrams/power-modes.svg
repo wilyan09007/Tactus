@@ -1,38 +1,87 @@
-<svg width="100%" viewBox="0 0 700 470" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial,sans-serif">
-  <title>tactus power modes and chord-safety</title>
-  <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#6b7280"/></marker></defs>
-  <rect x="0" y="0" width="700" height="470" fill="#ffffff"/>
-  <text x="20" y="30" font-size="18" font-weight="600" fill="#111827">power — two modes, chord-safe</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 470" font-family="ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">Tactus power modes</title>
+  <desc id="d">Mode A powers everything from a wall-fed 10-port hub. Mode B keeps audio on the laptop and powers the SK473 boxes from an Anker 737 battery through a PD hub. One source at a time.</desc>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#94a3b8"/>
+    </marker>
+    <style>
+      .title{font-weight:800;fill:#0f172a;font-size:20px}
+      .sub{fill:#64748b;font-size:12px}
+      .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.4}
+      .h{font-weight:700;fill:#0f172a;font-size:13px}
+      .s{fill:#64748b;font-size:11px}
+      .flow{stroke:#94a3b8;stroke-width:2;fill:none}
+      .panhd{font-size:13px;font-weight:800;letter-spacing:.04em}
+      .tag{font-size:11px;font-weight:700;fill:#475569}
+    </style>
+  </defs>
 
-  <!-- Mode A -->
-  <rect x="20" y="50" width="320" height="190" rx="8" fill="#e6f4ea" stroke="#9ed3b0"/>
-  <text x="36" y="76" font-size="15" font-weight="600" fill="#111827">Mode A — wall (recommended)</text>
-  <rect x="40" y="90" width="120" height="46" rx="6" fill="#ffffff" stroke="#cbd5e1"/><text x="100" y="111" font-size="12" text-anchor="middle" fill="#111827">wall outlet</text><text x="100" y="127" font-size="10.5" text-anchor="middle" fill="#6b7280">→ 10-port hub</text>
-  <line x1="160" y1="113" x2="196" y2="113" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ar2)"/>
-  <rect x="200" y="90" width="120" height="46" rx="6" fill="#ffe2b8" stroke="#e6b870"/><text x="260" y="111" font-size="12" text-anchor="middle" fill="#111827">hub 10A / 50W</text><text x="260" y="127" font-size="10.5" text-anchor="middle" fill="#6b7280">5V to 7 amps</text>
-  <text x="36" y="165" font-size="12" fill="#111827">worst-case chord: 7 × 0.95A = 6.6A (33W)</text>
-  <text x="36" y="185" font-size="12" fill="#111827">hub supplies 50W → 34%+ headroom</text>
-  <rect x="36" y="200" width="288" height="28" rx="6" fill="#cae7d4" stroke="#9ed3b0"/>
-  <text x="180" y="219" font-size="12.5" text-anchor="middle" font-weight="600" fill="#0f5132">cannot collapse — chords 100% safe</text>
+  <text x="34" y="34" class="title">TACTUS — power modes (5 V, separate from audio)</text>
+  <text x="34" y="55" class="sub">one source at a time · at felt level ≤2 drivers fire at once → ~3 A / 15 W peak, huge margin (docs/03, 15 §5)</text>
 
-  <!-- Mode B -->
-  <rect x="360" y="50" width="320" height="190" rx="8" fill="#fff4e5" stroke="#e6c089"/>
-  <text x="376" y="76" font-size="15" font-weight="600" fill="#111827">Mode B — cordless (the wow)</text>
-  <rect x="380" y="90" width="130" height="46" rx="6" fill="#ffffff" stroke="#cbd5e1"/><text x="445" y="111" font-size="12" text-anchor="middle" fill="#111827">Anker 737</text><text x="445" y="127" font-size="10.5" text-anchor="middle" fill="#6b7280">24000mAh · 140W</text>
-  <line x1="510" y1="113" x2="546" y2="113" stroke="#6b7280" stroke-width="1.5" marker-end="url(#ar2)"/>
-  <rect x="550" y="90" width="120" height="46" rx="6" fill="#ffe2b8" stroke="#e6b870"/><text x="610" y="111" font-size="12" text-anchor="middle" fill="#111827">2 solder buses</text><text x="610" y="127" font-size="10.5" text-anchor="middle" fill="#6b7280">5V rails → amps</text>
-  <text x="376" y="165" font-size="12" fill="#111827">per-port 5V limit ≈ 3A (15W)</text>
-  <text x="376" y="185" font-size="12" fill="#111827">split 7 amps 3/2/2 across 3 ports</text>
-  <rect x="376" y="200" width="288" height="28" rx="6" fill="#fde6c4" stroke="#e6c089"/>
-  <text x="520" y="219" font-size="12.5" text-anchor="middle" font-weight="600" fill="#7a4f0a">≤2.2A/port → safe · ~4h runtime</text>
+  <line x1="430" y1="78" x2="430" y2="452" stroke="#e2e8f0" stroke-width="1.4"/>
 
-  <!-- rules -->
-  <rect x="20" y="260" width="660" height="190" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
-  <text x="36" y="286" font-size="14" font-weight="600" fill="#111827">hard rules (never break)</text>
-  <text x="36" y="312" font-size="12.5" fill="#374151">1.  audio and power never share a wire — only 3.5mm signal links laptop ↔ amps</text>
-  <text x="36" y="336" font-size="12.5" fill="#374151">2.  polarity strict: 5V↔5V, GND↔GND — never short 5V to GND (trips the bank)</text>
-  <text x="36" y="360" font-size="12.5" fill="#374151">3.  power amps from hub or bank only — never the Pi or laptop USB ports</text>
-  <text x="36" y="384" font-size="12.5" fill="#374151">4.  volume knobs ~50–60% — felt haptics need ~1W/ch; cranking wastes power + risks 40mm</text>
-  <text x="36" y="408" font-size="12.5" fill="#374151">5.  vent the enclosure — amps run warm</text>
-  <text x="36" y="434" font-size="12" fill="#6b7280">per channel ≈ 0.5–1W felt · pulses are short (30–80ms) so a chord is a brief peak</text>
+  <!-- =================== MODE A =================== -->
+  <text x="226" y="98" text-anchor="middle" class="panhd" fill="#16a34a">MODE A — WALL (judged demo)</text>
+
+  <rect x="126" y="110" width="200" height="36" rx="9" class="card"/>
+  <text x="226" y="133" text-anchor="middle" class="h">🔌 Wall outlet</text>
+  <line x1="226" y1="146" x2="226" y2="166" class="flow" marker-end="url(#ah)"/>
+
+  <rect x="66" y="168" width="320" height="46" rx="10" class="card" stroke="#22c55e"/>
+  <text x="226" y="190" text-anchor="middle" class="h">10-port powered hub</text>
+  <text x="226" y="206" text-anchor="middle" class="s">its own ~50 W AC adapter · does data + 5 V</text>
+
+  <!-- split rail -->
+  <line x1="226" y1="214" x2="226" y2="228" class="flow"/>
+  <line x1="100" y1="228" x2="352" y2="228" class="flow"/>
+  <line x1="100" y1="228" x2="100" y2="248" class="flow" marker-end="url(#ah)"/>
+  <line x1="226" y1="228" x2="226" y2="248" class="flow" marker-end="url(#ah)"/>
+  <line x1="352" y1="228" x2="352" y2="248" class="flow" marker-end="url(#ah)"/>
+
+  <rect x="43" y="250" width="114" height="66" rx="10" class="card" stroke="#6366f1"/>
+  <text x="100" y="272" text-anchor="middle" class="h" font-size="12">Laptop</text>
+  <text x="100" y="290" text-anchor="middle" class="s">upstream USB</text>
+  <text x="100" y="305" text-anchor="middle" class="s">(data)</text>
+
+  <rect x="169" y="250" width="114" height="66" rx="10" class="card" stroke="#0ea5e9"/>
+  <text x="226" y="272" text-anchor="middle" class="h" font-size="12">3× Vantec</text>
+  <text x="226" y="290" text-anchor="middle" class="s">data +</text>
+  <text x="226" y="305" text-anchor="middle" class="s">their 5 V</text>
+
+  <rect x="295" y="250" width="114" height="66" rx="10" class="card" stroke="#22c55e"/>
+  <text x="352" y="272" text-anchor="middle" class="h" font-size="12">6× SK473</text>
+  <text x="352" y="290" text-anchor="middle" class="s">USB-A —</text>
+  <text x="352" y="305" text-anchor="middle" class="s">5 V only</text>
+
+  <text x="226" y="344" text-anchor="middle" class="tag">= 9 of 10 ports · one wall plug + one USB cable to the laptop</text>
+
+  <!-- =================== MODE B =================== -->
+  <text x="634" y="98" text-anchor="middle" class="panhd" fill="#9333ea">MODE B — CORDLESS (walk-around)</text>
+
+  <text x="454" y="128" class="tag">DATA:</text>
+  <rect x="500" y="112" width="120" height="40" rx="10" class="card" stroke="#6366f1"/>
+  <text x="560" y="136" text-anchor="middle" class="h" font-size="12">Laptop</text>
+  <line x1="620" y1="132" x2="664" y2="132" class="flow" marker-end="url(#ah)"/>
+  <rect x="666" y="112" width="140" height="40" rx="10" class="card" stroke="#0ea5e9"/>
+  <text x="736" y="131" text-anchor="middle" class="h" font-size="12">3× Vantec</text>
+  <text x="736" y="146" text-anchor="middle" class="s">straight to laptop USB</text>
+
+  <text x="454" y="190" class="tag">POWER (5 V):</text>
+  <rect x="544" y="174" width="180" height="40" rx="10" class="card" stroke="#22c55e"/>
+  <text x="634" y="193" text-anchor="middle" class="h" font-size="12">Anker 737 (battery)</text>
+  <text x="634" y="208" text-anchor="middle" class="s">24 000 mAh · 140 W</text>
+  <line x1="634" y1="214" x2="634" y2="234" class="flow" marker-end="url(#ah)"/>
+  <rect x="544" y="236" width="180" height="40" rx="10" class="card" stroke="#22c55e"/>
+  <text x="634" y="260" text-anchor="middle" class="h" font-size="12">PD-powered USB-A hub</text>
+  <line x1="634" y1="276" x2="634" y2="296" class="flow" marker-end="url(#ah)"/>
+  <rect x="544" y="298" width="180" height="40" rx="10" class="card" stroke="#22c55e"/>
+  <text x="634" y="322" text-anchor="middle" class="h" font-size="12">6× SK473 USB-A (5 V)</text>
+
+  <text x="634" y="362" text-anchor="middle" class="tag">laptop + Anker on battery → no wall plug at all</text>
+
+  <!-- footnote -->
+  <rect x="34" y="420" width="792" height="0.6" fill="#e2e8f0"/>
+  <text x="34" y="442" class="sub">Hard rule: audio (3.5 mm) and power (5 V) never share a wire; never power the boxes from the laptop's own USB ports. Meter 5 V + polarity before connecting (docs/06).</text>
 </svg>

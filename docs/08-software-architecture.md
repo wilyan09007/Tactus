@@ -52,7 +52,7 @@ The engine is song-agnostic. Two modes:
 
 ```
 note event (string, fret, velocity, t)
-   -> encoder (docs/07): (string -> chest ch) + (fret -> forearm zone + intensity)
+   -> encoder (docs/07): (string -> back ch) + (fret -> torso zone + intensity)
    -> synth: ~160 Hz burst, 30-80 ms, amp = velocity (tune on-body; was 200-250 Hz pre-teardown)
    -> ALSA: write buffer to (card, channel) per config/channel_map.json
 ```

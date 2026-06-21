@@ -71,22 +71,22 @@ ONE shared ground (laptop ↔ Vantec ↔ 3.5 mm sleeve ↔ amp). Isolation = "+5
 ### 3.2 Audio-out chain & channel map (12 channels)
 - **2× Vantec NBA-200U** (CM6206) used: **V1 = all 4 jacks (ch 1–8), V2 = 2 jacks (ch 9–12)**; **V3 = spare** (swap-in for any jack that won't enumerate on Linux).
 - **6× SK473 boxes**, each gutted to **one PAM8403 stereo board** = 2 channels.
-- **12 channels = 6 chest (strings) + 6 forearm (fret-zones):**
+- **12 channels = 6 back (strings) + 6 torso (fret-zones):**
 
 | Ch | Vantec | Jack | Box | Side | Body site |
 |----|--------|------|-----|------|-----------|
-| 1–6 | V1 | front/rear/center | B1–B3 | L/R | chest column: high-E (top) → low-E (bottom) |
-| 7–8 | V1 | side | B4 | L/R | forearm fret-zones z1–z2 (near nut) |
-| 9–12 | V2 | front/rear | B5–B6 | L/R | forearm fret-zones z3–z6 (→ elbow) |
+| 1–6 | V1 | front/rear/center | B1–B3 | L/R | **back**: 6 string sites, high-E → low-E |
+| 7–8 | V1 | side | B4 | L/R | **torso** fret-zones z1–z2 |
+| 9–12 | V2 | front/rear | B5–B6 | L/R | **torso** fret-zones z3–z6 |
 
-- 12 musical frets map onto the 6 forearm zones via **zone + intensity**. Sites kept **≥ 4–5 cm apart** (forearm 2-pt ~35–40 mm). The 2 reserved upper-back zones (old ch 13–14) are **dropped**.
+- 12 musical frets map onto the 6 torso zones via **zone + intensity**. **All 12 sites are torso-mounted — strings on the back, fret-zones on the front/torso, NOT the forearm** (no reliable way to anchor to the forearm); exact positions are flexible. Sites kept **≥ 4–5 cm apart**. The 2 reserved zones (old ch 13–14) are **dropped**.
 - ⚠️ **ALSA enumeration trap:** the 3 CM6206 cards enumerate with the same name and reorder across reboots. Bind by `/dev/snd/by-id` (not `hw:0/1/2`), and verify the in-card channel order (`speaker-test`) — CM6206 often presents FL,FR,FC,LFE,RL,RR,SL,SR (center/LFE before rears). Fill `card_alsa`/`alsa_ch` empirically at bring-up. **(docs/15 §2.)**
 
 ### 3.3 Drivers & body coupling
 - **Actuators = the SK473's own KHD 3 Ω / 5 W drivers, de-housed** (mass-y, "subwoofer-ish" → likely punchier than the 40 mm). Factory-matched to the PAM8403, so 3 Ω is safe at our felt level. The bought **40 mm LEO speakers are now spares.**
 - **Coupling (make-or-break):** de-house the driver → **contact button on the dust-cap + rigid backer on the magnet + firm strap.** A bare cone radiates into air (heard, not felt); the button couples cone excursion into tissue. Foam-isolate each node; spacing ≥ 4–5 cm.
-- **Puck (parametric, `cad/actuator_puck.scad`):** contact button **Ø 14 mm**, dome **4.5 mm** proud, glue base 1.6 mm; cup wall 2.4 mm, back 2.4 mm; wire notch **6 × 5 mm** (fits 18 AWG zip-cord). **`spk_dia` is set to 40 mm as a placeholder — MEASURE the KHD driver and re-render before final print.**
-- ⚠️ **Driver diameter is NOT yet measured.** CAD placeholders: puck `spk_dia=40`, chest-plate/node-mount `drv_dia=58, drv_depth=24, drv_mag_dia=30`. **Measure the de-housed KHD driver; set `spk_dia`/`drv_dia` in the .scad files; re-render the STLs.** This is the top open dimension.
+- **Puck (parametric, `cad/actuator_puck.scad`):** contact button **Ø 14 mm**, dome **4.5 mm** proud, glue base 1.6 mm; cup wall 2.4 mm, back 2.4 mm; wire notch **6 × 5 mm** (fits 18 AWG zip-cord). **`spk_dia` is set to 52 mm — Ø52 web-verified (Havit HV-SK473); caliper to confirm before the full batch.**
+- ✅ **Driver Ø = 52 mm (web-verified — caliper to confirm).** OEM Havit HV-SK473, literal "Φ52 mm*2", two independent sources, zero dissent. Set in CAD: puck `spk_dia=52`, chest-plate/node-mount `drv_dia=52` (depth/magnet `drv_depth=27, drv_mag_dia=30` are still estimates). Published 52 mm is the **nominal frame OD** (what the coupler grips); no source splits cone-vs-frame and depth/magnet are unpublished — **caliper one physical driver before the full batch**, then re-render.
 
 ### 3.4 Amps (PAM8403, filterless Class-D, BTL)
 - Each channel's two output terminals (`+`/`−`) are **both driven** — neither is ground. **Hard rules:** never tie any `−` to GND; never join two channels' `−`; **every actuator gets its own isolated 2-wire pair.** Keep `+→+` phase consistent across the array.
@@ -102,10 +102,10 @@ ONE shared ground (laptop ↔ Vantec ↔ 3.5 mm sleeve ↔ amp). Isolation = "+5
 
 ### 3.7 CAD / enclosure (FlashForge Adventurer 5M, 220×220×220 mm bed)
 Parametric OpenSCAD + pre-rendered STLs in `cad/`:
-- **`tactus_box` (base+lid):** houses Vantecs + amp boards (+ Pi if used), vented, with strain-relief comb + zip-tie floor. **Base = 199.8 × 161.8 × 60.4 mm** (verified, fits the bed). Pi mount = 58 × 49 mm boss pattern.
+- **`tactus_enclosure` (base+lid, ONE print):** a single rounded compartment holding the **2 Vantecs + the 10-port hub** (the SK473 amp+driver units live on the **vest**). Wire holes for the 6 audio + 6 USB + power; **TACTUS** engraved big + bold on the lid (no logos). **Base 175 × 97 × 63 mm; base+lid print side-by-side as `tactus_enclosure_plate.stl`, 175 × 202 on the 220 bed** — verified watertight, support-free.
 - **`tactus_power_cradle`:** vented sled for the Anker 737 / 10-port hub.
 - **`actuator_puck` (cup + button):** §3.3. ~12–16 needed.
-- **`tactus_chest_plate` / `tactus_node_mount`:** body-side mounts. Use **VHB + zip-ties through a slot grid** (dimension-tolerant), not tight press-fit, because several sizes are estimated. **Recommended decision: amps stay in the box, splice-extend each driver's leads with 18 AWG to the vest** (drivers + wire on the body only).
+- **`tactus_chest_plate` / `tactus_node_mount`:** body-side mounts. Use **VHB + zip-ties through a slot grid** (dimension-tolerant), not tight press-fit, because several sizes are estimated. **Decision (locked): the SK473 amp+driver units mount on the VEST** — each box's 3.5 mm audio runs to a Vantec and its USB to the hub; the printed box holds only the 2 Vantec + power.
 
 ### 3.8 Sensing
 - **Camera** (USB webcam aimed down the neck, or laptop cam) → MediaPipe + ArUco. **Print the ArUco marker** for the headstock (`cad/README` has the slot).
@@ -144,18 +144,18 @@ Parametric OpenSCAD + pre-rendered STLs in `cad/`:
 ### Body-side fabricated parts (3D-printed, `cad/`) — dimensions
 | Part | File | Dimensions | Use |
 |---|---|---|---|
-| Brain-pack box (base + lid) | `tactus_box.scad` | base **199.8 × 161.8 × 60.4 mm**; fits FlashForge 5M **220³ mm** bed; Pi boss = 58 × 49 mm | houses 2-3 Vantecs + 6 amp boards (+ Pi), vented, strain-relief comb |
+| Brain-pack box (base + lid) | `tactus_enclosure.py` | base **175 × 97 × 63 mm**; base+lid as one plate **175 × 202** on the 5M 220³ bed | houses **2 Vantecs + the 10-port hub** (SK473 amp+driver units on the vest); one-print, vented, wire holes |
 | Power cradle | `tactus_power_cradle.scad` | vented sled for the Anker 737 / 10-port hub | holds the power source, ports/screen accessible |
-| Actuator puck (cup + button) | `actuator_puck.scad` | contact button **Ø14 mm**, dome **4.5 mm** proud, base 1.6 mm; cup wall 2.4 mm, back 2.4 mm; wire notch 6 × 5 mm (18 AWG); **`spk_dia` = 40 mm PLACEHOLDER** | de-house driver → button on dust-cap couples cone into skin; ~12-16 needed |
-| Chest plate / node mount | `tactus_chest_plate.scad`, `tactus_node_mount.scad` | torso radius 150 mm (est), string pitch 46 mm, plate 3 mm; **`drv_dia` = 58 mm PLACEHOLDER** | body-side driver mounts (VHB + zip-tie through a slot grid — dimension-tolerant) |
-> ⚠️ **The KHD driver diameter is NOT yet measured.** `spk_dia`/`drv_dia` are placeholders (40 / 58 mm). Measure the de-housed driver → set the params → re-render the STLs before the final print.
+| Actuator puck (cup + button) | `actuator_puck.scad` | contact button **Ø14 mm**, dome **4.5 mm** proud, base 1.6 mm; cup wall 2.4 mm, back 2.4 mm; wire notch 6 × 5 mm (18 AWG); **`spk_dia` = 52 mm (Ø52 web-verified)** | de-house driver → button on dust-cap couples cone into skin; ~12-16 needed |
+| Chest plate / node mount | `tactus_chest_plate.scad`, `tactus_node_mount.scad` | torso radius 150 mm (est), string pitch 46 mm, plate 3 mm; **`drv_dia` = 52 mm (Ø52 web-verified)** | body-side driver mounts (VHB + zip-tie through a slot grid — dimension-tolerant) |
+> ✅ **Driver Ø = 52 mm (web-verified; caliper to confirm).** `spk_dia`/`drv_dia` set to 52. Published 52 mm is the nominal frame OD — caliper one physical driver (cone-vs-frame + depth) before the final batch, then re-render.
 
 **Still to get:** 2× sacrificial USB-C cables (Mode B buses), compression vest/shirt + VHB foam tape + velcro + zip ties + thin gloves, USB webcam (or laptop cam), optional 24-26 AWG silicone stranded wire (solders to the tiny PAM8403 pads far better than 18 AWG).
 
 ---
 
 ## 5. Haptic encoding (the deterministic renderer)
-- **Single note:** `(string → chest channel) + (fret → forearm zone + intensity)`, fired as a burst whose amplitude **tracks the note's real ADSR envelope**.
+- **Single note:** `(string → back channel) + (fret → torso zone + intensity)`, fired as a burst whose amplitude **tracks the note's real ADSR envelope**.
 - **Starting pulse (tune on-body, `docs/18`):** **160 Hz, 50 ms, 3 intensity levels** (per `config/channel_map.json`; heavy 3 Ω drivers may prefer ~80–160 Hz). Earlier docs' 200–250 Hz is a pre-teardown estimate.
 - **Chords:** strum = spread **sequential sweep** across the string column (down = low-E→high-E); block/pluck = tight **bloom** (~10–20 ms). **Sustain = re-triggered shimmer** (envelope-modulated, ~2–3 strings live at once) — never a static hold. Fret-zones pulse the chord shape in sync. (`docs/21`.)
 - **Tuning knobs (Saturday, `docs/18`):** drive frequency (sweep 60–250 Hz), pulse shape (punch), coupling pressure, per-channel software gain (the volume control).
@@ -178,7 +178,7 @@ Anthropic (Claude vision = the coaching brain: frame + target + fault → the pl
 ---
 
 ## 8. Top open items (measure / lock before they bite)
-1. **Driver diameter** — un-measured; CAD uses placeholders. Measure → set `spk_dia`/`drv_dia` → re-render STLs. (§3.3)
+1. **Driver Ø** — **52 mm web-verified** (Havit HV-SK473); `spk_dia`/`drv_dia` set to 52. Caliper one physical driver (cone-vs-frame + depth) before the full batch, then re-render. (§3.3)
 2. **ALSA bring-up** — bind Vantecs by-id, verify in-card channel order, fill `channel_map.json`. (§3.2)
 3. **Browser→Python vision-feature schema + A/V sync** — lock Saturday AM. (§2)
 4. **Actuator coupling** — prove ONE puck feels strong before building 12. (§3.3)

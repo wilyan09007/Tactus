@@ -1,13 +1,13 @@
 # 21 — Chord, sustain & percussive rendering (extends docs/07)
 
-Status: **DRAFT — for `/plan-eng-review`**. Extends the single-note encoder in `docs/07-haptic-encoding.md` to chords, sustain, strums, and percussive hits on the as-built rig (12 ch = 6 chest strings + 6 forearm fret-zones, SK473 KHD drivers).
+Status: **DRAFT — for `/plan-eng-review`**. Extends the single-note encoder in `docs/07-haptic-encoding.md` to chords, sustain, strums, and percussive hits on the as-built rig (12 ch = 6 back strings + 6 torso fret-zones, SK473 KHD drivers).
 
 > **Governing principle:** we render the **actual per-string onset + amplitude envelope** the engine detects (mic + vision), **never a chord *symbol*.** Whatever the voicing, strum, fingerpick, or arpeggio, we reproduce what physically happened — so "the many ways to play a chord" are handled for free, and it stays an honest signal→skin transform.
 
 ---
 
 ## 1. Single note (recap of `docs/07`)
-A note = `(string → chest actuator) + (fret → forearm zone + intensity)`, fired as a 200–250 Hz burst whose amplitude **tracks the note's real ADSR envelope** (sharp attack pulse, then a buzz that fades exactly as the string fades). Length and sustain come for free from following the envelope.
+A note = `(string → back actuator) + (fret → torso zone + intensity)`, fired as a 200–250 Hz burst whose amplitude **tracks the note's real ADSR envelope** (sharp attack pulse, then a buzz that fades exactly as the string fades). Length and sustain come for free from following the envelope.
 
 ## 2. Chords — the onset encodes HOW it was struck
 The simultaneity question is resolved at the **attack**, because that's where the performance information lives:
@@ -26,7 +26,7 @@ After the onset, a held/ringing chord is rendered as a **re-triggered shimmer**,
 3. **Apparent motion / Tactile Brush** (Israr & Poupyrev): discrete taps in sequence read as continuous flowing "ringing" — exactly the percept we want for a sustain, from a sparse array.
 
 ## 4. The other axis + foundation
-- **Fret-zones carry the chord SHAPE** (which frets) on the forearm, **pulsed in sync** with the shimmer (not held — so they don't add steady channels or mask).
+- **Fret-zones carry the chord SHAPE** (which frets) on the torso, **pulsed in sync** with the shimmer (not held — so they don't add steady channels or mask).
 - **Root emphasis:** the lowest/root string gets slightly stronger / slightly more frequent re-trigger so the chord has a felt "foundation."
 
 ## 5. Percussive & muted hits

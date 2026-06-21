@@ -16,7 +16,7 @@ use <tactus_socket.scad>
 part       = "full";   // "full" | "top" | "bottom"  (top/bottom = the 2 print tiles)
 
 // ---- driver (measure!) ----------------------------------------------------
-drv_dia    = 58;   drv_depth = 24;   drv_mag_dia = 30;   // ⚠️ PLACEHOLDER estimate — MEASURE the driver, update, re-render
+drv_dia    = 52;   drv_depth = 27;   drv_mag_dia = 30;   // Ø52 web-verified (Havit HV-SK473); depth/magnet — caliper to confirm, re-render in OpenSCAD
 
 // ---- body fit (measure the wearer + vest) ---------------------------------
 torso_r    = 150;  // chest radius of curvature (PLACEHOLDER ~150mm)
