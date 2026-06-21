@@ -36,11 +36,17 @@ def _hz(string_num, fret):
     return 440.0 * (2.0 ** ((midi - 69) / 12.0))
 
 
-def _note(freq, buzz=0.0, seed=0, dur=0.7, sr=SR):
-    """One plucked note: decaying harmonic stack, optional broadband buzz burst,
-    then trailing silence so onset segmentation sees a clean single event."""
+def _note(freq, buzz=0.0, muted=False, seed=0, dur=0.7, sr=SR):
+    """One plucked note: decaying harmonic stack, optional broadband buzz burst, OR
+    a dead muted thud; then trailing silence so onset segmentation sees one event."""
     rng = np.random.default_rng(seed)
     t = np.arange(int(sr * dur)) / sr
+    if muted:
+        # dead/muted: fast decay, fundamental only, quiet -> low energy + low HNR;
+        # distinct from clean (rich harmonics) and buzz (broadband rattle).
+        env = np.exp(-26.0 * t)
+        sig = (0.25 * np.sin(2 * np.pi * freq * t + rng.uniform(0, 0.2)) * env).astype(np.float32) * 0.7
+        return np.concatenate([sig, np.zeros(int(0.3 * sr), dtype=np.float32)])
     env = np.exp(-4.0 * t)
     sig = np.zeros_like(t)
     for k in range(1, 7):
@@ -60,7 +66,7 @@ def _note(freq, buzz=0.0, seed=0, dur=0.7, sr=SR):
 def build(raw_dir, players=("p1", "p2"), session="demo-session",
           strings=(6, 4), frets=(1, 3, 5), reps=3, seed0=0):
     """Write a synthetic batch under raw_dir. Returns the list of player dirs."""
-    buzz_amt = {"clean": 0.0, "buzz-light": 0.28, "buzz-placement": 0.28}
+    BUZZ_LEVEL = 0.28   # broadband rattle amount for the 'buzz' class
     made = []
     s = seed0
     for pi, player in enumerate(players):
@@ -78,7 +84,7 @@ def build(raw_dir, players=("p1", "p2"), session="demo-session",
                         s += 1
                         n += 1
                         freq = _hz(string_num, fret) * detune
-                        wav = _note(freq, buzz=buzz_amt[cls], seed=s) * gain
+                        wav = _note(freq, buzz=(BUZZ_LEVEL if cls == "buzz" else 0.0), muted=(cls == "muted"), seed=s) * gain
                         wav = np.clip(wav, -1.0, 1.0)
                         run_id = "s%d_f%d_%s_%s_%03d" % (string_num, fret,
                                                          cls.replace("-", ""), player, n)
