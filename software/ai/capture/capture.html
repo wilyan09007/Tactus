@@ -223,6 +223,9 @@
       </div>
       <div class="check"><input type="checkbox" id="aruco"> ArUco marker is on the headstock &amp; visible</div>
       <div class="check"><input type="checkbox" id="clickAudible"> audible click (use earbuds — keeps it out of the mic)</div>
+      <label style="margin-top:8px">Chord-stream chord (vision blocks)</label>
+      <select id="streamChord"><option value="">shuffle all 8 (transitions)</option><option>Em</option><option>Am</option><option>C</option><option>G</option><option>D</option><option>E</option><option>A</option><option>Dm</option></select>
+      <div class="note">Pick ONE → it repeats that chord the whole batch (move light / tilt / vary speed for vision variety). "shuffle all" = mixed progression for transition data.</div>
       <div class="ctrls"><button id="buildBtn" class="sec">Build / rebuild run plan</button></div>
       <div class="note" id="planNote">—</div>
     </div>
@@ -282,9 +285,9 @@ function chordMapStr(shape,fingers){ const lab=["E","A","D","G","B","e"];
 const SNAME=s=>{const x=STRINGS.find(a=>a[0]===s);return x?x[1]:String(s);};
 const POSE_HINTS=["wrist NEUTRAL (natural)","wrist ROTATED, fingers more curled","neck TILTED UP ~15°","move CLOSER / fill the frame","wrist DROPPED, flatter fingers"];
 // build a continuous progression of n chords (shuffled), with a pose change every 10
-function buildStream(n){ const seq=[]; let pose=-1;
+function buildStream(n, fixed){ const seq=[]; let pose=-1;   // fixed=one chord all batch (vision variety); else shuffle all 8
   for(let i=0;i<n;i++){ const np=(i%10===0); if(np) pose=(pose+1)%POSE_HINTS.length;
-    const ch=CHORDS[Math.floor(Math.random()*CHORDS.length)], shape=CHORD_SHAPES[ch]||[], fing=CHORD_FINGERS[ch]||[], notes=chordNotes(shape,fing);
+    const ch=fixed||CHORDS[Math.floor(Math.random()*CHORDS.length)], shape=CHORD_SHAPES[ch]||[], fing=CHORD_FINGERS[ch]||[], notes=chordNotes(shape,fing);
     seq.push({chord_name:ch, chord_shape:shape, chord_fingers:fing, frets:notes.map(n=>n.fret), strings_played:notes.map(n=>n.s_num), pose:np?("↻ NEW POSE: "+POSE_HINTS[pose]):null}); }
   return seq; }
 // chord diagram (horizontal neck, nut left): dots w/ finger number, o=open, x=muted
@@ -460,7 +463,7 @@ function buildPlan(){
       });
     }
   } else if(block==="chord-stream"){
-    const seq=buildStream(100);   // ONE continuous batch of ~100 chords (one recording, no stopping)
+    const seq=buildStream(100, ($("#streamChord") && $("#streamChord").value) || null);   // one chord (vision variety) or shuffle
     plan=[{block:"chord-stream", stream:true, sequence:seq, intended_class:"chord-stream",
            s_num:0, string:"chord progression", fret_range:"chord", finger:"chord", pluck_strength:pluck,
            expected_note_count:seq.length,
