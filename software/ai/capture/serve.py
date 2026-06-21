@@ -22,6 +22,8 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))   # repo root
 DATA = os.path.join(ROOT, "data", "raw")
 CALIB = os.path.join(ROOT, "data", "calib")          # unified: this server also serves the twin/calib page
 PORT = int(os.environ.get("TACTUS_PORT", "8765"))
+_RUNS = 0    # recorded runs saved this server session (terminal confirmation)
+_KF = 0      # calibration keyframes saved this server session
 
 
 def safe(s):
@@ -100,6 +102,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     # ---- POST: /save (one media blob) and /manifest (one row) ----
     def do_POST(self):
+        global _RUNS, _KF
         path = urllib.parse.urlparse(self.path).path
         n = int(self.headers.get("Content-Length", "0") or "0")
         body = self.rfile.read(n) if n else b""
@@ -130,7 +133,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 with open(os.path.join(d, "meta.jsonl"), "a") as f:
                     f.write(json.dumps(meta) + "\n")
                 rel = os.path.relpath(fp, ROOT)
-                print(f"  saved calib   {rel}")
+                _KF += 1
+                print("-" * 64)
+                print(f"  ✓ KEYFRAME #{_KF} SAVED   pose='{meta.get('label')}'  ({len(body)//1024} KB)")
+                print(f"      -> {rel}        calib total: {_KF} keyframes on disk")
+                print("-" * 64)
                 self._send(200, json.dumps({"ok": True, "path": rel}))
             elif path == "/manifest":
                 row = json.loads(body.decode())
@@ -138,8 +145,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 os.makedirs(d, exist_ok=True)
                 with open(os.path.join(d, "manifest.jsonl"), "a") as f:
                     f.write(json.dumps(row) + "\n")
-                print(f"  + manifest row  run={row.get('run_id')}  "
-                      f"class={row.get('intended_class')}  matched={row.get('matched_intent')}")
+                _RUNS += 1
+                au = row.get("audio") or {}
+                fl = row.get("files") or {}
+                flags = [x for x, on in (("CLIPPED", au.get("clipped")), ("SILENT", au.get("silent"))) if on]
+                kb = ((fl.get("audio_bytes") or 0) + (fl.get("video_bytes") or 0)) // 1024
+                print("=" * 64)
+                print(f"  ✓ RUN #{_RUNS} SAVED   {row.get('run_id')}")
+                print(f"      class={row.get('intended_class')}  string={row.get('string')}  "
+                      f"frets={row.get('fret_range')}  matched={row.get('matched_intent')}")
+                print(f"      audio={'yes' if fl.get('audio') else 'NO!'}  "
+                      f"video={'yes' if fl.get('video') else 'NO!'}  ~{kb} KB  "
+                      f"peak={au.get('peak_dbfs')} dBFS  "
+                      + ("⚠ " + " ".join(flags) + " — REDO THIS RUN" if flags else "ok ✓"))
+                print(f"      >> session total: {_RUNS} runs on disk")
+                print("=" * 64)
                 self._send(200, json.dumps({"ok": True}))
             else:
                 self._send(404, '{"error":"not found"}')
