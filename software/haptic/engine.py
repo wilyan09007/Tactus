@@ -45,9 +45,10 @@ import numpy as np
 import sounddevice as sd
 
 from rig import (
-    CONFIG, ENCODING, RigError, _device_openable, configure_logging, get_logger,
+    CONFIG, ENCODING, HOST_API_PREF, RigError, _device_openable, _two_distinct,
+    candidate_adapters, configure_logging, get_logger, is_bypass_api,
     load_channel_plan, load_pulse_defaults, make_glide, make_tone, resolve_device,
-    resolve_two_adapters,
+    shared_would_fold,
 )
 
 log = get_logger("tactus.haptic.engine")
@@ -99,15 +100,23 @@ class HapticEngine:
         self._capture: dict[str, list[np.ndarray]] = {}
         self._running = False
 
-        # route: logical ch -> (stream_key, hw_index, stream_device_idx)
+        # Output is chosen at start(): an ORDERED list of options, best (discrete /
+        # mixer-bypassing) first, each tried until one actually opens. This is what
+        # prevents a silent collapse -- if the discrete path can't open both
+        # Vantecs we fall to a 2-device shared-mode rig (both addressed, fold
+        # warned), never to a single box.
         self.route: dict[int, tuple[str, int]] = {}
         self.mode = "?"
-        self._plan_streams(v1, v2, device)
-        log.info("HapticEngine ready: mode=%s, sr=%d, streams=%s, intensity_amp=%s, clip=%.2f",
-                 self.mode, self.samplerate,
-                 {k: f"{self._stream_devices[k]}({self._stream_channels[k]}ch)" for k in self._streams_planned},
-                 self.intensity_amp, self.clip_ceiling)
-        self._log_routing()
+        self._device_forced = device is not None
+        self._stream_devices: dict[str, int] = {}
+        self._stream_channels: dict[str, int] = {}
+        self._streams_planned: list[str] = []
+        self._options = self._build_options(v1, v2, device)
+        log.info("HapticEngine: sr=%d intensity_amp=%s clip=%.2f | %d output option(s), best-first:",
+                 self.samplerate, self.intensity_amp, self.clip_ceiling, len(self._options))
+        for i, o in enumerate(self._options):
+            log.info("  option %d: %s  [%s]", i + 1, o["desc"],
+                     "DISCRETE/bypass" if o["bypass"] else "shared-mode (fold risk)")
 
     # ------------------------------------------------------------------ #
     # config
@@ -136,84 +145,129 @@ class HapticEngine:
     # ------------------------------------------------------------------ #
     # output planning (which streams, which channel goes where)
     # ------------------------------------------------------------------ #
-    def _plan_streams(self, v1, v2, device):
-        self._stream_devices: dict[str, int] = {}
-        self._streams_planned: list[str] = []
-        self._device_forced = device is not None
+    def _api_of(self, dev: int) -> str:
+        return sd.query_hostapis()[sd.query_devices(dev)["hostapi"]]["name"]
 
-        if device is not None:
-            dev = resolve_device(device)
-            self._single_device_plan(dev, label="OUT", mode="single")
-            return
+    def _nch(self, dev: int) -> int:
+        return sd.query_devices(dev)["max_output_channels"]
 
-        # try the full 2-Vantec rig
-        try:
-            v1_idx, v2_idx = resolve_two_adapters(v1, v2, self.samplerate)
-        except RigError as e:
-            log.warning("rig (2-Vantec) mode unavailable: %s", e)
-            self._bench_plan()
-            return
-
-        if v1_idx == v2_idx:
-            # macOS Aggregate Device: one 16-ch handle, V2 channels at hw+8
-            n = sd.query_devices(v1_idx)["max_output_channels"]
-            self.mode = "aggregate"
-            self._streams_planned = ["AGG"]
-            self._stream_devices = {"AGG": v1_idx}
-            self._stream_channels = {"AGG": n}
-            for e in self.plan:
-                hw = e["hw"]
-                if hw is None:
-                    continue
-                base = 0 if e["vantec"] == "V1" else 8
-                self.route[e["ch"]] = ("AGG", hw - 1 + base)
-            log.info("aggregate mode: single device idx %d (%d ch), V2 offset +8", v1_idx, n)
-            return
-
-        # normal 2-device rig
-        self.mode = "rig"
-        self._streams_planned = ["V1", "V2"]
-        self._stream_devices = {"V1": v1_idx, "V2": v2_idx}
-        self._stream_channels = {
-            "V1": sd.query_devices(v1_idx)["max_output_channels"],
-            "V2": sd.query_devices(v2_idx)["max_output_channels"],
-        }
+    def _route_two_device(self) -> dict:
+        """logical ch -> ("V1"/"V2", hw_index): the real rig routing."""
+        route = {}
         for e in self.plan:
-            hw = e["hw"]
-            if hw is None:
+            if e["hw"] is None:
                 continue
-            self.route[e["ch"]] = (e["vantec"], hw - 1)
-        log.info("rig mode: V1=idx %d (%d ch), V2=idx %d (%d ch)",
-                 v1_idx, self._stream_channels["V1"], v2_idx, self._stream_channels["V2"])
+            route[e["ch"]] = (e["vantec"], e["hw"] - 1)
+        return route
 
-    def _single_device_plan(self, dev: int, label: str, mode: str):
-        n = sd.query_devices(dev)["max_output_channels"]
-        self.mode = mode
-        self._streams_planned = [label]
-        self._stream_devices = {label: dev}
-        self._stream_channels = {label: n}
+    def _opt_rig(self, v1: int, v2: int) -> dict:
+        api = self._api_of(v1)
+        return {"mode": "rig", "bypass": is_bypass_api(api),
+                "streams": {"V1": (v1, self._nch(v1)), "V2": (v2, self._nch(v2))},
+                "route": self._route_two_device(),
+                "desc": f"rig: V1=idx{v1} V2=idx{v2} ({api})"}
+
+    def _opt_aggregate(self, dev: int) -> dict:
+        route = {}
+        for e in self.plan:
+            if e["hw"] is None:
+                continue
+            base = 0 if e["vantec"] == "V1" else 8
+            route[e["ch"]] = ("AGG", e["hw"] - 1 + base)
+        return {"mode": "aggregate", "bypass": is_bypass_api(self._api_of(dev)),
+                "streams": {"AGG": (dev, self._nch(dev))}, "route": route,
+                "desc": f"aggregate: idx{dev} ({self._api_of(dev)}, V2 hw+8)"}
+
+    def _opt_single(self, dev: int, mode: str) -> dict:
+        n = self._nch(dev)
+        route, dropped = {}, []
         for e in self.plan:
             hw = e["hw"]
-            # use the real CM6206 hw channel if it fits, else round-robin onto
-            # whatever the device exposes (stereo bench).
-            idx = (hw - 1) if (hw is not None and hw - 1 < n) else (e["ch"] - 1) % n
-            self.route[e["ch"]] = (label, idx)
-        log.info("%s mode: device idx %d (%d ch); 12 logical ch mapped onto %d outputs",
-                 mode, dev, n, n)
+            if mode == "bench":
+                # dev convenience: round-robin ALL 12 onto whatever outputs exist
+                idx = (hw - 1) if (hw is not None and hw - 1 < n) else (e["ch"] - 1) % n
+                route[e["ch"]] = ("OUT", idx)
+            elif e["vantec"] == "V1" and hw is not None and hw - 1 < n:
+                # ONE real Vantec = the 8 V1 channels (ch1-8) on their true CM6206 hw
+                route[e["ch"]] = ("OUT", hw - 1)
+            else:
+                dropped.append(e["ch"])  # ch9-12 live on the 2nd Vantec -> no home here
+        extra = f"; 12->{n} round-robin" if mode == "bench" else (
+            f"; ch1-8 only (ch{dropped} need the 2nd Vantec)" if dropped else "")
+        return {"mode": mode, "bypass": is_bypass_api(self._api_of(dev)),
+                "streams": {"OUT": (dev, n)}, "route": route,
+                "desc": f"{mode}: idx{dev} ({self._api_of(dev)}, {n}ch{extra})"}
 
-    def _bench_plan(self):
-        """No Vantec: drive the default output device for real (laptop speakers /
-        headphones). 12 logical channels round-robin onto its outputs."""
-        dev = sd.default.device[1]
-        if dev is None or dev < 0:
+    def _default_output_device(self):
+        dev = sd.default.device[1] if sd.default.device is not None else None
+        if dev is None or (isinstance(dev, int) and dev < 0):
             outs = [i for i, d in enumerate(sd.query_devices()) if d["max_output_channels"] > 0]
-            if not outs:
-                raise RigError("no output devices at all -- cannot open audio.")
-            dev = outs[0]
-        log.warning("BENCH MODE (no Vantec found): driving real default device idx %d (%s). "
-                    "12 logical channels round-robin onto its outputs; plug in the Vantecs "
-                    "for discrete 12-ch addressing.", dev, sd.query_devices(dev)["name"].strip())
-        self._single_device_plan(dev, label="OUT", mode="bench")
+            dev = outs[0] if outs else None
+        return dev
+
+    def _build_options(self, v1, v2, device) -> list[dict]:
+        """Ordered output options, best (discrete) first, each tried at start().
+
+        Auto order: rig pairs by host-API preference (WDM-KS/CoreAudio/ALSA bypass
+        first, then shared-mode DirectSound/MME), then a single bypass adapter
+        (8 of 12 ch, discrete), then bench on the default device. The first that
+        actually OPENS wins -- so e.g. if 2 simultaneous WDM-KS streams aren't
+        supported, we drop to a 2-device shared rig (both Vantecs still driven)
+        rather than collapsing to one box."""
+        opts: list[dict] = []
+        if device is not None:
+            return [self._opt_single(resolve_device(device), "single")]
+
+        if v1 is not None and v2 is not None:
+            a, b = resolve_device(v1), resolve_device(v2)
+            opts.append(self._opt_aggregate(a) if a == b else self._opt_rig(a, b))
+        else:
+            cands = candidate_adapters(8, self.samplerate)
+            by_api: dict[str, list[dict]] = {}
+            for c in cands:
+                by_api.setdefault(c["api"], []).append(c)
+            ordered = sorted(by_api, key=lambda a: next(
+                (i for i, p in enumerate(HOST_API_PREF) if p in a.lower()), len(HOST_API_PREF)))
+            bypass_rigs, shared_rigs = [], []
+            for apiname in ordered:
+                if "wdm-ks" in apiname.lower():
+                    # Windows KS can't open two simultaneous exclusive streams, and a
+                    # failed 2nd open POISONS the shared-mode fallback. Skip the 2-device
+                    # KS rig; single-KS (8ch discrete) is still offered below.
+                    continue
+                pick = _two_distinct(by_api[apiname])
+                if not pick:
+                    continue
+                (bypass_rigs if is_bypass_api(apiname) else shared_rigs).append(
+                    self._opt_rig(pick[0]["idx"], pick[1]["idx"]))
+            byp = [c for c in cands if is_bypass_api(c["api"])]
+            single_byp = [self._opt_single(byp[0]["idx"], "single")] if byp else []
+            # Prefer a discrete 2-device rig (Mac CoreAudio); else the RELIABLE 2-device
+            # shared-mode rig (Windows DirectSound opens both Vantecs every run -- 12ch,
+            # but the OS folds it unless the device is 7.1); single-Vantec (8ch discrete)
+            # is a last discrete resort before bench.
+            opts += bypass_rigs + shared_rigs + single_byp
+            if shared_would_fold() and not bypass_rigs and shared_rigs:
+                log.warning("HEADS-UP: no discrete 2-device path on this OS, so output will use a "
+                            "SHARED-MODE rig that the mixer DOWN-MIXES -> ch3-8 COLLAPSE onto the FRONT "
+                            "jack. FIX: set BOTH USB Sound Devices to '7.1 Surround' in Windows Sound "
+                            "settings (device > Configure > 7.1 Surround), then re-run for discrete 12ch. "
+                            "(On the Mac demo machine CoreAudio routes discretely with no fold.)")
+
+        dflt = self._default_output_device()
+        used = {o["streams"].get("OUT", (None,))[0] for o in opts}
+        if dflt is not None and dflt not in used:
+            opts.append(self._opt_single(dflt, "bench"))
+        if not opts:
+            raise RigError("no output devices available at all -- cannot open audio.")
+        return opts
+
+    def _apply_option(self, opt: dict):
+        self.mode = opt["mode"]
+        self.route = dict(opt["route"])
+        self._streams_planned = list(opt["streams"].keys())
+        self._stream_devices = {k: v[0] for k, v in opt["streams"].items()}
+        self._stream_channels = {k: v[1] for k, v in opt["streams"].items()}
 
     def _log_routing(self):
         for e in self.plan:
@@ -229,24 +283,24 @@ class HapticEngine:
         if self._running:
             log.debug("start() called but already running")
             return self
-        try:
-            self._open_streams()
-        except RigError as e:
-            # device indices are flaky / some endpoints validate but won't open;
-            # never leave the caller with a dead engine -- drop to BENCH on the
-            # default device (still REAL audio) unless the user forced a device.
-            if self.mode in ("rig", "aggregate") and not self._device_forced:
-                log.warning("opening %s streams failed (%s); falling back to BENCH mode", self.mode, e)
-                self._close_open_streams()
-                self.route.clear()
-                self._bench_plan()
+        last_err = None
+        for i, opt in enumerate(self._options):
+            self._apply_option(opt)
+            try:
                 self._open_streams()
-            else:
+            except RigError as e:
+                last_err = e
+                log.warning("output option %d/%d failed (%s): %s",
+                            i + 1, len(self._options), opt["desc"], e)
                 self._close_open_streams()
-                raise
-        self._running = True
-        log.info("HapticEngine running (%d stream(s), mode=%s)", len(self._streams), self.mode)
-        return self
+                continue
+            self._running = True
+            log.info("HapticEngine RUNNING via option %d/%d: %s | mode=%s | routing=%s",
+                     i + 1, len(self._options), opt["desc"], self.mode,
+                     "DISCRETE (per-jack)" if opt["bypass"] else "SHARED-MODE (fold risk)")
+            self._log_routing()
+            return self
+        raise RigError(f"no output option could be opened; last error: {last_err}")
 
     def _open_streams(self):
         for key in self._streams_planned:
@@ -267,8 +321,19 @@ class HapticEngine:
                 raise RigError(f"could not open stream {key} on device {dev} @{nch}ch/{sr}Hz: {e}") from e
             self._streams[key] = stream
             self._capture[key] = []
-            log.info("stream %s started: device=%d (%s) channels=%d sr=%d latency=%.1fms",
-                     key, dev, sd.query_devices(dev)["name"].strip(), nch, sr, stream.latency * 1000.0)
+            api = sd.query_hostapis()[sd.query_devices(dev)["hostapi"]]["name"]
+            log.info("stream %s started: device=%d (%s, %s) channels=%d sr=%d latency=%.1fms",
+                     key, dev, sd.query_devices(dev)["name"].strip(), api, nch, sr,
+                     stream.latency * 1000.0)
+            if not is_bypass_api(api):
+                log.warning(
+                    "stream %s is on SHARED-MODE host API '%s' -> the OS mixer down-mixes %dch onto "
+                    "the device's configured layout; if that layout is Stereo, ch3-8 COLLAPSE onto the "
+                    "FRONT jack. For discrete routing use a bypass path (WDM-KS) or set the USB Sound "
+                    "Device to '7.1 Surround' in Windows Sound settings, then re-run. "
+                    "(Force an endpoint with --device / --v1 / --v2.)", key, api, nch)
+            else:
+                log.info("stream %s host API '%s' = DISCRETE (mixer-bypass, no fold)", key, api)
 
     def _close_open_streams(self):
         for key, stream in list(self._streams.items()):

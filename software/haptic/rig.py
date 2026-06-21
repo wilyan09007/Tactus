@@ -224,20 +224,77 @@ def _discrete_usb_endpoint(d, api_name: str) -> bool:
 HOST_API_PREF = ("wdm-ks", "wasapi", "core audio", "alsa", "directsound", "mme")
 
 
-def _device_openable(idx: int, channels: int, samplerate: int) -> bool:
-    """True iff PortAudio will ACTUALLY open `idx` at this width/rate right now.
+def _silent_cb(outdata, frames, time_info, status):  # noqa: ANN001
+    outdata.fill(0.0)
 
-    We construct (and immediately close) a real OutputStream rather than trusting
-    check_output_settings -- on Windows some WDM-KS endpoints PASS the settings
-    check but then fail Pa_OpenStream with paInvalidDevice (-9996). A real open is
-    the only honest test; device indices are also unstable across runs."""
+
+def _device_openable(idx: int, channels: int, samplerate: int) -> bool:
+    """True iff `idx` supports this width/rate. Uses check_output_settings (a
+    NON-destructive query), NOT a real open.
+
+    Hard-won: do NOT probe by actually opening the stream. WDM-KS (the mixer-bypass
+    path) is finicky -- a probe open/close leaves the KS pin in a state where the
+    engine's real open then fails (-9999 GLE=1). check_output_settings doesn't grab
+    the device, so the engine's commit is the FIRST and only real KS open (the
+    pattern that opens cleanly). Any endpoint that still won't open is caught by the
+    engine's option fallback. Indices are unstable across *processes*, but discovery
+    and open are back-to-back in one process, so they agree."""
     try:
-        s = sd.OutputStream(device=idx, channels=channels, samplerate=samplerate, dtype="float32")
-        s.close()
+        sd.check_output_settings(device=idx, channels=channels, samplerate=samplerate)
         return True
     except Exception as e:  # noqa: BLE001
-        log.debug("device %s not openable @%dch/%dHz: %s", idx, channels, samplerate, e)
+        log.debug("device %s rejects %dch/%dHz: %s", idx, channels, samplerate, e)
         return False
+
+
+# Shared-mode host APIs whose mixer down-mixes a multichannel stream onto the
+# device's configured layout (folds ch3-8 onto FRONT unless the device is set to
+# 7.1 in the OS). Bypass APIs (WDM-KS / Core Audio / ALSA / WASAPI-exclusive)
+# route each channel to its own jack.
+SHARED_MODE_APIS = ("mme", "directsound", "wasapi")
+
+
+def is_bypass_api(api_name: str) -> bool:
+    """True if this host API routes channels discretely (no shared-mode fold)."""
+    a = api_name.lower()
+    return ("wdm-ks" in a) or ("core audio" in a) or ("alsa" in a)
+
+
+def bypass_adapters_noprobe(min_channels: int = 8) -> list[int]:
+    """Indices of >=min_channels hint-matching endpoints on a BYPASS host API
+    (WDM-KS / CoreAudio / ALSA), by ENUMERATION ONLY -- no open/format probe.
+
+    Probing WDM-KS (even check_output_settings can instantiate the pin) destabilizes
+    it so a later real open fails. The proven discrete path (resonance_check) finds
+    KS purely by name+api enumeration and opens it ONCE; this mirrors that."""
+    apis = sd.query_hostapis()
+    out = [i for i, d in enumerate(sd.query_devices())
+           if d["max_output_channels"] >= min_channels
+           and any(h in d["name"].lower() for h in VANTEC_HINTS)
+           and is_bypass_api(apis[d["hostapi"]]["name"])]
+    out = sorted(set(out))
+    log.debug("bypass adapters (no probe): %s", out)
+    return out
+
+
+def shared_would_fold(min_channels: int = 8) -> bool:
+    """Windows: would a shared-mode (MME/DirectSound/WASAPI) multichannel stream be
+    DOWN-MIXED onto the device's configured layout (folding ch3-8 onto FRONT)?
+
+    The tell is the WASAPI **shared mix-format width**: if no hint-matching WASAPI
+    endpoint exposes >= min_channels, the USB device is configured Stereo (2.0) not
+    7.1, so the OS mixer folds. Bypass paths (WDM-KS) are unaffected. Non-Windows
+    OSes don't fold this way -> False."""
+    if not sys.platform.startswith("win"):
+        return False
+    apis = sd.query_hostapis()
+    widths = [d["max_output_channels"] for d in sd.query_devices()
+              if d["max_output_channels"] > 0
+              and "wasapi" in apis[d["hostapi"]]["name"].lower()
+              and any(h in d["name"].lower() for h in VANTEC_HINTS)]
+    folds = (not widths) or (max(widths) < min_channels)
+    log.debug("shared_would_fold: wasapi USB widths=%s -> %s", widths, folds)
+    return folds
 
 
 def candidate_adapters(min_channels: int = 8, samplerate: int = 48000) -> list[dict]:

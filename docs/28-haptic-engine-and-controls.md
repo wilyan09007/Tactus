@@ -88,43 +88,61 @@ streaming-mixer design.
    Vantec re-indexes between process launches; an auto-picked index from one run
    can be a phantom in the next (`Error querying device`). → Never trust the
    listing; resolve fresh each run.
-2. **WDM-KS validates but won't open on this dev box.** On Windows the 8-ch USB
-   Sound Device enumerates under MME (idx ~9/11, name-tagged `3-`/`4-`),
-   DirectSound (~21/23), and WDM-KS (~49/51). `check_output_settings` *passes* for
-   the WDM-KS endpoints, but `Pa_OpenStream` then fails with **paInvalidDevice
-   (-9996)**. → Device validation must do a **real open test** (construct + close
-   an `OutputStream`), not just `check_output_settings`. Auto-selection prefers a
-   mixer-bypassing host API (WDM-KS) but **falls back across APIs**
-   (→ DirectSound → MME) and finally to **bench**. On this machine the engine
-   settled on **DirectSound idx 21/23** for the two real Vantecs.
-3. **Two physical adapters, one host API.** Distinct *indices* under one API = two
-   different physical Vantecs; the `3-`/`4-` MME/DS name tag confirms it (WDM-KS
-   shows both as plain "USB Sound Device" — distinguish by index, per
-   speaker_check's note). Auto-pick takes two distinct indices in the preferred
-   API; override with `v1=/v2=`.
-4. **CM6206 channel reorder confirmed in code.** Logical→hardware uses
+2. **THE Windows collapse: streaming (2 simultaneous streams) can't use WDM-KS, so
+   it folds.** The 8-ch USB Sound Device enumerates under MME (idx ~9/11, tagged
+   `3-`/`4-`), DirectSound (~21/23), and WDM-KS (~49/51). Only **WDM-KS bypasses the
+   OS mixer** (per-jack routing); **MME/DirectSound/WASAPI-shared down-mix an 8-ch
+   stream onto the device's configured layout — if it's *Stereo*, ch3-8 COLLAPSE
+   onto the FRONT jack.** But this CM6206 driver **cannot open two simultaneous
+   WDM-KS streams** (the 2nd adapter's exclusive KS pin fails, `-9999`/`-9996`;
+   both dongles also share one USB controller). The streaming engine needs one
+   persistent stream **per Vantec at once** → KS is impossible → it falls to
+   DirectSound → **fold**. This is the "ch3-8 play on the front box" bug.
+3. **The discrete path is SEQUENTIAL single-stream WDM-KS** (what `resonance_check`
+   / `speaker_check` do, and `pair_test --discrete`): open ONE KS stream at a time
+   (`sd.play`, blocking), play, close. No 2-stream limit, no fold → every channel
+   on its own jack. Trade-off: **cross-Vantec pairs can't be simultaneous** (two
+   devices at once = two KS streams). `pair_test --discrete` plays **intra-Vantec
+   pairs simultaneously** (both channels in one KS buffer) and **serializes
+   cross-Vantec pairs**. True simultaneous cross-Vantec needs **macOS CoreAudio**
+   (bypass + Aggregate Device) or **Windows devices set to 7.1** (then shared-mode
+   stops folding and the 2-device DirectSound rig routes discretely).
+4. **KS is fragile — never probe it, never attempt 2 at once.** A probe-open (even
+   `check_output_settings` can instantiate the KS pin) or a failed 2nd-KS open
+   leaves the pin in a bad state where *every* later KS open fails `-9996` — which
+   also breaks `resonance_check`. Recovery = **unplug/replug the Vantec USB** (or
+   reboot). So: device discovery is **non-destructive** (`check_output_settings`,
+   and **enumeration-only** for the discrete KS path — `rig.bypass_adapters_noprobe`),
+   the engine **never builds a 2-device KS rig**, and the discrete sweep opens each
+   KS device exactly once.
+5. **CM6206 channel reorder confirmed in code.** Logical→hardware uses
    `FL,FR,FC,LFE,RL,RR,SL,SR`, so e.g. logical ch3 (rear L) → hw index 4, ch5
    (center L) → hw index 2. Encoded in `rig.JACK_TO_HW`; matches truth.md's "ALSA
-   enumeration trap." Confirm by ear on the rig with `speaker_check.py --sweep`.
-5. **Cross-Vantec simultaneity is best-effort (~a few ms), not sample-locked.**
-   V1 and V2 are two USB DACs with **independent clocks**; PortAudio gives each its
-   own callback thread, so two voices started "together" begin within ~one audio
-   block. truth.md §3.8 already establishes independent device clocks **don't
-   matter for our pulse haptics** (analysis→render is decoupled), so this is fine.
-6. **Real-time hygiene.** The whole burst waveform is synthesized in `play()` (off
-   the audio thread); the callback only copies precomputed slices and holds the
-   lock briefly — no synthesis/allocation in the callback, so it can't underrun
-   (truth.md §2).
+   enumeration trap." Confirm by ear with `speaker_check.py --sweep`.
+6. **Two adapters, one host API.** Distinct *indices* under one API = two physical
+   Vantecs; the `3-`/`4-` MME/DS tag confirms it (WDM-KS shows both as plain "USB
+   Sound Device" — distinguish by index). Override auto-pick with `--v1/--v2`.
+7. **Real-time hygiene.** The streaming engine synthesizes the burst in `play()`
+   (off the audio thread); the callback only copies precomputed slices under a brief
+   lock — no synthesis/alloc in the callback, so it can't underrun (truth.md §2).
+
+### Two output paths (pick per platform)
+| Path | How | Discrete? | Simultaneous cross-Vantec? | Use |
+|---|---|---|---|---|
+| **streaming** (`engine.py`, `pair_test --streaming`) | persistent OutputStream per Vantec + voice mixer | **macOS yes** (CoreAudio); **Windows NO** (falls to DirectSound → folds unless device=7.1) | yes | real-time render, the demo (on Mac) |
+| **discrete** (`pair_test --discrete`, `resonance_check`) | one blocking WDM-KS stream at a time | **yes** (per-jack, Win+Linux) | no (intra-Vantec simultaneous; cross serialized) | Windows bring-up / verification |
+
+`pair_test` auto-selects **discrete** when `shared_would_fold()` is true (Windows
+device set to Stereo); `--streaming` / `--discrete` force either.
 
 ### Validation performed (real audio, no mocks)
-- Engine smoke: single note, a simultaneous cross-axis pair, and a 6-note
-  staggered "strum" (40 ms apart) — all played + cleaned up.
-- `pair_test.py`: full **66 pairs (32 cross-Vantec, 34 intra-Vantec) + 12 singles**
-  on the two real Vantecs (DirectSound 21/23).
-- **Routing correctness assertion:** played single channels in isolation and
-  confirmed from the captured 8-ch output that **>95 % of energy lands in the
-  routed hardware column** (ch3→V1 hw4, ch6→V1 hw3, ch11→V2 hw4 — all PASS).
-- Real `--wav` capture: two 8-ch WAV files written from the actual mixed output.
+- Engine smoke: single note, simultaneous cross-axis pair, 6-note staggered strum.
+- `pair_test` streaming: **66 pairs (32 cross-Vantec) + singles** drive both Vantecs.
+- **Routing assertion** (engine-side, pre-OS-mixer): single channels in isolation put
+  **>95 % of energy in the routed hardware column** (ch3→hw4, ch6→hw3, ch11→hw4 PASS).
+- ⚠️ That assertion taps `outdata` **before** the OS mixer, so it can't see the
+  shared-mode fold — the discrete (WDM-KS) path is what guarantees per-jack output;
+  verify on the rig by ear with `resonance_check` / `pair_test --discrete`.
 
 ## 6. Assumptions (bench starting points — revisit on-body Saturday)
 
@@ -152,16 +170,27 @@ channel_map; all are tunable and recorded in `config/encoding.json`:
 - **Wire `drive_state()` to the localhost WebSocket** so the browser 3D viz lights
   up (truth.md §2 `drive[]`). The hook exists; the socket is a separate PR.
 - **On-body tuning** (docs/18) overwrites `encoding.json` gains + the drive freq.
-- **WDM-KS open failure** on the dev box: if discrete routing needs the
-  mixer-bypass path, resolve the PortAudio/WDM-KS `-9996` (or use the rig's
-  Linux/ALSA `by-id` path, truth.md §3.2); DirectSound/MME work for bring-up.
+- **`-9996` on any WDM-KS open (incl. `resonance_check`)** = the KS pin is in a bad
+  state from a prior probe / failed 2nd-KS open → **unplug/replug the Vantec USB**
+  (or reboot) to recover. The code now avoids the triggers (no KS probe, no 2-KS rig).
+- **True simultaneous discrete 12-ch on Windows** needs the two devices set to
+  **7.1 Surround** (then `--streaming` DirectSound stops folding) or **macOS**
+  (CoreAudio Aggregate). The dev box without 7.1 is limited to the discrete
+  *sequential* path (cross-Vantec serialized).
 
 ## 8. Run it
 ```bash
 cd software/haptic
-python engine.py --verbose --intensity 1          # real smoke demo
-python pair_test.py                                # all 66 pairs, both Vantecs
-python pair_test.py --singles --channels 1,2,9,10  # subset incl. cross-Vantec
-python pair_test.py --intensity 3 --freq 120 --glide --wav out/pairs --verbose
-python pair_test.py --v1 21 --v2 23                # pin adapters if auto-order wrong
+# DISCRETE per-jack (Windows bring-up; auto-selected when shared-mode would fold):
+python pair_test.py                       # discrete WDM-KS sweep, all 12, per-jack
+python pair_test.py --discrete --singles  # force discrete; warm up with singles
+python pair_test.py --v1 49 --v2 51       # pin the two WDM-KS indices (low_note_all --list)
+python resonance_check.py                 # one-at-a-time discrete resonance walk
+
+# STREAMING (real-time render; discrete on macOS, folds on Windows-Stereo):
+python pair_test.py --streaming           # engine sweep (true simultaneous cross-Vantec)
+python engine.py --verbose --intensity 1  # smoke demo
+python low_note_all.py                     # all 12 at once (guards against fold/concentration)
 ```
+> If a run prints the **fold HEADS-UP / FOLD GUARD**, you're on shared-mode: either
+> set both USB devices to 7.1, use `--discrete`, or run on the Mac.
