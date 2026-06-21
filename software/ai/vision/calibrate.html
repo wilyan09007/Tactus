@@ -60,6 +60,7 @@
 <aside id="panel">
   <div class="prow">
     <b>🎸 Tactus twin · STEP 1/2</b>
+    <a href="/" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:700">→ Record ②</a>
     <span class="pill" id="pCam">camera —</span>
     <span class="pill" id="pSrv">server —</span>
     <span class="pill" id="pSaved">0 keyframes</span>
@@ -206,12 +207,12 @@ async function save(){
     image_w:cv.width,image_h:cv.height,captured_at:new Date().toISOString(),
     note:"4 clicked neck corners (nut×lowE, nut×highe, f7×highe, f7×lowE); fret law fills the grid"};
   try{
-    const r=await fetch("/save",{method:"POST",
+    const r=await fetch("/calib-save",{method:"POST",
       headers:{"X-Meta":btoa(unescape(encodeURIComponent(JSON.stringify(meta))))},body:buf});
     if(!r.ok)throw new Error(r.status);
     const j=await r.json(); _saved++; setPill("#pSaved",_saved+" keyframes","ok");
     logLine(`✓ ${label} → ${j.path}`); banner("ok","saved ✓  "+j.path); reset(); renderPoses();
-  }catch(e){ banner("bad","SAVE FAILED — is calib_serve.py running? "+e.message); }
+  }catch(e){ banner("bad","SAVE FAILED — is serve.py running? "+e.message); }
 }
 let _saved=0; const savedCount=()=>_saved;
 function reset(){ frozen=false; pts=[]; H=null; vid.style.display="block"; cv.style.display="none";

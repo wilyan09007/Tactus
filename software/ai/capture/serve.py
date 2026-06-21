@@ -20,6 +20,7 @@ import urllib.parse
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))   # repo root
 DATA = os.path.join(ROOT, "data", "raw")
+CALIB = os.path.join(ROOT, "data", "calib")          # unified: this server also serves the twin/calib page
 PORT = int(os.environ.get("TACTUS_PORT", "8765"))
 
 
@@ -56,6 +57,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     self._send(200, f.read(), "text/html; charset=utf-8")
             except FileNotFoundError:
                 self._send(500, '{"error":"capture.html not found next to serve.py"}')
+        elif path in ("/calibrate", "/calibrate.html", "/map"):
+            try:
+                with open(os.path.join(HERE, "..", "vision", "calibrate.html"), "rb") as f:
+                    self._send(200, f.read(), "text/html; charset=utf-8")
+            except FileNotFoundError:
+                self._send(500, '{"error":"calibrate.html not found in ../vision/"}')
+        elif path == "/ping":
+            self._send(200, '{"ok":true}')
         elif path == "/status":
             q = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
             self._send(200, json.dumps(self._status(q.get("session", [""])[0],
@@ -108,6 +117,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 rel = os.path.relpath(fp, ROOT)
                 print(f"  saved {kind:5s}  {rel}  ({len(body)//1024} KB)")
                 self._send(200, json.dumps({"ok": True, "path": rel, "bytes": len(body)}))
+            elif path == "/calib-save":
+                meta = json.loads(base64.b64decode(self.headers.get("X-Meta", "")).decode())
+                gid = safe(meta.get("guitar_id", "guitar"))
+                d = os.path.join(CALIB, gid)
+                os.makedirs(d, exist_ok=True)
+                stem = f'kf_{int(meta.get("idx", 0)):02d}_{safe(meta.get("label", "pose"))}'
+                fp = os.path.join(d, stem + ".png")
+                with open(fp, "wb") as f:
+                    f.write(body)
+                meta["frame_file"] = os.path.relpath(fp, ROOT)
+                with open(os.path.join(d, "meta.jsonl"), "a") as f:
+                    f.write(json.dumps(meta) + "\n")
+                rel = os.path.relpath(fp, ROOT)
+                print(f"  saved calib   {rel}")
+                self._send(200, json.dumps({"ok": True, "path": rel}))
             elif path == "/manifest":
                 row = json.loads(body.decode())
                 d = os.path.join(DATA, safe(row["session_id"]), safe(row["player_id"]))
@@ -141,8 +165,10 @@ def main():
     url = f"http://localhost:{port}"
     print("=" * 60)
     print("  TACTUS capture server is running.")
-    print(f"  >>> open this in CHROME:   {url}")
-    print(f"  writing data to:           {os.path.relpath(DATA, ROOT)}/<session>/<player>/")
+    print(f"  >>> RECORD (open in CHROME): {url}")
+    print(f"  >>> MAP THE GUITAR FIRST:    {url}/calibrate   (① one-time, ~5 min)")
+    print(f"  writing recordings to:       {os.path.relpath(DATA, ROOT)}/<session>/<player>/")
+    print(f"  writing calibration to:      {os.path.relpath(CALIB, ROOT)}/<guitar>/")
     print("  leave this terminal open while you record. Ctrl-C to stop.")
     print("=" * 60)
     try:
