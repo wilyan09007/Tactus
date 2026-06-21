@@ -4,6 +4,7 @@
 __pycache__/
 *.pyc
 .venv/
+.venv311/
 venv/
 
 # raw capture media — keep manifest.jsonl, drop heavy A/V

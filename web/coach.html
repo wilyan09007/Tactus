@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tactus — live coach (error tracking + actuator memory)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#3A2A4A;--berry:#FF4D8D;--tangy:#FF9F43}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:'Nunito',sans-serif;color:var(--ink);
+    background:radial-gradient(900px 620px at 8% -6%,#FFE3D1 0%,#fff0 60%),
+      radial-gradient(820px 640px at 102% 14%,#E7DBFF 0%,#fff0 58%),
+      radial-gradient(1000px 780px at 88% 108%,#D6F7E6 0%,#fff0 60%),#FFFBF6}
+  .main{position:relative;height:100vh;overflow:hidden}
+  .stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+  .now-big{font:700 92px/1 'Fredoka';color:var(--ink);text-shadow:0 4px 0 #fff}
+  .now-shape{font:800 24px/1 ui-monospace,monospace;color:#9B7FB8;letter-spacing:2px}
+  .hint{font:800 13px 'Fredoka';color:#A8729A;background:#fff8;padding:8px 16px;border-radius:999px}
+  .brand{position:absolute;left:18px;top:16px;font:700 22px 'Fredoka';color:var(--ink)}
+  .brand .learn{font:800 10px 'Fredoka';background:linear-gradient(180deg,#FFD24D,var(--tangy));color:#7A3D00;padding:3px 9px;border-radius:999px;margin-left:6px;letter-spacing:.1em}
+  .ctl{position:absolute;right:16px;bottom:16px;display:flex;gap:8px;flex-wrap:wrap;max-width:520px;justify-content:flex-end}
+  .ctl button{font:800 12px 'Fredoka';color:#7A2A52;background:#FFFFFFe6;border:2.5px solid #FFB8D4;border-radius:999px;padding:9px 14px;cursor:pointer;box-shadow:0 4px 0 #FFD9E8}
+  .ctl button:active{transform:translateY(3px);box-shadow:0 1px 0 #FFD9E8}
+  .ctl button.on{background:linear-gradient(180deg,#FF6FA3,var(--berry));color:#fff;border-color:var(--berry)}
+  .keys{position:absolute;right:16px;bottom:64px;font:700 11px 'Nunito';color:#9B7FB8;text-align:right;background:#fff9;padding:8px 12px;border-radius:12px;max-width:360px}
+  .keys b{color:#C9356C}
+</style>
+</head>
+<body>
+<div class="main">
+  <div class="brand">TACTUS<span class="learn">LIVE COACH</span></div>
+  <div class="stage">
+    <div class="now-big" id="bigNow">&mdash;</div>
+    <div class="now-shape" id="bigShape"></div>
+    <div class="hint">self-paced &middot; a step clears only when you <b>land</b> it &middot; mistakes rewind the actuators' NEXT</div>
+  </div>
+  <div class="keys">
+    <b>C</b> clean-land step &middot; <b>B</b> buzz &middot; <b>M</b> mute &middot; <b>W</b> wrong note &middot; <b>&larr;</b> rewind &middot; <b>R</b> reset
+  </div>
+  <div class="ctl">
+    <button id="mic">&#9679; mic input</button>
+    <button id="occ">&#9680; simulate occlusion</button>
+    <button id="reset">reset</button>
+  </div>
+</div>
+
+<script src="sequencer.js"></script>
+<script src="coach-overlay.js"></script>
+<script src="pitch-input.js"></script>
+<script src="predictor.js"></script>
+<script>
+// ---- Redis live-memory wire: every real buzz/muted mistake -> Vector Sets ----
+// open web/redis-memory.html alongside to watch the mistake land in its cluster.
+window.TactusRedis={ push:(e)=>{
+  if(e.kind!=='buzz' && e.kind!=='muted') return;            // index classes only
+  const string_num=e.target?e.target.string:e.observed.string;
+  fetch('http://localhost:8771/mistake',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({intended_class:e.kind,string_num})})
+    .then(r=>r.json()).then(d=>{ if(d&&d.insight) console.log('[Redis memory]',d.insight.headline); })
+    .catch(()=>{});
+}};
+
+// ---- the digital tab (same source as glow.html) ----
+const SONG={ title:'Tactus Etude', bpm:100, loop:[
+  {name:'G',  shape:[[6,3],[5,2],[4,0],[3,0],[2,0],[1,3]]},
+  {name:'Em', shape:[[6,0],[5,2],[4,2],[3,0],[2,0],[1,0]]},
+  {name:'C',  shape:[[5,3],[4,2],[3,0],[2,1],[1,0]]},
+  {name:'D',  shape:[[4,0],[3,2],[2,3],[1,2]]},
+]};
+const steps=Tactus.buildSteps(SONG,{repeats:2});
+
+const stage=document.querySelector('.main');
+const bigNow=document.getElementById('bigNow'), bigShape=document.getElementById('bigShape');
+
+// ---- mount the coach overlay (error feedback in the interface) ----
+const coach=Tactus.mountCoach(stage,{
+  onError:(e)=>{ if(window.TactusRedis) window.TactusRedis.push(e); },   // -> Redis live loop
+  onHaptic:(h)=>{ /* hook: drive the 12 actuators here */ },
+});
+
+// extend the overlay's speaker-memory handler to also drive the big center display
+const baseMem=coach.handlers.onSpeakerMemory;
+coach.handlers.onSpeakerMemory=(m)=>{ baseMem(m);
+  bigNow.textContent=m.now?m.now.name:'\u2713';
+  bigShape.textContent=m.now?m.now.targets.map(t=>Tactus.stringName(t.string)+(t.fret>0?t.fret:'\u25cb')).join(' '):'';
+};
+
+const seq=new Tactus.Sequencer(steps,coach.handlers);
+
+// ---- prediction / occlusion HUD (audio-led fusion) ----
+const pred = window.TactusPredictor ? Tactus.Predictor(coach) : null;
+
+// ---- input 1: microphone (occlusion-proof) ----
+let mic=null, micOn=false;
+document.getElementById('mic').onclick=async(e)=>{
+  if(!mic) mic=Tactus.PitchInput({
+    expected:()=>seq.current(),
+    onNote:(obs)=>{ if(pred) pred.observeAudio(obs); seq.feed(obs); },
+    onLevel:(rms,conf)=>{ if(pred) pred.audioConf=conf; },
+  });
+  if(micOn){ mic.stop(); micOn=false; e.target.classList.remove('on'); e.target.textContent='\u25cf mic input'; }
+  else { try{ await mic.start(); micOn=true; e.target.classList.add('on'); e.target.textContent='\u25cf listening\u2026'; }catch(err){ alert('mic blocked: '+err); } }
+};
+
+// ---- input 2: vision hook for the fretboard team ----
+//   window.tactusVision.feed({string,fret,conf})  // call this from fretboard detection
+window.tactusVision={ feed:(obs)=>{ obs.source=obs.source||'vision'; if(pred) pred.observeVision(obs); seq.feed(obs); } };
+
+// ---- input 3: manual keys (demo-safe, deterministic) ----
+function cleanLandStep(){ const s=seq.current(); if(!s)return; s.targets.forEach(t=>{ if(!t.satisfied) seq.feed({string:t.string,fret:t.fret,articulation:'clean',source:'manual'}); }); }
+function firstTarget(){ const s=seq.current(); return s&&s.targets[0]; }
+addEventListener('keydown',(ev)=>{
+  const k=ev.key.toLowerCase();
+  if(k==='c'){ cleanLandStep(); }
+  else if(k==='b'){ const t=firstTarget(); if(t) seq.feed({string:t.string,fret:t.fret,articulation:'buzz',source:'manual'}); }
+  else if(k==='m'){ const t=firstTarget(); if(t) seq.feed({string:t.string,fret:t.fret,articulation:'muted',source:'manual'}); }
+  else if(k==='w'){ const t=firstTarget(); if(t) seq.feed({string:(t.string%6)+1,fret:t.fret+2,articulation:'clean',source:'manual'}); }
+  else if(ev.key==='Backspace'){ ev.preventDefault(); seq.rewind(); }
+  else if(k==='r'){ seq.reset(); }
+});
+document.getElementById('reset').onclick=()=>seq.reset();
+
+// ---- occlusion simulation toggle (for the AI-robustness demo) ----
+let occluded=false;
+document.getElementById('occ').onclick=(e)=>{ occluded=!occluded; e.target.classList.toggle('on',occluded);
+  if(pred) pred.setVisionOccluded(occluded); else coach.setOcclusion(occluded?0.15:0.9, 0.9); };
+
+coach.setOcclusion(0.9,0.0);
+</script>
+</body>
+</html>

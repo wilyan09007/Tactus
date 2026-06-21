@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tactus — Redis Vector-Sets mistake memory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#0B0913;color:#EDE7FF;font-family:'Nunito',sans-serif;overflow:hidden}
+  #c{position:absolute;inset:0;width:100%;height:100%}
+  .hdr{position:absolute;left:24px;top:18px;z-index:2}
+  .hdr h1{font:700 22px 'Fredoka';margin:0;letter-spacing:-.3px}
+  .hdr h1 b{color:#FF4D8D}
+  .hdr .sub{font:700 12px 'JetBrains Mono',monospace;color:#8B7FB0;margin-top:4px}
+  .badge{display:inline-block;font:700 11px 'JetBrains Mono';color:#0B0913;background:#3DDC84;padding:2px 8px;border-radius:6px;margin-right:6px}
+  .legend{position:absolute;right:24px;top:18px;z-index:2;font:800 12px 'Fredoka';display:flex;gap:14px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .insight{position:absolute;left:24px;bottom:96px;z-index:2;max-width:560px;background:#1A1330d9;border:1.5px solid #FF4D8D55;border-radius:16px;padding:16px 18px;backdrop-filter:blur(8px);opacity:0;transform:translateY(8px);transition:.3s}
+  .insight.show{opacity:1;transform:none}
+  .insight .hl{font:800 18px 'Fredoka';color:#fff;line-height:1.25}
+  .insight .stats{display:flex;gap:20px;margin-top:10px;font:700 12px 'JetBrains Mono';color:#B7A9E0}
+  .insight .stats b{color:#3DDC84;font-size:18px;display:block}
+  .ctl{position:absolute;left:0;right:0;bottom:18px;z-index:2;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .ctl button{font:800 12px 'Fredoka';color:#fff;background:#241a40;border:1.5px solid #6b5a9e;border-radius:999px;padding:10px 16px;cursor:pointer}
+  .ctl button:hover{border-color:#FF4D8D}
+  .ctl button.go{background:linear-gradient(180deg,#FF6FA3,#FF4D8D);border-color:#FF4D8D}
+  .off{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:700 14px 'JetBrains Mono';color:#FF6F6F;text-align:center;z-index:3;display:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hdr">
+  <h1><b>Redis</b> Vector Sets &middot; semantic mistake memory</h1>
+  <div class="sub"><span class="badge" id="vcard">VCARD …</span> 28-D aux-audio &rarr; PCA eigenbasis &rarr; <span id="var">PC…</span> &middot; VSIM cosine kNN (sub-ms, in-Redis)</div>
+</div>
+<div class="legend">
+  <span><i style="background:#3DDC84"></i>clean</span>
+  <span><i style="background:#FF9F43"></i>buzz</span>
+  <span><i style="background:#8A7BFF"></i>muted</span>
+</div>
+<div class="insight" id="insight">
+  <div class="hl" id="hl"></div>
+  <div class="stats">
+    <div>class lift<b id="clift">—</b></div>
+    <div>string lift<b id="slift">—</b></div>
+    <div>neighbours match<b id="cfrac">—</b></div>
+    <div>retrieved<b id="ksz">—</b></div>
+  </div>
+</div>
+<div class="off" id="off">redis_live service offline &mdash; run:<br>REDIS_PORT=6380 python3 software/ai/analysis/exp/redis_live.py</div>
+<div class="ctl">
+  <button class="go" data-c="muted" data-s="5">player mutes the A</button>
+  <button class="go" data-c="buzz" data-s="6">buzz on low-E</button>
+  <button class="go" data-c="muted" data-s="4">mute the D</button>
+  <button class="go" data-c="clean" data-s="2">clean B note</button>
+  <button id="auto">▶ auto demo</button>
+</div>
+<script>
+const API='http://localhost:8771';
+const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+const COLOR={clean:'#3DDC84',buzz:'#FF9F43',muted:'#8A7BFF'};
+let pts=[], bounds=null, live=null, t0=0;
+
+function fit(){ cv.width=innerWidth*devicePixelRatio; cv.height=innerHeight*devicePixelRatio; ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+addEventListener('resize',fit); fit();
+
+function toScreen(x,y){
+  const W=innerWidth,H=innerHeight, pad=120;
+  const sx=pad+(x-bounds.minx)/(bounds.maxx-bounds.minx)*(W-2*pad);
+  const sy=pad+ (1-(y-bounds.miny)/(bounds.maxy-bounds.miny))*(H-2*pad-60);
+  return [sx,sy];
+}
+
+async function load(){
+  try{
+    const h=await (await fetch(API+'/health')).json();
+    document.getElementById('vcard').textContent='VCARD '+h.vcard;
+    document.getElementById('var').textContent='PC1 '+Math.round(h.pca_var[0]*100)+'% · PC2 '+Math.round(h.pca_var[1]*100)+'%';
+    const p=await (await fetch(API+'/projection')).json();
+    pts=p.points;
+    const xs=pts.map(d=>d.x), ys=pts.map(d=>d.y);
+    bounds={minx:Math.min(...xs),maxx:Math.max(...xs),miny:Math.min(...ys),maxy:Math.max(...ys)};
+  }catch(e){ document.getElementById('off').style.display='block'; }
+}
+
+async function trigger(cls,s){
+  try{
+    const r=await (await fetch(API+'/mistake?cls='+cls+'&string='+s)).json();
+    if(r.error) return;
+    live={data:r,born:performance.now()};
+    const ins=document.getElementById('insight'); ins.classList.add('show');
+    document.getElementById('hl').textContent=r.insight.headline;
+    document.getElementById('clift').textContent=r.insight.class_lift+'×';
+    document.getElementById('slift').textContent=r.insight.string_lift+'×';
+    document.getElementById('cfrac').textContent=Math.round(r.insight.class_frac*100)+'%';
+    document.getElementById('ksz').textContent=r.insight.total_neighbors;
+  }catch(e){}
+}
+
+function draw(now){
+  const W=innerWidth,H=innerHeight;
+  ctx.clearRect(0,0,W,H);
+  if(bounds){
+    // base cloud
+    for(const d of pts){ const[x,y]=toScreen(d.x,d.y);
+      ctx.beginPath(); ctx.arc(x,y,2.6,0,7); ctx.fillStyle=(COLOR[d.cls]||'#888')+'55'; ctx.fill(); }
+    if(live){
+      const age=(now-live.born)/1000, k=Math.min(1,age*2);
+      const L=live.data;
+      const[px,py]=toScreen(L.point.x,L.point.y);
+      // neighbour links + halos
+      for(const nb of L.neighbors){ const[nx,ny]=toScreen(nb.x,nb.y);
+        ctx.strokeStyle='rgba(255,77,141,'+(0.5*k)+')'; ctx.lineWidth=1+nb.score*1.5;
+        ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(nx,ny); ctx.stroke();
+        ctx.beginPath(); ctx.arc(nx,ny,5,0,7); ctx.fillStyle=COLOR[nb.cls]||'#fff'; ctx.fill();
+        ctx.beginPath(); ctx.arc(nx,ny,9,0,7); ctx.strokeStyle=(COLOR[nb.cls]||'#fff')+'88'; ctx.lineWidth=1.5; ctx.stroke();
+      }
+      // the live mistake point
+      const pr=6+4*Math.sin(now/180);
+      ctx.beginPath(); ctx.arc(px,py,16*k+pr,0,7); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(px,py,9,0,7); ctx.fillStyle='#fff'; ctx.fill();
+      ctx.beginPath(); ctx.arc(px,py,5,0,7); ctx.fillStyle=COLOR[L.point.cls]||'#FF4D8D'; ctx.fill();
+      ctx.font="700 12px 'JetBrains Mono'"; ctx.fillStyle='#fff';
+      ctx.fillText('live: '+L.point.cls+' · '+L.point.string+' string',px+18,py-14);
+    }
+  }
+  requestAnimationFrame(draw);
+}
+
+document.querySelectorAll('.ctl button[data-c]').forEach(b=>b.onclick=()=>trigger(b.dataset.c,b.dataset.s));
+let autoT=null, seq=[['muted',5],['buzz',6],['muted',4],['muted',5],['clean',2]], si=0;
+document.getElementById('auto').onclick=(e)=>{
+  if(autoT){ clearInterval(autoT); autoT=null; e.target.textContent='▶ auto demo'; return; }
+  e.target.textContent='⏸ stop'; trigger(...seq[si=0]);
+  autoT=setInterval(()=>{ si=(si+1)%seq.length; trigger(...seq[si]); },2600);
+};
+load().then(()=>requestAnimationFrame(draw));
+</script>
+</body>
+</html>
