@@ -64,7 +64,8 @@ RULES (from docs/20-eng-review):
   • control pluck strength — so buzz ≠ pluck (D1, identifiability)
 
 TWO PASSES:
-  BREADTH (position): 6 strings × 3 frets (1,5,9), clean, fast → fret interpolation
+  BREADTH (position): 6 strings × frets 1–6, clean, fast → fret interpolation
+                      (SCOPE-LOCKED to frets 1–6 — 6 fret-zone motors, 1:1; see docs/24 §0b/§3)
   DEPTH (buzz/press): 2 strings × 2 frets × {clean, buzz-light, buzz-placement}
                       × many takes, pluck controlled → the response surface
 ```
