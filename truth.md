@@ -15,6 +15,7 @@ Several early docs describe **plans we no longer build**. The product narrowed a
 | Actuators | **12× SK473 KHD 3 Ω / 5 W drivers**, de-housed | Dayton DAEX/TT25 exciters; the LEO 40 mm speakers (now spares) |
 | Channel count | **12** (6 boards × stereo) | 14, or 16 |
 | DAC | **2× Vantec NBA-200U used** (V3 spare) | "3× Vantec" framing — 3 owned, 2 used |
+| LEARN UI | **`web/glow.html`** — live fret-glow on the **real neck** (per-string 6-hue markers, on-neck annotation, silent alphaTab tab) | the black 14-ch dashboard mock, `beatsaber.html`, `ar.html` (now archived in `web/_prototypes/`) |
 
 The legacy docs that carried this old info have been **removed from this repo** (recoverable from the original repo's git history). This file is canonical; every surviving doc (§9) is reconciled to it.
 
@@ -46,6 +47,7 @@ BROWSER (one tab)                          PYTHON process (laptop)
 - **Two latency tiers (non-negotiable):** immediate haptic = **audio-only, ~40 ms**; vision-fused correction = **slower (~100 ms+)**, to screen / secondary cue. A vision-fused per-note haptic at 10 ms is physically impossible (camera+MediaPipe+WS ≈ 50–80 ms).
 - **Real-time hygiene:** keep heavy compute off the 12-ch audio-output callback (own process / buffered) so it never underruns; MediaPipe/ArUco in a Web Worker; AR and the 3D cluster viz **time-share** (never both rendering live).
 - Schema source of truth: `docs/13 §3` (Python→browser). The **browser→Python vision-feature schema is not yet locked — lock it Saturday AM.**
+- **The UI is [`web/glow.html`](web/glow.html)** (serve `web/`; `/` redirects to it). The live fret-glow LEARN view: per-string 6-hue markers annotated **on the real neck** over the webcam, 4-corner neck calibration (equal-temperament fret law), ADSR glow envelope, and alphaTab real tab on the left synced **silent** (render-only, no synth — correct for a Deaf-focused app) from one `SONG` source that also feeds the glow. The next AR layer (`web/aruco-poselock.js`, prepared) auto-locks the grid via a js-aruco2 marker. Earlier prototypes are archived in `web/_prototypes/` — **not the product**.
 
 ---
 

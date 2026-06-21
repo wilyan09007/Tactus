@@ -1,407 +1,422 @@
 {
-  "/Users/aditya/Desktop/tactus/config/channel_map.json": {
-    "mtime": 1782002876.7033074,
-    "ast_hash": "f1addecf6e803a8d17bd4d5d06a027a0",
-    "semantic_hash": "f1addecf6e803a8d17bd4d5d06a027a0"
-  },
-  "/Users/aditya/Desktop/tactus/web/alphatab-loader.js": {
-    "mtime": 1782016621.3302233,
-    "ast_hash": "2fa48127b27b617f2471037dfbf865f3",
-    "semantic_hash": "2fa48127b27b617f2471037dfbf865f3"
-  },
-  "/Users/aditya/Desktop/tactus/web/aruco-poselock.js": {
-    "mtime": 1782016621.3308418,
-    "ast_hash": "502821c76baadc594fb82fc5e98c35a5",
-    "semantic_hash": "502821c76baadc594fb82fc5e98c35a5"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/capture/record_conductor.py": {
-    "mtime": 1782034444.5920565,
-    "ast_hash": "8e26141a52ac74548003cffe2eefa99d",
-    "semantic_hash": "8e26141a52ac74548003cffe2eefa99d"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/capture/serve.py": {
-    "mtime": 1782034444.5924375,
-    "ast_hash": "ec1bbd804553faee6fc7884d2e66bb24",
-    "semantic_hash": "ec1bbd804553faee6fc7884d2e66bb24"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/test_features_vision.py": {
-    "mtime": 1782034444.5906248,
-    "ast_hash": "e1bdeed91295e139866f75830d81fdb4",
-    "semantic_hash": "e1bdeed91295e139866f75830d81fdb4"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/features_audio.py": {
-    "mtime": 1782034444.588534,
-    "ast_hash": "4f0902572519dc09879a0cc5c1ccfcca",
-    "semantic_hash": "4f0902572519dc09879a0cc5c1ccfcca"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/test_collapse.py": {
-    "mtime": 1782034444.590402,
-    "ast_hash": "9e646f35671e7dc39f533006d1c268a5",
-    "semantic_hash": "9e646f35671e7dc39f533006d1c268a5"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/audit.py": {
-    "mtime": 1782034444.5878634,
-    "ast_hash": "6a84de795bba1df64010926a0d99d5ee",
-    "semantic_hash": "6a84de795bba1df64010926a0d99d5ee"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/make_demo_data.py": {
-    "mtime": 1782034444.589281,
-    "ast_hash": "c2469fe0c9314e545fd94b7233eb2606",
-    "semantic_hash": "c2469fe0c9314e545fd94b7233eb2606"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/collapse.py": {
-    "mtime": 1782034444.5881748,
-    "ast_hash": "39f320c80525537878444cb47520f26f",
-    "semantic_hash": "39f320c80525537878444cb47520f26f"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/run_pipeline.py": {
-    "mtime": 1782034444.5894423,
-    "ast_hash": "4bf4191eb675226ad50624944a0fb42a",
-    "semantic_hash": "4bf4191eb675226ad50624944a0fb42a"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/test_audit.py": {
-    "mtime": 1782034444.590109,
-    "ast_hash": "481330afc1fdb86d246aca2a9f67c159",
-    "semantic_hash": "481330afc1fdb86d246aca2a9f67c159"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/features_vision.py": {
-    "mtime": 1782034444.5888524,
-    "ast_hash": "723c1bdb9a4e38146f9186079d411f25",
-    "semantic_hash": "723c1bdb9a4e38146f9186079d411f25"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/segment.py": {
-    "mtime": 1782034444.5899901,
-    "ast_hash": "e47ce1ad6087784c1eb3632429ca7610",
-    "semantic_hash": "e47ce1ad6087784c1eb3632429ca7610"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/test_segment.py": {
-    "mtime": 1782034444.5908718,
-    "ast_hash": "40063711f30750d5066d0775f2d13699",
-    "semantic_hash": "40063711f30750d5066d0775f2d13699"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/test_pipeline.py": {
-    "mtime": 1782034444.5907328,
-    "ast_hash": "e00facac40cd5079c601cb008632d900",
-    "semantic_hash": "e00facac40cd5079c601cb008632d900"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/schema.py": {
-    "mtime": 1782034444.5897858,
-    "ast_hash": "82dd3ce75162e540c23a021db4dce200",
-    "semantic_hash": "82dd3ce75162e540c23a021db4dce200"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/analysis/test_features_audio.py": {
-    "mtime": 1782034444.590504,
-    "ast_hash": "86eefbdb8445bbdc7468360ed1dd9a3f",
-    "semantic_hash": "86eefbdb8445bbdc7468360ed1dd9a3f"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/vision/calib_serve.py": {
-    "mtime": 1782012136.1007514,
-    "ast_hash": "f3a5a7df6d5982901c1cd9118525eb3c",
-    "semantic_hash": "f3a5a7df6d5982901c1cd9118525eb3c"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/vision/twin.py": {
-    "mtime": 1782012171.5215034,
-    "ast_hash": "3382a0d0799cbe159fef7c7acf87d319",
-    "semantic_hash": "3382a0d0799cbe159fef7c7acf87d319"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/vision/fretboard.py": {
-    "mtime": 1782011998.5530946,
-    "ast_hash": "98e166cd9eda5ebc71fd460997758496",
-    "semantic_hash": "98e166cd9eda5ebc71fd460997758496"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/vision/fretboard_detect.py": {
-    "mtime": 1782022422.6476586,
-    "ast_hash": "d51b0616951e87ae6887dcc18ff8b4dc",
-    "semantic_hash": "d51b0616951e87ae6887dcc18ff8b4dc"
-  },
-  "/Users/aditya/Desktop/tactus/software/haptic/resonance_check.py": {
-    "mtime": 1782034450.1539304,
-    "ast_hash": "e3ceba1fd92414b08572d28f42864a05",
-    "semantic_hash": "e3ceba1fd92414b08572d28f42864a05"
-  },
-  "/Users/aditya/Desktop/tactus/software/haptic/speaker_check.py": {
-    "mtime": 1782034450.154093,
-    "ast_hash": "016b083034072ebf74841fbf20b6ac83",
-    "semantic_hash": "016b083034072ebf74841fbf20b6ac83"
-  },
-  "/Users/aditya/Desktop/tactus/cad/_verify_enclosure.py": {
-    "mtime": 1782002876.6900039,
-    "ast_hash": "630ab9c1c366573d50a5f6306f6bc91c",
-    "semantic_hash": "630ab9c1c366573d50a5f6306f6bc91c"
-  },
-  "/Users/aditya/Desktop/tactus/cad/tactus_enclosure.py": {
-    "mtime": 1782002876.7014606,
-    "ast_hash": "08a623ce9ed5cb429fb86861e959306e",
-    "semantic_hash": "08a623ce9ed5cb429fb86861e959306e"
-  },
-  "/Users/aditya/Desktop/tactus/cad/_puck_render.py": {
-    "mtime": 1782002876.6899252,
+  "cad/_puck_render.py": {
+    "mtime": 1782016106.5435736,
     "ast_hash": "3618acfb8ea6270fe529ffc8e757457f",
     "semantic_hash": "3618acfb8ea6270fe529ffc8e757457f"
   },
-  "/Users/aditya/Desktop/tactus/cad/aruco/generate_marker.py": {
-    "mtime": 1782011680.3400798,
+  "cad/_verify_enclosure.py": {
+    "mtime": 1782016106.543694,
+    "ast_hash": "630ab9c1c366573d50a5f6306f6bc91c",
+    "semantic_hash": "630ab9c1c366573d50a5f6306f6bc91c"
+  },
+  "cad/aruco/generate_marker.py": {
+    "mtime": 1782016181.880201,
     "ast_hash": "70127246e7a13b9c2da1393679f6f0bf",
     "semantic_hash": "70127246e7a13b9c2da1393679f6f0bf"
   },
-  "/Users/aditya/Desktop/tactus/CHANGELOG.md": {
-    "mtime": 1782016580.051017,
+  "cad/tactus_enclosure.py": {
+    "mtime": 1782016106.552762,
+    "ast_hash": "08a623ce9ed5cb429fb86861e959306e",
+    "semantic_hash": "08a623ce9ed5cb429fb86861e959306e"
+  },
+  "config/channel_map.json": {
+    "mtime": 1782016106.556626,
+    "ast_hash": "f1addecf6e803a8d17bd4d5d06a027a0",
+    "semantic_hash": "f1addecf6e803a8d17bd4d5d06a027a0"
+  },
+  "software/ai/analysis/audit.py": {
+    "mtime": 1782037750.5416038,
+    "ast_hash": "6a84de795bba1df64010926a0d99d5ee",
+    "semantic_hash": "6a84de795bba1df64010926a0d99d5ee"
+  },
+  "software/ai/analysis/collapse.py": {
+    "mtime": 1782037750.541877,
+    "ast_hash": "39f320c80525537878444cb47520f26f",
+    "semantic_hash": "39f320c80525537878444cb47520f26f"
+  },
+  "software/ai/analysis/features_audio.py": {
+    "mtime": 1782037750.542185,
+    "ast_hash": "4f0902572519dc09879a0cc5c1ccfcca",
+    "semantic_hash": "4f0902572519dc09879a0cc5c1ccfcca"
+  },
+  "software/ai/analysis/features_vision.py": {
+    "mtime": 1782037750.5424116,
+    "ast_hash": "723c1bdb9a4e38146f9186079d411f25",
+    "semantic_hash": "723c1bdb9a4e38146f9186079d411f25"
+  },
+  "software/ai/analysis/make_demo_data.py": {
+    "mtime": 1782037750.542653,
+    "ast_hash": "c2469fe0c9314e545fd94b7233eb2606",
+    "semantic_hash": "c2469fe0c9314e545fd94b7233eb2606"
+  },
+  "software/ai/analysis/run_pipeline.py": {
+    "mtime": 1782037750.543098,
+    "ast_hash": "4bf4191eb675226ad50624944a0fb42a",
+    "semantic_hash": "4bf4191eb675226ad50624944a0fb42a"
+  },
+  "software/ai/analysis/schema.py": {
+    "mtime": 1782037750.543373,
+    "ast_hash": "82dd3ce75162e540c23a021db4dce200",
+    "semantic_hash": "82dd3ce75162e540c23a021db4dce200"
+  },
+  "software/ai/analysis/segment.py": {
+    "mtime": 1782037750.543653,
+    "ast_hash": "e47ce1ad6087784c1eb3632429ca7610",
+    "semantic_hash": "e47ce1ad6087784c1eb3632429ca7610"
+  },
+  "software/ai/analysis/test_audit.py": {
+    "mtime": 1782037750.5438838,
+    "ast_hash": "481330afc1fdb86d246aca2a9f67c159",
+    "semantic_hash": "481330afc1fdb86d246aca2a9f67c159"
+  },
+  "software/ai/analysis/test_collapse.py": {
+    "mtime": 1782037750.5441906,
+    "ast_hash": "9e646f35671e7dc39f533006d1c268a5",
+    "semantic_hash": "9e646f35671e7dc39f533006d1c268a5"
+  },
+  "software/ai/analysis/test_features_audio.py": {
+    "mtime": 1782037750.5444796,
+    "ast_hash": "86eefbdb8445bbdc7468360ed1dd9a3f",
+    "semantic_hash": "86eefbdb8445bbdc7468360ed1dd9a3f"
+  },
+  "software/ai/analysis/test_features_vision.py": {
+    "mtime": 1782037750.544751,
+    "ast_hash": "e1bdeed91295e139866f75830d81fdb4",
+    "semantic_hash": "e1bdeed91295e139866f75830d81fdb4"
+  },
+  "software/ai/analysis/test_pipeline.py": {
+    "mtime": 1782037750.545091,
+    "ast_hash": "e00facac40cd5079c601cb008632d900",
+    "semantic_hash": "e00facac40cd5079c601cb008632d900"
+  },
+  "software/ai/analysis/test_segment.py": {
+    "mtime": 1782037750.5453463,
+    "ast_hash": "40063711f30750d5066d0775f2d13699",
+    "semantic_hash": "40063711f30750d5066d0775f2d13699"
+  },
+  "software/ai/capture/record_conductor.py": {
+    "mtime": 1782037750.5463963,
+    "ast_hash": "8e26141a52ac74548003cffe2eefa99d",
+    "semantic_hash": "8e26141a52ac74548003cffe2eefa99d"
+  },
+  "software/ai/capture/serve.py": {
+    "mtime": 1782037750.5467806,
+    "ast_hash": "ec1bbd804553faee6fc7884d2e66bb24",
+    "semantic_hash": "ec1bbd804553faee6fc7884d2e66bb24"
+  },
+  "software/ai/vision/calib_serve.py": {
+    "mtime": 1782016181.8817847,
+    "ast_hash": "f3a5a7df6d5982901c1cd9118525eb3c",
+    "semantic_hash": "f3a5a7df6d5982901c1cd9118525eb3c"
+  },
+  "software/ai/vision/fretboard.py": {
+    "mtime": 1782016181.8820384,
+    "ast_hash": "98e166cd9eda5ebc71fd460997758496",
+    "semantic_hash": "98e166cd9eda5ebc71fd460997758496"
+  },
+  "software/ai/vision/fretboard_detect.py": {
+    "mtime": 1782037750.5473938,
+    "ast_hash": "d51b0616951e87ae6887dcc18ff8b4dc",
+    "semantic_hash": "d51b0616951e87ae6887dcc18ff8b4dc"
+  },
+  "software/ai/vision/twin.py": {
+    "mtime": 1782016181.8821242,
+    "ast_hash": "3382a0d0799cbe159fef7c7acf87d319",
+    "semantic_hash": "3382a0d0799cbe159fef7c7acf87d319"
+  },
+  "software/haptic/resonance_check.py": {
+    "mtime": 1782037750.5476577,
+    "ast_hash": "e3ceba1fd92414b08572d28f42864a05",
+    "semantic_hash": "e3ceba1fd92414b08572d28f42864a05"
+  },
+  "software/haptic/speaker_check.py": {
+    "mtime": 1782037750.547967,
+    "ast_hash": "016b083034072ebf74841fbf20b6ac83",
+    "semantic_hash": "016b083034072ebf74841fbf20b6ac83"
+  },
+  "web/alphatab-loader.js": {
+    "mtime": 1782016137.005009,
+    "ast_hash": "2fa48127b27b617f2471037dfbf865f3",
+    "semantic_hash": "2fa48127b27b617f2471037dfbf865f3"
+  },
+  "web/aruco-poselock.js": {
+    "mtime": 1782016137.0052884,
+    "ast_hash": "502821c76baadc594fb82fc5e98c35a5",
+    "semantic_hash": "502821c76baadc594fb82fc5e98c35a5"
+  },
+  "CHANGELOG.md": {
+    "mtime": 1782037750.536286,
     "ast_hash": "7a188604171736d3e4704f0a0ff33a6f",
     "semantic_hash": "7a188604171736d3e4704f0a0ff33a6f"
   },
-  "/Users/aditya/Desktop/tactus/truth.md": {
-    "mtime": 1782034444.5932436,
-    "ast_hash": "18fa3ed25530d5cd8d5fb9bb86b4a131",
-    "semantic_hash": "18fa3ed25530d5cd8d5fb9bb86b4a131"
-  },
-  "/Users/aditya/Desktop/tactus/README.md": {
-    "mtime": 1782002876.6758199,
+  "README.md": {
+    "mtime": 1782016106.5307658,
     "ast_hash": "e9c124bf8b4c1454cbdd8e3f1d2a69fe",
     "semantic_hash": "e9c124bf8b4c1454cbdd8e3f1d2a69fe"
   },
-  "/Users/aditya/Desktop/tactus/web/beatsaber.html": {
-    "mtime": 1782016621.3311708,
-    "ast_hash": "28e7769c11806ce361bc98f59883e599",
-    "semantic_hash": "28e7769c11806ce361bc98f59883e599"
-  },
-  "/Users/aditya/Desktop/tactus/web/ar.html": {
-    "mtime": 1782016621.330563,
-    "ast_hash": "48b1fed9593a531bb59c0dcd509d7512",
-    "semantic_hash": "48b1fed9593a531bb59c0dcd509d7512"
-  },
-  "/Users/aditya/Desktop/tactus/web/index.html": {
-    "mtime": 1782002876.7073526,
-    "ast_hash": "15a9e5ecb41428eb6010225b74066e93",
-    "semantic_hash": "15a9e5ecb41428eb6010225b74066e93"
-  },
-  "/Users/aditya/Desktop/tactus/web/glow.html": {
-    "mtime": 1782016621.3315067,
-    "ast_hash": "92419b68e559cd79786d3722cf9aee53",
-    "semantic_hash": "92419b68e559cd79786d3722cf9aee53"
-  },
-  "/Users/aditya/Desktop/tactus/docs/10-design-decisions.md": {
-    "mtime": 1782002876.7048185,
-    "ast_hash": "8b55f8cb8f655fd6bdd6a9c491ecffe2",
-    "semantic_hash": "8b55f8cb8f655fd6bdd6a9c491ecffe2"
-  },
-  "/Users/aditya/Desktop/tactus/docs/05-wiring-map.md": {
-    "mtime": 1782002876.7043371,
-    "ast_hash": "a504e93d4b79f22b9b7a81c360350590",
-    "semantic_hash": "a504e93d4b79f22b9b7a81c360350590"
-  },
-  "/Users/aditya/Desktop/tactus/docs/25-data-and-feature-format.md": {
-    "mtime": 1782016560.4763067,
-    "ast_hash": "9f64a517703bfe2cedecc35fa3d7dee4",
-    "semantic_hash": "9f64a517703bfe2cedecc35fa3d7dee4"
-  },
-  "/Users/aditya/Desktop/tactus/docs/08-software-architecture.md": {
-    "mtime": 1782002876.7046323,
-    "ast_hash": "241ce0ec334e3e55adeebc54c19f1736",
-    "semantic_hash": "241ce0ec334e3e55adeebc54c19f1736"
-  },
-  "/Users/aditya/Desktop/tactus/docs/06-safety.md": {
-    "mtime": 1782002876.7044463,
-    "ast_hash": "e8a2c73b3e090196da68a26d6a5f703d",
-    "semantic_hash": "e8a2c73b3e090196da68a26d6a5f703d"
-  },
-  "/Users/aditya/Desktop/tactus/docs/27-chord-feedback-and-experiment-plan.md": {
-    "mtime": 1782034444.5873742,
-    "ast_hash": "83c0074cca45cc5496c13e5454d1f6b7",
-    "semantic_hash": "83c0074cca45cc5496c13e5454d1f6b7"
-  },
-  "/Users/aditya/Desktop/tactus/docs/23-data-and-cluster-semantics.md": {
-    "mtime": 1782014454.1887093,
-    "ast_hash": "af171f1a22aa11e979e3710ae4fd1f4e",
-    "semantic_hash": "af171f1a22aa11e979e3710ae4fd1f4e"
-  },
-  "/Users/aditya/Desktop/tactus/docs/19-sponsors-refined.md": {
-    "mtime": 1782002876.7056897,
-    "ast_hash": "da59cc74c99925ae1b7dfb0dbd54abd6",
-    "semantic_hash": "da59cc74c99925ae1b7dfb0dbd54abd6"
-  },
-  "/Users/aditya/Desktop/tactus/docs/20-aiml-training-design.md": {
-    "mtime": 1782014537.8293505,
-    "ast_hash": "2d69544412e3c5372fee49a33cdc438e",
-    "semantic_hash": "2d69544412e3c5372fee49a33cdc438e"
-  },
-  "/Users/aditya/Desktop/tactus/docs/09-assembly-checklist.md": {
-    "mtime": 1782002876.7047038,
-    "ast_hash": "b6a636df5d22c82203011d15d7627388",
-    "semantic_hash": "b6a636df5d22c82203011d15d7627388"
-  },
-  "/Users/aditya/Desktop/tactus/docs/15-build-refinements.md": {
-    "mtime": 1782002876.7053523,
-    "ast_hash": "48e6de4fc968df005b46a1c8a6d87b70",
-    "semantic_hash": "48e6de4fc968df005b46a1c8a6d87b70"
-  },
-  "/Users/aditya/Desktop/tactus/docs/26-aiden-handoff.md": {
-    "mtime": 1782016565.8938074,
-    "ast_hash": "64325631b14fb85133461fa7c09cc80d",
-    "semantic_hash": "64325631b14fb85133461fa7c09cc80d"
-  },
-  "/Users/aditya/Desktop/tactus/docs/18-tuning-and-calibration.md": {
-    "mtime": 1782002876.7055793,
-    "ast_hash": "255f66200f34adb9cf693c807b714b6f",
-    "semantic_hash": "255f66200f34adb9cf693c807b714b6f"
-  },
-  "/Users/aditya/Desktop/tactus/docs/12-perception-references.md": {
-    "mtime": 1782002876.7050202,
-    "ast_hash": "1d0db03f155bd67b2190837c22c1d41b",
-    "semantic_hash": "1d0db03f155bd67b2190837c22c1d41b"
-  },
-  "/Users/aditya/Desktop/tactus/docs/13_LEARN_WEB_AND_VISUALIZATION.md": {
-    "mtime": 1782002876.7052367,
-    "ast_hash": "ec3db7836f6b7695c58366d4e266f035",
-    "semantic_hash": "ec3db7836f6b7695c58366d4e266f035"
-  },
-  "/Users/aditya/Desktop/tactus/docs/13-open-questions.md": {
-    "mtime": 1782002876.7050936,
-    "ast_hash": "e7a049842034a7cd599ae04429739ece",
-    "semantic_hash": "e7a049842034a7cd599ae04429739ece"
-  },
-  "/Users/aditya/Desktop/tactus/docs/11-ai-and-pitch.md": {
-    "mtime": 1782002876.7049363,
-    "ast_hash": "eef35b350af6f06b6239c15060c2b3bf",
-    "semantic_hash": "eef35b350af6f06b6239c15060c2b3bf"
-  },
-  "/Users/aditya/Desktop/tactus/docs/03-power.md": {
-    "mtime": 1782002876.7041502,
-    "ast_hash": "1add5a8cfa7ffea7477127288eb03cea",
-    "semantic_hash": "1add5a8cfa7ffea7477127288eb03cea"
-  },
-  "/Users/aditya/Desktop/tactus/docs/00-start-here.md": {
-    "mtime": 1782002876.703901,
-    "ast_hash": "087434f19bc12741924a16a2c42e553b",
-    "semantic_hash": "087434f19bc12741924a16a2c42e553b"
-  },
-  "/Users/aditya/Desktop/tactus/docs/REF_psychophysics_brief.md": {
-    "mtime": 1782002876.7067723,
-    "ast_hash": "0002f16715f2d74ab60bb620228ea4f5",
-    "semantic_hash": "0002f16715f2d74ab60bb620228ea4f5"
-  },
-  "/Users/aditya/Desktop/tactus/docs/20-eng-review.md": {
-    "mtime": 1782002876.705908,
-    "ast_hash": "ce2dfa49d90b66a4f85c4a10a825032c",
-    "semantic_hash": "ce2dfa49d90b66a4f85c4a10a825032c"
-  },
-  "/Users/aditya/Desktop/tactus/docs/04-soldering-guide.md": {
-    "mtime": 1782002876.704265,
-    "ast_hash": "9289543c9ca3dab59309f353abf35fb4",
-    "semantic_hash": "9289543c9ca3dab59309f353abf35fb4"
-  },
-  "/Users/aditya/Desktop/tactus/docs/22-interface-ar-and-correction.md": {
-    "mtime": 1782016659.0713186,
-    "ast_hash": "f2fd7c6e3ce0839ab402050c4f28c91d",
-    "semantic_hash": "f2fd7c6e3ce0839ab402050c4f28c91d"
-  },
-  "/Users/aditya/Desktop/tactus/docs/24-data-collection-protocol.md": {
-    "mtime": 1782014532.649426,
-    "ast_hash": "519786fde4cf7cdf05c93bef1fb3a662",
-    "semantic_hash": "519786fde4cf7cdf05c93bef1fb3a662"
-  },
-  "/Users/aditya/Desktop/tactus/docs/01-bill-of-materials.md": {
-    "mtime": 1782002876.7039726,
-    "ast_hash": "0c0cb924f3520f201a2b945c0c2f6522",
-    "semantic_hash": "0c0cb924f3520f201a2b945c0c2f6522"
-  },
-  "/Users/aditya/Desktop/tactus/docs/07-haptic-encoding.md": {
-    "mtime": 1782002876.7045152,
-    "ast_hash": "2a78f63d0f567a8edc817e79339a75d3",
-    "semantic_hash": "2a78f63d0f567a8edc817e79339a75d3"
-  },
-  "/Users/aditya/Desktop/tactus/docs/REF_sponsors_brief.md": {
-    "mtime": 1782002876.7068932,
-    "ast_hash": "8c9009259363a6113baa185f5bfbe9f0",
-    "semantic_hash": "8c9009259363a6113baa185f5bfbe9f0"
-  },
-  "/Users/aditya/Desktop/tactus/docs/21-chord-and-sustain-rendering.md": {
-    "mtime": 1782002876.7060409,
-    "ast_hash": "e1f73d6a6f17e52ffdb74b8b328714fa",
-    "semantic_hash": "e1f73d6a6f17e52ffdb74b8b328714fa"
-  },
-  "/Users/aditya/Desktop/tactus/docs/02-system-architecture.md": {
-    "mtime": 1782002876.7040384,
-    "ast_hash": "a1ae7117843be3701ce784614d205c1f",
-    "semantic_hash": "a1ae7117843be3701ce784614d205c1f"
-  },
-  "/Users/aditya/Desktop/tactus/docs/17-ai-rigor.md": {
-    "mtime": 1782014470.7979062,
-    "ast_hash": "4f4bc0f5cab8dee630bfc17861669555",
-    "semantic_hash": "4f4bc0f5cab8dee630bfc17861669555"
-  },
-  "/Users/aditya/Desktop/tactus/software/requirements.txt": {
-    "mtime": 1782034444.5927963,
-    "ast_hash": "21178346e323c5fa2dfefaf4113e5c31",
-    "semantic_hash": "21178346e323c5fa2dfefaf4113e5c31"
-  },
-  "/Users/aditya/Desktop/tactus/software/README.md": {
-    "mtime": 1782002876.7070067,
-    "ast_hash": "29d72cda92ea438c9ee4d2269f81deb9",
-    "semantic_hash": "29d72cda92ea438c9ee4d2269f81deb9"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/capture/README.md": {
-    "mtime": 1782014465.7762828,
-    "ast_hash": "716ebb024dfbbfa11c65d84665b54cce",
-    "semantic_hash": "716ebb024dfbbfa11c65d84665b54cce"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/capture/capture.html": {
-    "mtime": 1782034444.591652,
-    "ast_hash": "20dd751d3d92a125a12b056e68a38836",
-    "semantic_hash": "20dd751d3d92a125a12b056e68a38836"
-  },
-  "/Users/aditya/Desktop/tactus/software/ai/vision/calibrate.html": {
-    "mtime": 1782016536.3535306,
-    "ast_hash": "de870843b40543c64041470e2fd61428",
-    "semantic_hash": "de870843b40543c64041470e2fd61428"
-  },
-  "/Users/aditya/Desktop/tactus/cad/README.md": {
-    "mtime": 1782014462.343588,
+  "cad/README.md": {
+    "mtime": 1782016181.879999,
     "ast_hash": "cd3ce07a94ec6f8b485fb0dcb94ec4d3",
     "semantic_hash": "cd3ce07a94ec6f8b485fb0dcb94ec4d3"
   },
-  "/Users/aditya/Desktop/tactus/cad/aruco/print_marker.html": {
-    "mtime": 1782011685.8326237,
+  "cad/aruco/print_marker.html": {
+    "mtime": 1782016181.8804193,
     "ast_hash": "c239720e0c4849d46d221291125e7bad",
     "semantic_hash": "c239720e0c4849d46d221291125e7bad"
   },
-  "/Users/aditya/Desktop/tactus/docs/REF_ml_brief.md": {
-    "mtime": 1782002876.7066567,
+  "docs/00-start-here.md": {
+    "mtime": 1782016106.5574014,
+    "ast_hash": "087434f19bc12741924a16a2c42e553b",
+    "semantic_hash": "087434f19bc12741924a16a2c42e553b"
+  },
+  "docs/01-bill-of-materials.md": {
+    "mtime": 1782016106.557526,
+    "ast_hash": "0c0cb924f3520f201a2b945c0c2f6522",
+    "semantic_hash": "0c0cb924f3520f201a2b945c0c2f6522"
+  },
+  "docs/02-system-architecture.md": {
+    "mtime": 1782016106.557644,
+    "ast_hash": "a1ae7117843be3701ce784614d205c1f",
+    "semantic_hash": "a1ae7117843be3701ce784614d205c1f"
+  },
+  "docs/03-power.md": {
+    "mtime": 1782016106.557794,
+    "ast_hash": "1add5a8cfa7ffea7477127288eb03cea",
+    "semantic_hash": "1add5a8cfa7ffea7477127288eb03cea"
+  },
+  "docs/04-soldering-guide.md": {
+    "mtime": 1782016106.5579517,
+    "ast_hash": "9289543c9ca3dab59309f353abf35fb4",
+    "semantic_hash": "9289543c9ca3dab59309f353abf35fb4"
+  },
+  "docs/05-wiring-map.md": {
+    "mtime": 1782016106.5580845,
+    "ast_hash": "a504e93d4b79f22b9b7a81c360350590",
+    "semantic_hash": "a504e93d4b79f22b9b7a81c360350590"
+  },
+  "docs/06-safety.md": {
+    "mtime": 1782016106.5582762,
+    "ast_hash": "e8a2c73b3e090196da68a26d6a5f703d",
+    "semantic_hash": "e8a2c73b3e090196da68a26d6a5f703d"
+  },
+  "docs/07-haptic-encoding.md": {
+    "mtime": 1782016106.5584219,
+    "ast_hash": "2a78f63d0f567a8edc817e79339a75d3",
+    "semantic_hash": "2a78f63d0f567a8edc817e79339a75d3"
+  },
+  "docs/08-software-architecture.md": {
+    "mtime": 1782016106.5585897,
+    "ast_hash": "241ce0ec334e3e55adeebc54c19f1736",
+    "semantic_hash": "241ce0ec334e3e55adeebc54c19f1736"
+  },
+  "docs/09-assembly-checklist.md": {
+    "mtime": 1782016106.5587404,
+    "ast_hash": "b6a636df5d22c82203011d15d7627388",
+    "semantic_hash": "b6a636df5d22c82203011d15d7627388"
+  },
+  "docs/10-design-decisions.md": {
+    "mtime": 1782016106.558897,
+    "ast_hash": "8b55f8cb8f655fd6bdd6a9c491ecffe2",
+    "semantic_hash": "8b55f8cb8f655fd6bdd6a9c491ecffe2"
+  },
+  "docs/11-ai-and-pitch.md": {
+    "mtime": 1782016106.5590422,
+    "ast_hash": "eef35b350af6f06b6239c15060c2b3bf",
+    "semantic_hash": "eef35b350af6f06b6239c15060c2b3bf"
+  },
+  "docs/12-perception-references.md": {
+    "mtime": 1782016106.5591667,
+    "ast_hash": "1d0db03f155bd67b2190837c22c1d41b",
+    "semantic_hash": "1d0db03f155bd67b2190837c22c1d41b"
+  },
+  "docs/13-open-questions.md": {
+    "mtime": 1782016106.5592868,
+    "ast_hash": "e7a049842034a7cd599ae04429739ece",
+    "semantic_hash": "e7a049842034a7cd599ae04429739ece"
+  },
+  "docs/13_LEARN_WEB_AND_VISUALIZATION.md": {
+    "mtime": 1782016106.5594366,
+    "ast_hash": "ec3db7836f6b7695c58366d4e266f035",
+    "semantic_hash": "ec3db7836f6b7695c58366d4e266f035"
+  },
+  "docs/15-build-refinements.md": {
+    "mtime": 1782016106.55957,
+    "ast_hash": "48e6de4fc968df005b46a1c8a6d87b70",
+    "semantic_hash": "48e6de4fc968df005b46a1c8a6d87b70"
+  },
+  "docs/17-ai-rigor.md": {
+    "mtime": 1782016181.8806105,
+    "ast_hash": "4f4bc0f5cab8dee630bfc17861669555",
+    "semantic_hash": "4f4bc0f5cab8dee630bfc17861669555"
+  },
+  "docs/18-tuning-and-calibration.md": {
+    "mtime": 1782016106.5600743,
+    "ast_hash": "255f66200f34adb9cf693c807b714b6f",
+    "semantic_hash": "255f66200f34adb9cf693c807b714b6f"
+  },
+  "docs/19-sponsors-refined.md": {
+    "mtime": 1782016106.5602098,
+    "ast_hash": "da59cc74c99925ae1b7dfb0dbd54abd6",
+    "semantic_hash": "da59cc74c99925ae1b7dfb0dbd54abd6"
+  },
+  "docs/20-aiml-training-design.md": {
+    "mtime": 1782016181.8807566,
+    "ast_hash": "2d69544412e3c5372fee49a33cdc438e",
+    "semantic_hash": "2d69544412e3c5372fee49a33cdc438e"
+  },
+  "docs/20-eng-review.md": {
+    "mtime": 1782016106.560703,
+    "ast_hash": "ce2dfa49d90b66a4f85c4a10a825032c",
+    "semantic_hash": "ce2dfa49d90b66a4f85c4a10a825032c"
+  },
+  "docs/21-chord-and-sustain-rendering.md": {
+    "mtime": 1782016106.56086,
+    "ast_hash": "e1f73d6a6f17e52ffdb74b8b328714fa",
+    "semantic_hash": "e1f73d6a6f17e52ffdb74b8b328714fa"
+  },
+  "docs/22-interface-ar-and-correction.md": {
+    "mtime": 1782037750.5368402,
+    "ast_hash": "f2fd7c6e3ce0839ab402050c4f28c91d",
+    "semantic_hash": "f2fd7c6e3ce0839ab402050c4f28c91d"
+  },
+  "docs/23-data-and-cluster-semantics.md": {
+    "mtime": 1782016181.880994,
+    "ast_hash": "af171f1a22aa11e979e3710ae4fd1f4e",
+    "semantic_hash": "af171f1a22aa11e979e3710ae4fd1f4e"
+  },
+  "docs/24-data-collection-protocol.md": {
+    "mtime": 1782016181.8811204,
+    "ast_hash": "519786fde4cf7cdf05c93bef1fb3a662",
+    "semantic_hash": "519786fde4cf7cdf05c93bef1fb3a662"
+  },
+  "docs/25-data-and-feature-format.md": {
+    "mtime": 1782037750.537324,
+    "ast_hash": "9f64a517703bfe2cedecc35fa3d7dee4",
+    "semantic_hash": "9f64a517703bfe2cedecc35fa3d7dee4"
+  },
+  "docs/26-aiden-handoff.md": {
+    "mtime": 1782037750.5376923,
+    "ast_hash": "64325631b14fb85133461fa7c09cc80d",
+    "semantic_hash": "64325631b14fb85133461fa7c09cc80d"
+  },
+  "docs/27-chord-feedback-and-experiment-plan.md": {
+    "mtime": 1782037750.5380943,
+    "ast_hash": "83c0074cca45cc5496c13e5454d1f6b7",
+    "semantic_hash": "83c0074cca45cc5496c13e5454d1f6b7"
+  },
+  "docs/REF_psychophysics_brief.md": {
+    "mtime": 1782016106.5620656,
+    "ast_hash": "0002f16715f2d74ab60bb620228ea4f5",
+    "semantic_hash": "0002f16715f2d74ab60bb620228ea4f5"
+  },
+  "docs/REF_sponsors_brief.md": {
+    "mtime": 1782016106.562185,
+    "ast_hash": "8c9009259363a6113baa185f5bfbe9f0",
+    "semantic_hash": "8c9009259363a6113baa185f5bfbe9f0"
+  },
+  "software/README.md": {
+    "mtime": 1781932449.4110065,
+    "ast_hash": "29d72cda92ea438c9ee4d2269f81deb9",
+    "semantic_hash": "29d72cda92ea438c9ee4d2269f81deb9"
+  },
+  "software/ai/capture/README.md": {
+    "mtime": 1782016181.8814654,
+    "ast_hash": "716ebb024dfbbfa11c65d84665b54cce",
+    "semantic_hash": "716ebb024dfbbfa11c65d84665b54cce"
+  },
+  "software/ai/capture/capture.html": {
+    "mtime": 1782037750.5459328,
+    "ast_hash": "5da4b4b9b3ac87bfcdd0cba7584cf5a5",
+    "semantic_hash": "5da4b4b9b3ac87bfcdd0cba7584cf5a5"
+  },
+  "software/ai/vision/calibrate.html": {
+    "mtime": 1782037750.547129,
+    "ast_hash": "de870843b40543c64041470e2fd61428",
+    "semantic_hash": "de870843b40543c64041470e2fd61428"
+  },
+  "software/requirements.txt": {
+    "mtime": 1782037750.5485191,
+    "ast_hash": "21178346e323c5fa2dfefaf4113e5c31",
+    "semantic_hash": "21178346e323c5fa2dfefaf4113e5c31"
+  },
+  "truth.md": {
+    "mtime": 1782042195.2093651,
+    "ast_hash": "5b5fdb5ffe90ff83837b167c563c64d7",
+    "semantic_hash": ""
+  },
+  "web/glow.html": {
+    "mtime": 1782016137.0056098,
+    "ast_hash": "92419b68e559cd79786d3722cf9aee53",
+    "semantic_hash": "92419b68e559cd79786d3722cf9aee53"
+  },
+  "web/index.html": {
+    "mtime": 1782042109.5838447,
+    "ast_hash": "53fac72b3f57501562ace7155d0f352a",
+    "semantic_hash": ""
+  },
+  "docs/REF_ml_brief.md": {
+    "mtime": 1782016106.5619342,
     "ast_hash": "444f3171880b37bde0ce11b7e5fcb5ca",
     "semantic_hash": "444f3171880b37bde0ce11b7e5fcb5ca"
   },
-  "/Users/aditya/Desktop/tactus/diagrams/system-flow.svg": {
-    "mtime": 1782002876.703791,
-    "ast_hash": "8904d1291b5e826780eac9bbf46c41b5",
-    "semantic_hash": "8904d1291b5e826780eac9bbf46c41b5"
+  "cad/aruco/marker_4x4_50_id0.png": {
+    "mtime": 1782016181.8803053,
+    "ast_hash": "07fe739f86d34a0b508396856b21fd4b",
+    "semantic_hash": "07fe739f86d34a0b508396856b21fd4b"
   },
-  "/Users/aditya/Desktop/tactus/diagrams/connections.svg": {
-    "mtime": 1782002876.703585,
-    "ast_hash": "8a1da37f24cb3baa4db493c7b613c03c",
-    "semantic_hash": "8a1da37f24cb3baa4db493c7b613c03c"
-  },
-  "/Users/aditya/Desktop/tactus/diagrams/power-modes.svg": {
-    "mtime": 1782002876.7036924,
-    "ast_hash": "731fea47a80190c6dbf6fd336b3c3461",
-    "semantic_hash": "731fea47a80190c6dbf6fd336b3c3461"
-  },
-  "/Users/aditya/Desktop/tactus/diagrams/body-map.svg": {
-    "mtime": 1782002876.7034676,
-    "ast_hash": "9403b9265624fab751451799ef96f804",
-    "semantic_hash": "9403b9265624fab751451799ef96f804"
-  },
-  "/Users/aditya/Desktop/tactus/cad/enclosure_render.png": {
-    "mtime": 1782002876.6944292,
-    "ast_hash": "a2e4f7653213d13e3e003ac6818a9cef",
-    "semantic_hash": "a2e4f7653213d13e3e003ac6818a9cef"
-  },
-  "/Users/aditya/Desktop/tactus/cad/enclosure_preview.png": {
-    "mtime": 1782002876.694254,
+  "cad/enclosure_preview.png": {
+    "mtime": 1782016106.5476408,
     "ast_hash": "249fe825a5fc532bebb5e5c0583a6478",
     "semantic_hash": "249fe825a5fc532bebb5e5c0583a6478"
   },
-  "/Users/aditya/Desktop/tactus/cad/aruco/marker_4x4_50_id0.png": {
-    "mtime": 1782011685.8318732,
-    "ast_hash": "07fe739f86d34a0b508396856b21fd4b",
-    "semantic_hash": "07fe739f86d34a0b508396856b21fd4b"
+  "cad/enclosure_render.png": {
+    "mtime": 1782016106.5478919,
+    "ast_hash": "a2e4f7653213d13e3e003ac6818a9cef",
+    "semantic_hash": "a2e4f7653213d13e3e003ac6818a9cef"
+  },
+  "diagrams/body-map.svg": {
+    "mtime": 1782016106.5567904,
+    "ast_hash": "9403b9265624fab751451799ef96f804",
+    "semantic_hash": "9403b9265624fab751451799ef96f804"
+  },
+  "diagrams/connections.svg": {
+    "mtime": 1782016106.5569184,
+    "ast_hash": "8a1da37f24cb3baa4db493c7b613c03c",
+    "semantic_hash": "8a1da37f24cb3baa4db493c7b613c03c"
+  },
+  "diagrams/power-modes.svg": {
+    "mtime": 1782016106.5571008,
+    "ast_hash": "731fea47a80190c6dbf6fd336b3c3461",
+    "semantic_hash": "731fea47a80190c6dbf6fd336b3c3461"
+  },
+  "diagrams/system-flow.svg": {
+    "mtime": 1782016106.5572677,
+    "ast_hash": "8904d1291b5e826780eac9bbf46c41b5",
+    "semantic_hash": "8904d1291b5e826780eac9bbf46c41b5"
+  },
+  "web/README.md": {
+    "mtime": 1782042122.914545,
+    "ast_hash": "6845da65d1b0b2e749820b0c89170f8e",
+    "semantic_hash": ""
+  },
+  "web/_prototypes/README.md": {
+    "mtime": 1782042131.8022835,
+    "ast_hash": "e4b962b73a80f2d2759a273ebd67d668",
+    "semantic_hash": ""
+  },
+  "web/_prototypes/ar.html": {
+    "mtime": 1782016137.0051556,
+    "ast_hash": "48b1fed9593a531bb59c0dcd509d7512",
+    "semantic_hash": ""
+  },
+  "web/_prototypes/beatsaber.html": {
+    "mtime": 1782016137.0054202,
+    "ast_hash": "28e7769c11806ce361bc98f59883e599",
+    "semantic_hash": ""
+  },
+  "web/_prototypes/learn-dashboard-mock.html": {
+    "mtime": 1782041028.0846004,
+    "ast_hash": "15a9e5ecb41428eb6010225b74066e93",
+    "semantic_hash": ""
   }
 }
