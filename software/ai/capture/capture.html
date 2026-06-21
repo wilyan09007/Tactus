@@ -225,7 +225,7 @@
       <div class="check"><input type="checkbox" id="clickAudible"> audible click (use earbuds — keeps it out of the mic)</div>
       <label style="margin-top:8px">Chord-stream chord (vision blocks)</label>
       <select id="streamChord"><option value="">shuffle all 10 (transitions)</option><option>Em</option><option>Am</option><option>C</option><option>G</option><option>D</option><option>E</option><option>A</option><option>Dm</option><option>F</option><option>G7</option></select>
-      <div class="note">Pick ONE → repeats it <b>80×</b> (move light / tilt / vary speed for vision variety). "shuffle all 10" = <b>100×</b> mixed progression for transition data.</div>
+      <div class="note">Pick ONE → repeats it <b>40×</b> (move light / tilt / vary speed for vision variety; palm-mute between). "shuffle all 10" = <b>100×</b> mixed progression for transition data.</div>
       <div class="ctrls"><button id="buildBtn" class="sec">Build / rebuild run plan</button></div>
       <div class="note" id="planNote">—</div>
     </div>
@@ -466,7 +466,7 @@ function buildPlan(){
     }
   } else if(block==="chord-stream"){
     const _sc=($("#streamChord") && $("#streamChord").value) || null;
-    const seq=buildStream(_sc?80:100, _sc);   // 80 per single chord (vision variety) · 100 shuffle (transitions)
+    const seq=buildStream(_sc?40:100, _sc);   // 40 per single chord (vision variety) · 100 shuffle (transitions)
     plan=[{block:"chord-stream", stream:true, sequence:seq, intended_class:"chord-stream",
            s_num:0, string:"chord progression", fret_range:"chord", finger:"chord", pluck_strength:pluck,
            expected_note_count:seq.length,
