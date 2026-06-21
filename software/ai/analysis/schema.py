@@ -44,12 +44,12 @@ def on_path(*dirs):
 
 
 # ----------------------------------------------------------------- labels / scope
-# The 3 classes the separability study must separate (docs/24 §0b): clean vs the
-# two buzz causes. Audio alone is EXPECTED to confuse the buzz pair (verification
-# V1); fusion with vision `d` is expected to separate it (V2).
-CORE_CLASSES = ["clean", "buzz-light", "buzz-placement"]
+# The 3 acoustically-distinct classes the study separates: good vs buzz vs dead.
+# We do NOT split the buzz cause (light vs placement is audio-ambiguous); muted is
+# an unambiguous dead note. All three separate on AUDIO ALONE — no vision `d` needed.
+CORE_CLASSES = ["clean", "buzz", "muted"]
 # Other prompted classes that may appear in the manifest but sit outside the core study.
-EXTRA_CLASSES = ["muted", "choked", "natural", "one-buzz"]
+EXTRA_CLASSES = ["choked", "natural", "one-buzz"]
 ALL_CLASSES = CORE_CLASSES + EXTRA_CLASSES
 
 # SCOPE LOCK: 6 fret-zone motors, 1:1 fret->zone. No fret above 6 (truth.md, docs/24 §0b).

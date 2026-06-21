@@ -171,10 +171,19 @@ def main():
     print(f"  writing calibration to:      {os.path.relpath(CALIB, ROOT)}/<guitar>/")
     print("  leave this terminal open while you record. Ctrl-C to stop.")
     print("=" * 60)
+    # capture needs Chrome (getUserMedia + AudioWorklet); open it right on the URL
+    # so you SEE it's connected the moment the server starts.
     try:
-        webbrowser.open(url)
+        if sys.platform == "darwin":
+            import subprocess
+            subprocess.run(["open", "-a", "Google Chrome", url])
+        else:
+            webbrowser.open(url)
     except Exception:
-        pass
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
