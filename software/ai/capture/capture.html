@@ -223,6 +223,9 @@
       </div>
       <div class="check"><input type="checkbox" id="aruco"> ArUco marker is on the headstock &amp; visible</div>
       <div class="check"><input type="checkbox" id="clickAudible"> audible click (use earbuds — keeps it out of the mic)</div>
+      <label style="margin-top:8px">Chord-stream chord (vision blocks)</label>
+      <select id="streamChord"><option value="">shuffle all 10 (transitions)</option><option>Em</option><option>Am</option><option>C</option><option>G</option><option>D</option><option>E</option><option>A</option><option>Dm</option><option>F</option><option>G7</option></select>
+      <div class="note">Pick ONE → repeats it <b>40×</b> (move light / tilt / vary speed for vision variety; palm-mute between). "shuffle all 10" = <b>100×</b> mixed progression for transition data.</div>
       <div class="ctrls"><button id="buildBtn" class="sec">Build / rebuild run plan</button></div>
       <div class="note" id="planNote">—</div>
     </div>
@@ -262,17 +265,19 @@ const CLASSES = [
   ["buzz","BUZZ — fret it but let it RATTLE (too light, OR finger too far back). Must audibly buzz."],
   ["muted","MUTED — just REST the finger on the string, do NOT press to the fret → dead thud, NO pitch"],
 ];
-const CHORDS = ["Em","Am","C","G","D","E","A","Dm"];
+const CHORDS = ["Em","Am","C","G","D","E","A","Dm","F","G7"];
 // open-chord shapes — index = low-E(6),A(5),D(4),G(3),B(2),high-e(1); -1 = string NOT played.
 // all within frets 1-6 (open positions). For a run, frets[] = sounded strings low->high.
 const CHORD_SHAPES = {
   Em:[0,2,2,0,0,0], Am:[-1,0,2,2,1,0], C:[-1,3,2,0,1,0], G:[3,2,0,0,0,3],
   D:[-1,-1,0,2,3,2], E:[0,2,2,1,0,0], A:[-1,0,2,2,2,0], Dm:[-1,-1,0,2,3,1],
+  F:[1,3,3,2,1,1], G7:[3,2,0,0,0,1],
 };
 // fingering parallel to CHORD_SHAPES: 1=index 2=middle 3=ring 4=pinky, 0=open, -1=muted
 const CHORD_FINGERS = {
   Em:[0,2,3,0,0,0], Am:[-1,0,2,3,1,0], C:[-1,3,2,0,1,0], G:[2,1,0,0,0,3],
   D:[-1,-1,0,1,3,2], E:[0,2,3,1,0,0], A:[-1,0,1,2,3,0], Dm:[-1,-1,0,2,3,1],
+  F:[1,3,4,2,1,1], G7:[3,2,0,0,0,1],
 };
 const _FN={1:"i",2:"m",3:"r",4:"p"};
 function chordNotes(shape,fingers){ const o=[]; shape.forEach((fr,i)=>{ if(fr>=0) o.push({s_num:STRINGS[i][0],fret:fr,finger:(fingers&&fingers[i]>0)?fingers[i]:0}); }); return o; }
@@ -282,9 +287,9 @@ function chordMapStr(shape,fingers){ const lab=["E","A","D","G","B","e"];
 const SNAME=s=>{const x=STRINGS.find(a=>a[0]===s);return x?x[1]:String(s);};
 const POSE_HINTS=["wrist NEUTRAL (natural)","wrist ROTATED, fingers more curled","neck TILTED UP ~15°","move CLOSER / fill the frame","wrist DROPPED, flatter fingers"];
 // build a continuous progression of n chords (shuffled), with a pose change every 10
-function buildStream(n){ const seq=[]; let pose=-1;
+function buildStream(n, fixed){ const seq=[]; let pose=-1;   // fixed=one chord all batch (vision variety); else shuffle all 8
   for(let i=0;i<n;i++){ const np=(i%10===0); if(np) pose=(pose+1)%POSE_HINTS.length;
-    const ch=CHORDS[Math.floor(Math.random()*CHORDS.length)], shape=CHORD_SHAPES[ch]||[], fing=CHORD_FINGERS[ch]||[], notes=chordNotes(shape,fing);
+    const ch=fixed||CHORDS[Math.floor(Math.random()*CHORDS.length)], shape=CHORD_SHAPES[ch]||[], fing=CHORD_FINGERS[ch]||[], notes=chordNotes(shape,fing);
     seq.push({chord_name:ch, chord_shape:shape, chord_fingers:fing, frets:notes.map(n=>n.fret), strings_played:notes.map(n=>n.s_num), pose:np?("↻ NEW POSE: "+POSE_HINTS[pose]):null}); }
   return seq; }
 // chord diagram (horizontal neck, nut left): dots w/ finger number, o=open, x=muted
@@ -460,7 +465,8 @@ function buildPlan(){
       });
     }
   } else if(block==="chord-stream"){
-    const seq=buildStream(100);   // ONE continuous batch of ~100 chords (one recording, no stopping)
+    const _sc=($("#streamChord") && $("#streamChord").value) || null;
+    const seq=buildStream(_sc?40:100, _sc);   // 40 per single chord (vision variety) · 100 shuffle (transitions)
     plan=[{block:"chord-stream", stream:true, sequence:seq, intended_class:"chord-stream",
            s_num:0, string:"chord progression", fret_range:"chord", finger:"chord", pluck_strength:pluck,
            expected_note_count:seq.length,
@@ -523,7 +529,7 @@ function startRec(){
   const CLAP_MS = 1300;               // recording rolls now -> clap window before the metronome starts
   if(r.stream){
     // continuous chord progression — ONE recording, advance a chord every 2 beats, log cue times.
-    streamCues=[]; let ci=0; const seq=r.sequence||[]; const CHORD_MS=beatMs*2;
+    streamCues=[]; let ci=0; const seq=r.sequence||[]; const CHORD_MS=beatMs;   // 1 chord/beat -> BPM sets the strum rate (BPM 75 = 0.8s)
     $("#beatDot").classList.add("on");
     $("#beatBig").textContent="👏 GET SET"; $("#beatHint").textContent="clap once (sync) — chords start in a moment…";
     const showChord=()=>{
