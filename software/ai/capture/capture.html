@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Tactus — capture</title>
+<style>
+  :root{--bg:#0f1115;--panel:#171a21;--line:#262b36;--ink:#e7ecf3;--dim:#8b95a7;
+        --ok:#3ecf8e;--warn:#f5a623;--bad:#ff5c5c;--accent:#6ea8ff;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,Segoe UI,Roboto,sans-serif}
+  header{padding:10px 16px;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  header b{font-size:16px} header .sid{color:var(--dim);font-size:12px}
+  .pill{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--dim)}
+  .pill.ok{color:var(--ok);border-color:#1c4} .pill.bad{color:var(--bad);border-color:#622}
+  main{display:grid;grid-template-columns:1.25fr .9fr;gap:14px;padding:14px;max-width:1280px;margin:0 auto}
+  @media(max-width:980px){main{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .card h3{margin:0 0 10px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--dim)}
+  label{display:block;font-size:12px;color:var(--dim);margin:8px 0 3px}
+  select,input{width:100%;background:#0c0e13;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:14px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  button{background:var(--accent);color:#06101f;border:0;border-radius:9px;padding:11px 14px;font-size:15px;font-weight:700;cursor:pointer}
+  button.sec{background:#222836;color:var(--ink)} button.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  video{width:100%;border-radius:10px;background:#000;transform:scaleX(-1)}
+  .meter{height:16px;background:#0c0e13;border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative}
+  .meter>i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#2a7,#7d4,#fb4 78%,#f55 92%)}
+  .meter>u{position:absolute;top:0;bottom:0;width:2px;background:#fff;opacity:.5}
+  .big{font-size:30px;font-weight:800;letter-spacing:.01em}
+  .huge{font-size:54px;font-weight:800;line-height:1}
+  .muted{color:var(--dim)} .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px}
+  .kv b{color:var(--dim);font-weight:500}
+  .prompt{border:1px solid var(--line);border-radius:12px;padding:14px;background:#10131a}
+  .promptline{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline;margin-top:6px}
+  .tag{font-size:12px;padding:3px 9px;border-radius:7px;background:#1c2433;color:var(--accent);font-weight:700}
+  .do{margin-top:10px;padding:10px;border-left:3px solid var(--accent);background:#121722;border-radius:0 8px 8px 0}
+  .ctrls{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:11px;text-align:center}
+  .grid .h{color:var(--dim)} .cell{padding:6px 2px;border-radius:6px;background:#0c0e13;border:1px solid var(--line)}
+  .cell.f1{background:#13251c;border-color:#264} .cell.f2{background:#16321f;border-color:#386} .cell.f3{background:#1c4a2c;border-color:#5b8}
+  .log{font-size:12px;max-height:180px;overflow:auto;border-top:1px solid var(--line);margin-top:8px;padding-top:8px}
+  .log div{padding:2px 0;border-bottom:1px solid #1b1f28}
+  .note{font-size:12px;color:var(--dim);margin-top:6px}
+  .check{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin:5px 0}
+  .check input{width:auto;margin-top:3px}
+  .banner{padding:10px 12px;border-radius:9px;margin-bottom:10px;font-size:13px}
+  .banner.bad{background:#2a1414;border:1px solid #622;color:#ffb4b4}
+  .banner.ok{background:#0f241a;border:1px solid #1c4;color:#bff3d6}
+  .beatdot{width:18px;height:18px;border-radius:50%;background:#2a3344;display:inline-block;vertical-align:middle}
+  .beatdot.on{background:var(--accent);box-shadow:0 0 14px var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <b>🎸 Tactus capture</b>
+  <span class="sid" id="sidLabel">session —</span>
+  <span class="pill" id="pCam">camera —</span>
+  <span class="pill" id="pMic">mic —</span>
+  <span class="pill" id="pProc">DSP —</span>
+  <span class="pill" id="pWav">wav —</span>
+  <span class="pill" id="pSrv">server —</span>
+  <span style="flex:1"></span>
+  <span class="sid" id="counts">0 runs · 0 events</span>
+</header>
+
+<main>
+  <!-- LEFT: capture -->
+  <section class="card">
+    <h3>Capture</h3>
+    <div id="setupBanner" class="banner warn" style="background:#26200f;border:1px solid #5a4">
+      1) pick your <b>Saramonic</b> mic + <b>front camera</b> below &nbsp;2) a hard strum should peak in the
+      <b>amber</b> zone, never red &nbsp;3) clip the mic inside the body at the same spot every time.
+    </div>
+
+    <video id="preview" autoplay muted playsinline></video>
+    <div style="margin-top:8px" class="meter"><i id="mFill"></i><u id="mPeak"></u></div>
+    <div class="promptline" style="justify-content:space-between">
+      <span class="muted">input level <span id="dbReadout">—</span></span>
+      <span id="clipFlag" class="ok">no clipping</span>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div><label>Camera</label><select id="camSel"></select></div>
+      <div><label>Microphone</label><select id="micSel"></select></div>
+    </div>
+    <div class="ctrls">
+      <button id="enableBtn">Enable camera + mic</button>
+      <label class="check" style="margin:0;align-self:center"><input type="checkbox" id="audioOnly"> audio-only (no marker yet)</label>
+    </div>
+
+    <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+
+    <!-- PROMPT -->
+    <div class="prompt" id="promptCard">
+      <div class="muted" id="progress">configure a session →</div>
+      <div class="big" id="promptTitle">—</div>
+      <div class="promptline" id="promptTags"></div>
+      <div class="do" id="promptDo">—</div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px">
+        <span class="beatdot" id="beatDot"></span>
+        <span class="huge" id="beatBig">—</span>
+        <span class="muted" id="beatHint"></span>
+      </div>
+    </div>
+
+    <div class="ctrls">
+      <button id="recBtn" disabled>● Record</button>
+      <button id="stopBtn" class="sec" disabled>■ Stop &amp; save</button>
+      <button id="skipBtn" class="ghost" disabled>Skip</button>
+    </div>
+
+    <!-- REVIEW (after stop) -->
+    <div id="review" style="display:none;margin-top:12px" class="prompt">
+      <div class="big">Came out as intended?</div>
+      <div id="reviewQc" class="kv" style="margin:8px 0"></div>
+      <div class="ctrls">
+        <button id="yesBtn">✓ Yes — save</button>
+        <button id="noBtn" class="sec">✗ No (flag) — save anyway</button>
+        <button id="redoBtn" class="ghost">↺ Redo (discard)</button>
+      </div>
+    </div>
+    <div id="saveBanner"></div>
+  </section>
+
+  <!-- RIGHT: session + QC -->
+  <section>
+    <div class="card">
+      <h3>Session</h3>
+      <div class="row">
+        <div><label>Player</label><input id="player" value="aditya"></div>
+        <div><label>Session id</label><input id="session"></div>
+      </div>
+      <div class="row3">
+        <div><label>Block</label>
+          <select id="block">
+            <option value="core-grid">Core grid (6 strings × 3 classes)</option>
+            <option value="pose-variation">Pose-variation (vary finger)</option>
+            <option value="pluck-sweep">Pluck-sweep (soft/med/hard)</option>
+            <option value="muted">Muted runs</option>
+            <option value="choked">Choked/sharp runs</option>
+            <option value="arpeggio">Chords — arpeggiated</option>
+            <option value="strum">Chords — strummed</option>
+            <option value="holdout">Natural holdout (held out)</option>
+          </select>
+        </div>
+        <div><label>Finger</label>
+          <select id="finger"><option>index</option><option>middle</option><option>ring</option><option>pinky</option></select>
+        </div>
+        <div><label>Passes</label><input id="passes" type="number" value="3" min="1" max="6"></div>
+      </div>
+      <div class="row3">
+        <div><label>Pluck</label>
+          <select id="pluck"><option>medium</option><option>soft</option><option>hard</option></select></div>
+        <div><label>Room</label><select id="room"><option>quiet</option><option>noisy</option></select></div>
+        <div><label>BPM (visual click)</label><input id="bpm" type="number" value="50" min="30" max="120"></div>
+      </div>
+      <div class="check"><input type="checkbox" id="aruco"> ArUco marker is on the headstock &amp; visible</div>
+      <div class="check"><input type="checkbox" id="clickAudible"> audible click (use earbuds — keeps it out of the mic)</div>
+      <div class="ctrls"><button id="buildBtn" class="sec">Build / rebuild run plan</button></div>
+      <div class="note" id="planNote">—</div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Quality checks (live)</h3>
+      <div class="kv" id="qc">
+        <b>saved runs</b><span id="qRuns">0</span>
+        <b>labeled events</b><span id="qEvents">0</span>
+        <b>clipped runs</b><span id="qClip" class="ok">0</span>
+        <b>silent runs</b><span id="qSil" class="ok">0</span>
+        <b>failed saves</b><span id="qFail" class="ok">0</span>
+        <b>avg duration</b><span id="qDur">—</span>
+      </div>
+      <div class="note">Clipping destroys the buzz band — if it ever lights red, lower the gain and redo that run.</div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Coverage — this block</h3>
+      <div id="coverage" class="grid"></div>
+      <div class="note">⭐ record <b>clean / buzz-light / buzz-placement back-to-back</b> on a string — that pair is the whole proof.</div>
+      <div class="log" id="log"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const APP = "capture-0.2";
+const STRINGS = [[6,"low-E"],[5,"A"],[4,"D"],[3,"G"],[2,"B"],[1,"high-e"]];
+const CLASSES = [
+  ["clean","finger JUST BEHIND the wire, GOOD pressure → rings clear"],
+  ["buzz-light","CORRECT spot, pressed TOO LIGHT → buzz from low pressure"],
+  ["buzz-placement","FIRM pressure but TOO FAR BACK from the wire → placement buzz"],
+];
+const CHORDS = ["Em","Am","C","G","D","E","A","Dm"];
+
+// ---------------- state ----------------
+let stream=null, audioCtx=null, analyser=null, meterBuf=null, workletNode=null, hasWav=false;
+let pcm=[], recorder=null, recChunks=[], recMime="", recording=false;
+let plan=[], idx=0, t0=0, beatTimes=[], beatTimer=null, runPeak=0, runClip=0, lastBlob=null, lastWav=null, pendingRow=null;
+let stats={runs:0,events:0,clip:0,sil:0,fail:0,durs:[]};
+
+function nowStamp(){const d=new Date(),p=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`;}
+$("#session").value = nowStamp();
+$("#sidLabel").textContent = "session " + $("#session").value;
+
+// ---------------- media ----------------
+async function enable(){
+  try{
+    const want = {audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}, video: !$("#audioOnly").checked};
+    stream = await navigator.mediaDevices.getUserMedia(want);
+    await populateDevices();
+    await applyDevices();           // re-acquire with chosen devices
+    setPill("#pProc","DSP off ✓","ok");
+  }catch(e){ banner("#saveBanner","bad","Could not get camera/mic: "+e.message+" — use Chrome, allow permissions."); }
+}
+async function populateDevices(){
+  const devs = await navigator.mediaDevices.enumerateDevices();
+  const fill=(sel,kind)=>{const el=$(sel);el.innerHTML="";devs.filter(d=>d.kind===kind).forEach(d=>{
+    const o=document.createElement("option");o.value=d.deviceId;o.textContent=d.label||kind;el.appendChild(o);});};
+  fill("#camSel","videoinput"); fill("#micSel","audioinput");
+  // best-effort: pre-select a Saramonic / external mic if present
+  [...$("#micSel").options].forEach(o=>{ if(/saramonic|usb|lav|mic/i.test(o.textContent)) $("#micSel").value=o.value; });
+}
+async function applyDevices(){
+  if(stream) stream.getTracks().forEach(t=>t.stop());
+  const audioOnly=$("#audioOnly").checked;
+  const con={audio:{deviceId:$("#micSel").value?{exact:$("#micSel").value}:undefined,
+                    echoCancellation:false,noiseSuppression:false,autoGainControl:false}};
+  if(!audioOnly) con.video={deviceId:$("#camSel").value?{exact:$("#camSel").value}:undefined,
+                    width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30}};
+  stream = await navigator.mediaDevices.getUserMedia(con);
+  $("#preview").srcObject = stream;
+  const v=stream.getVideoTracks()[0], a=stream.getAudioTracks()[0];
+  setPill("#pCam", audioOnly?"camera off":("camera ✓"), audioOnly?"":"ok");
+  setPill("#pMic", a? ("mic: "+(a.label||"ok").slice(0,18)) : "no mic", a?"ok":"bad");
+  await setupAudio();
+  pickMime();
+  refreshReady();
+}
+async function setupAudio(){
+  if(audioCtx) await audioCtx.close().catch(()=>{});
+  audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  const src = audioCtx.createMediaStreamSource(stream);
+  analyser = audioCtx.createAnalyser(); analyser.fftSize=1024; meterBuf=new Float32Array(analyser.fftSize);
+  src.connect(analyser);
+  // lossless PCM capture via AudioWorklet (fallback: webm audio only)
+  hasWav=false;
+  try{
+    const code=`class P extends AudioWorkletProcessor{process(i){const c=i[0][0];if(c)this.port.postMessage(c.slice(0));return true}}registerProcessor('pcm',P)`;
+    const url=URL.createObjectURL(new Blob([code],{type:"text/javascript"}));
+    await audioCtx.audioWorklet.addModule(url);
+    workletNode=new AudioWorkletNode(audioCtx,"pcm");
+    workletNode.port.onmessage=e=>{ if(recording) pcm.push(e.data); };
+    const z=audioCtx.createGain(); z.gain.value=0;
+    src.connect(workletNode); workletNode.connect(z); z.connect(audioCtx.destination);
+    hasWav=true;
+  }catch(e){ console.warn("worklet failed",e); }
+  setPill("#pWav", hasWav?"wav ✓ (lossless)":"wav off (webm only)", hasWav?"ok":"bad");
+  meterLoop();
+}
+function pickMime(){
+  const c=["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm","video/mp4"];
+  recMime = c.find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m)) || "";
+}
+function meterLoop(){
+  if(!analyser) return;
+  analyser.getFloatTimeDomainData(meterBuf);
+  let peak=0; for(let i=0;i<meterBuf.length;i++){const a=Math.abs(meterBuf[i]); if(a>peak)peak=a;}
+  const db = peak>0 ? 20*Math.log10(peak) : -120;
+  $("#mFill").style.width = Math.max(0,Math.min(100,(db+60)/60*100))+"%";
+  $("#dbReadout").textContent = db<=-120?"—":db.toFixed(1)+" dBFS";
+  const clip = peak>=0.89;
+  $("#clipFlag").textContent = clip?"⚠ CLIPPING — lower gain":"no clipping";
+  $("#clipFlag").className = clip?"bad":"ok";
+  if(recording){ if(peak>runPeak)runPeak=peak; if(clip)runClip++; }
+  requestAnimationFrame(meterLoop);
+}
+
+// ---------------- plan ----------------
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function buildPlan(){
+  const block=$("#block").value, passes=+$("#passes").value||1, finger=$("#finger").value, pluck=$("#pluck").value;
+  plan=[];
+  const sweep=(cls,fing,plk,extra={})=>STRINGS.map(([n,nm])=>({
+    block, string:`${n} (${nm})`, s_num:n, fret_range:"1->6", frets:[1,2,3,4,5,6], finger:fing,
+    intended_class:cls, intended_placement: cls==="buzz-placement"?"too-far-back":"on-wire",
+    pluck_strength:plk, expected_note_count:6, how: (CLASSES.find(c=>c[0]===cls)||["",""])[1]||cls, ...extra}));
+  if(block==="core-grid"||block==="pose-variation"){
+    for(let p=1;p<=passes;p++) STRINGS.forEach(([n,nm])=>shuffle(CLASSES).forEach(([cls,how])=>plan.push({
+      block,string:`${n} (${nm})`,s_num:n,fret_range:"1->6",frets:[1,2,3,4,5,6],finger,intended_class:cls,
+      intended_placement: cls==="buzz-placement"?"too-far-back":"on-wire",pluck_strength:pluck,
+      expected_note_count:6,how,pass:p})));
+  } else if(block==="pluck-sweep"){
+    const cells=[[6,"low-E",3],[4,"D",3],[2,"B",3]];
+    cells.forEach(([n,nm,fr])=>["clean","buzz-light"].forEach(cls=>["soft","medium","hard"].forEach(pv=>plan.push({
+      block,string:`${n} (${nm})`,s_num:n,fret_range:String(fr),frets:[fr],finger,intended_class:cls,
+      intended_placement:"on-wire",pluck_strength:pv,pluck_variant:pv,expected_note_count:4,
+      how:`fret ${fr}, ${cls}, ${pv} pluck — play it ~4×`}))));
+  } else if(block==="muted"||block==="choked"){
+    const cls=block==="muted"?"muted":"choked";
+    const how=block==="muted"?"finger lightly touching, NOT fretting → dead thud":"press too hard / slight bend → pitch goes sharp";
+    sweep(cls,finger,pluck,{how}).forEach(r=>plan.push(r));
+  } else if(block==="arpeggio"||block==="strum"){
+    const arp=block==="arpeggio";
+    CHORDS.forEach(ch=>["clean","one-buzz"].forEach(v=>plan.push({
+      block,string:"chord",s_num:0,fret_range:"chord",frets:[],finger:"chord",chord_name:ch,
+      intended_class: v==="clean"?"clean":"buzz-light", is_arpeggio:arp, is_strum:!arp,
+      pluck_strength:pluck, expected_note_count: arp?6:4,
+      how: (arp?"ARPEGGIATE ":"STRUM ")+ch+(v==="clean"?" cleanly":" with ONE deliberate buzz/mute")})));
+  } else if(block==="holdout"){
+    plan.push({block,string:"free",s_num:0,fret_range:"free",frets:[],finger:"free",intended_class:"natural",
+      held_out:true,pluck_strength:"natural",expected_note_count:0,
+      how:"just PLAY NORMALLY for ~2–3 min (mostly clean). This set is HELD OUT — real-world false-alarm calibration."});
+  }
+  idx=0; renderCoverage(); renderPrompt();
+  $("#planNote").textContent = `${plan.length} runs queued · ~${Math.round(plan.reduce((a,r)=>a+(r.expected_note_count||1),0))} events · block "${block}".`;
+}
+
+// ---------------- prompt + record ----------------
+function renderPrompt(){
+  $("#sidLabel").textContent="session "+$("#session").value;
+  if(idx>=plan.length){
+    $("#promptTitle").textContent="✓ Block complete";
+    $("#promptTags").innerHTML=""; $("#promptDo").textContent="Switch the Block dropdown and Build again, or you're done.";
+    $("#progress").textContent=`${plan.length}/${plan.length}`; gate(false); return;
+  }
+  const r=plan[idx];
+  $("#progress").textContent=`run ${idx+1} / ${plan.length}  ·  block "${r.block}"`;
+  $("#promptTitle").textContent = r.chord_name ? `${r.is_arpeggio?"Arpeggiate":"Strum"} — ${r.chord_name}`
+      : r.block==="holdout" ? "Natural play (held out)"
+      : `${r.string}  ·  frets ${r.fret_range}`;
+  const tags=[];
+  tags.push(["class",r.intended_class]);
+  if(r.finger&&r.finger!=="chord"&&r.finger!=="free")tags.push(["finger",r.finger]);
+  tags.push(["pluck",r.pluck_strength]);
+  if(r.pluck_variant)tags.push(["pluck var",r.pluck_variant]);
+  if(r.pass)tags.push(["pass",r.pass]);
+  $("#promptTags").innerHTML=tags.map(([k,v])=>`<span class="tag">${k}: ${v}</span>`).join("");
+  $("#promptDo").innerHTML="▶ "+r.how;
+  $("#beatBig").textContent="—"; $("#beatHint").textContent="";
+  gate(true);
+}
+function gate(canRec){
+  $("#recBtn").disabled=!canRec||recording||!stream;
+  $("#stopBtn").disabled=!recording;
+  $("#skipBtn").disabled=recording||idx>=plan.length;
+  $("#review").style.display="none";
+}
+function refreshReady(){ if(plan.length) renderPrompt(); else gate(false); pingServer(); }
+
+function startRec(){
+  if(!stream||idx>=plan.length) return;
+  pcm=[]; recChunks=[]; runPeak=0; runClip=0; beatTimes=[]; lastBlob=null; lastWav=null;
+  recording=true;
+  try{ recorder=new MediaRecorder(stream, recMime?{mimeType:recMime}:undefined);
+       recorder.ondataavailable=e=>{if(e.data&&e.data.size)recChunks.push(e.data);};
+       recorder.start(); }catch(e){ banner("#saveBanner","bad","recorder error: "+e.message); recording=false; return; }
+  t0=performance.now();
+  const r=plan[idx], bpm=+$("#bpm").value||50, beatMs=60000/bpm;
+  const sweep = r.frets&&r.frets.length>1;
+  let beat=0;
+  $("#beatDot").classList.add("on");
+  const tick=()=>{
+    beat++; beatTimes.push(+(performance.now()-t0).toFixed(1));
+    $("#beatDot").classList.toggle("on");
+    if($("#clickAudible").checked) click();
+    if(sweep){ $("#beatBig").textContent = beat<=6? ("FRET "+beat):"done";
+               $("#beatHint").textContent = beat<=6?"play this fret now":"hit Stop"; }
+    else { $("#beatBig").textContent="● "+beat; $("#beatHint").textContent="keep going · hit Stop when done"; }
+  };
+  tick(); beatTimer=setInterval(tick,beatMs);
+  gate(true); $("#recBtn").disabled=true; $("#stopBtn").disabled=false; $("#skipBtn").disabled=true;
+}
+function click(){ try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=1000;
+  o.connect(g);g.connect(audioCtx.destination);const t=audioCtx.currentTime;g.gain.setValueAtTime(0.18,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+0.03);o.start(t);o.stop(t+0.04);}catch(e){} }
+
+async function stopRec(){
+  if(!recording) return;
+  recording=false; clearInterval(beatTimer); $("#beatDot").classList.remove("on");
+  const dur=+(performance.now()-t0).toFixed(0);
+  const done=new Promise(res=>{ recorder.onstop=res; });
+  try{ recorder.stop(); }catch(e){}
+  await done;
+  lastBlob = recChunks.length? new Blob(recChunks,{type:recMime||"video/webm"}) : null;
+  lastWav  = hasWav&&pcm.length? encodeWav(pcm, audioCtx.sampleRate) : null;
+  // QC
+  const peakDb = runPeak>0?20*Math.log10(runPeak):-120;
+  const silent = runPeak < 0.003;            // ~ -50 dBFS
+  const clipped = runClip>0;
+  const short = dur < 2000;
+  pendingRow = buildRow(plan[idx], {dur, peakDb, clipped, runClip, silent});
+  // review panel
+  const q=$("#reviewQc");
+  q.innerHTML=`<b>duration</b><span class="${short?'warn':''}">${(dur/1000).toFixed(1)} s${short?' ⚠ short':''}</span>`+
+    `<b>peak</b><span class="${clipped?'bad':'ok'}">${peakDb.toFixed(1)} dBFS ${clipped?'⚠ CLIPPED — redo':'ok'}</span>`+
+    `<b>sound?</b><span class="${silent?'bad':'ok'}">${silent?'⚠ SILENT — redo':'present'}</span>`+
+    `<b>audio</b><span>${lastWav?'WAV lossless':'(webm only)'}</span>`+
+    `<b>video</b><span>${lastBlob&&!$("#audioOnly").checked?'webm ✓':'none'}</span>`;
+  $("#review").style.display="block"; $("#stopBtn").disabled=true;
+}
+
+function buildRow(r, qc){
+  const v=stream.getVideoTracks()[0], a=stream.getAudioTracks()[0];
+  const vs=v?v.getSettings():{};
+  const rid=[ (r.chord_name||("s"+r.s_num)), (r.fret_range||"x").replace(/[^0-9a-z]/gi,""),
+    (r.intended_class||"x").replace(/[^a-z]/gi,""), "plk"+(r.pluck_variant||r.pluck_strength),
+    $("#player").value, String(stats.runs+1).padStart(3,"0") ].join("_").replace(/\s+/g,"");
+  return {
+    run_id: rid, session_id:$("#session").value, player_id:$("#player").value, app_version:APP,
+    block:r.block, string:r.string, fret_range:r.fret_range, frets:r.frets||[], finger:r.finger,
+    intended_class:r.intended_class, intended_placement:r.intended_placement||null,
+    pluck_strength:r.pluck_strength, pluck_variant:r.pluck_variant||null,
+    chord_name:r.chord_name||null, is_arpeggio:!!r.is_arpeggio, is_strum:!!r.is_strum,
+    pass:r.pass||null, held_out:!!r.held_out, expected_note_count:r.expected_note_count,
+    matched_intent:null, room:$("#room").value, notes:"",
+    bpm:+$("#bpm").value||50, beat_times_ms:beatTimes, recorded_at:new Date().toISOString(),
+    duration_ms:qc.dur, t0_perf_ms:+t0.toFixed(1),
+    audio:{ sample_rate: audioCtx?audioCtx.sampleRate:null, channels:1, format: lastWav?"wav-pcm16":"webm-opus",
+            peak_dbfs:+qc.peakDb.toFixed(2), clipped:qc.clipped, clip_samples:qc.runClip, silent:qc.silent },
+    video:{ present: !!lastBlob && !$("#audioOnly").checked, width:vs.width||null, height:vs.height||null,
+            frame_rate:vs.frameRate||null, mime:recMime },
+    devices:{ mic_label:a?a.label:null, cam_label:v?v.label:null },
+    aruco_marker_present: $("#aruco").checked, audio_only: $("#audioOnly").checked,
+    sync:"single getUserMedia stream — audio/video synced by construction",
+    files:{ audio:null, audio_bytes:0, video:null, video_bytes:0 }
+  };
+}
+
+// ---------------- save ----------------
+async function commit(matched){
+  if(!pendingRow) return;
+  pendingRow.matched_intent = matched ? "y":"n";
+  banner("#saveBanner","ok","saving…");
+  let okAll=true;
+  try{
+    if(lastWav){ const r=await post("/save", lastWav, {kind:"audio",ext:"wav",meta:pendingRow});
+                 pendingRow.files.audio=r.path; pendingRow.files.audio_bytes=r.bytes; }
+    if(lastBlob && !$("#audioOnly").checked){ const ext=(recMime.includes("mp4")?"mp4":"webm");
+                 const r=await post("/save", lastBlob, {kind:"video",ext,meta:pendingRow});
+                 pendingRow.files.video=r.path; pendingRow.files.video_bytes=r.bytes; }
+    await post("/manifest", new Blob([JSON.stringify(pendingRow)],{type:"application/json"}), {raw:true});
+  }catch(e){ okAll=false; }
+  if(okAll){
+    stats.runs++; stats.events+=pendingRow.expected_note_count||0; stats.durs.push(pendingRow.duration_ms);
+    if(pendingRow.audio.clipped)stats.clip++; if(pendingRow.audio.silent)stats.sil++;
+    logLine(`✓ ${pendingRow.run_id} → ${pendingRow.files.video||pendingRow.files.audio||"saved"} `+
+            `(${Math.round(((pendingRow.files.audio_bytes||0)+(pendingRow.files.video_bytes||0))/1024)} KB)`);
+    banner("#saveBanner","ok",`saved ✓  ${pendingRow.files.audio||""} ${pendingRow.files.video||""}`);
+    markCovered(pendingRow); renderQC(); idx++; pendingRow=null; renderPrompt();
+  }else{
+    stats.fail++; renderQC();
+    banner("#saveBanner","bad","SERVER SAVE FAILED — is serve.py running? Click to download this run instead.");
+    offerDownload();
+  }
+}
+function post(path, blob, opt){
+  const h={};
+  if(!opt.raw){ h["X-Kind"]=opt.kind; const m={session_id:opt.meta.session_id,player_id:opt.meta.player_id,run_id:opt.meta.run_id,ext:opt.ext};
+                h["X-Meta"]=btoa(unescape(encodeURIComponent(JSON.stringify(m)))); }
+  return fetch(path,{method:"POST",headers:h,body:blob}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();});
+}
+function offerDownload(){
+  const a=document.createElement("a"); const b=lastWav||lastBlob; if(!b)return;
+  a.href=URL.createObjectURL(b); a.download=(pendingRow?pendingRow.run_id:"run")+(lastWav?".wav":".webm");
+  a.textContent="⬇ download this run"; a.style="display:block;margin-top:8px;color:#6ea8ff";
+  $("#saveBanner").appendChild(a);
+}
+
+// ---------------- WAV ----------------
+function encodeWav(chunks, rate){
+  let len=0; chunks.forEach(c=>len+=c.length); const buf=new Float32Array(len); let o=0;
+  chunks.forEach(c=>{buf.set(c,o);o+=c.length;});
+  const ab=new ArrayBuffer(44+len*2), dv=new DataView(ab);
+  const ws=(off,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(off+i,s.charCodeAt(i));};
+  ws(0,"RIFF");dv.setUint32(4,36+len*2,true);ws(8,"WAVE");ws(12,"fmt ");dv.setUint32(16,16,true);
+  dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,rate,true);dv.setUint32(28,rate*2,true);
+  dv.setUint16(32,2,true);dv.setUint16(34,16,true);ws(36,"data");dv.setUint32(40,len*2,true);
+  let p=44; for(let i=0;i<len;i++){let s=Math.max(-1,Math.min(1,buf[i]));dv.setInt16(p,s<0?s*0x8000:s*0x7FFF,true);p+=2;}
+  return new Blob([ab],{type:"audio/wav"});
+}
+
+// ---------------- QC / coverage ----------------
+function renderQC(){
+  $("#qRuns").textContent=stats.runs; $("#qEvents").textContent=stats.events;
+  $("#counts").textContent=`${stats.runs} runs · ${stats.events} events`;
+  const set=(id,v)=>{$(id).textContent=v;$(id).className=v>0?"bad":"ok";};
+  set("#qClip",stats.clip); set("#qSil",stats.sil); set("#qFail",stats.fail);
+  $("#qDur").textContent=stats.durs.length?(stats.durs.reduce((a,b)=>a+b,0)/stats.durs.length/1000).toFixed(1)+" s":"—";
+}
+let covered={};
+function markCovered(row){ covered[row.string+"|"+row.intended_class]=(covered[row.string+"|"+row.intended_class]||0)+1; renderCoverage(); }
+function renderCoverage(){
+  const el=$("#coverage");
+  const sweepBlock=["core-grid","pose-variation","muted","choked"].includes($("#block").value);
+  if(!sweepBlock){ el.innerHTML=`<div class="muted" style="grid-column:1/-1">coverage grid shown for per-string blocks; this block logs ${plan.length} runs.</div>`; return; }
+  let h=`<div class="h"></div>`+CLASSES.map(c=>`<div class="h">${c[0].replace("buzz-","b-")}</div>`).join("")+`<div class="h"></div><div class="h"></div><div class="h"></div>`;
+  STRINGS.forEach(([n,nm])=>{ h+=`<div class="h">${nm}</div>`;
+    CLASSES.forEach(c=>{const k=`${n} (${nm})|${c[0]}`;const v=covered[k]||0;h+=`<div class="cell f${Math.min(v,3)}">${v||""}</div>`;});
+    h+=`<div></div><div></div><div></div>`; });
+  el.innerHTML=h; el.style.gridTemplateColumns="repeat(4,1fr)";
+}
+function setPill(id,txt,cls){const e=$(id);e.textContent=txt;e.className="pill"+(cls?(" "+cls):"");}
+function banner(id,cls,msg){$(id).innerHTML=`<div class="banner ${cls}">${msg}</div>`;}
+function logLine(s){const d=document.createElement("div");d.textContent=s;$("#log").prepend(d);}
+async function pingServer(){ try{const r=await fetch("/status");setPill("#pSrv",r.ok?"server ✓":"server ?","ok");}catch(e){setPill("#pSrv","server down","bad");} }
+
+// ---------------- wire up ----------------
+$("#enableBtn").onclick=enable;
+$("#camSel").onchange=applyDevices; $("#micSel").onchange=applyDevices; $("#audioOnly").onchange=applyDevices;
+$("#buildBtn").onclick=buildPlan; $("#block").onchange=()=>{renderCoverage();};
+$("#recBtn").onclick=startRec; $("#stopBtn").onclick=stopRec;
+$("#skipBtn").onclick=()=>{idx++;renderPrompt();};
+$("#yesBtn").onclick=()=>commit(true); $("#noBtn").onclick=()=>commit(false);
+$("#redoBtn").onclick=()=>{pendingRow=null;$("#review").style.display="none";renderPrompt();};
+$("#session").oninput=()=>{$("#sidLabel").textContent="session "+$("#session").value;};
+pingServer(); setInterval(pingServer,8000);
+</script>
+</body>
+</html>

@@ -172,19 +172,28 @@ Hand me a batch every ~15–20 min; `/loop` me and I run:
 
 ---
 
-## 10. Day-1 recording — do this NOW (zero-build, can't-fail)
-No localhost / align-mode harness needed to start. **QuickTime captures synced A/V in ONE file; a terminal conductor tells you what to play and writes the manifest.** (The browser align-mode harness is the *next* build, for the M4 with the camera.)
+## 10. Recording — the localhost capture app (recommended) + a zero-dep fallback
 
-**Setup (once):**
-1. **Mic:** plug in the Saramonic → *System Settings → Sound → Input = Saramonic*; **disable any input "enhancement"/noise-cancel**; set gain so a **hard strum doesn't clip**.
-2. **Metronome:** phone app at **~50 BPM** (slow → notes separate for auto-segmentation).
-3. **QuickTime → New Movie Recording** → click the **⌄** by the record button: **Camera = front cam** (you in playing position), **Microphone = Saramonic** → **Record**. *(Audio-only fallback if the ArUco marker isn't printed yet: New Audio Recording, mic = Saramonic — still proves audio alone can't separate the buzz cause.)*
-4. **CLAP once, loud** at the very start = the A/V sync mark.
-
-**Run the conductor** (`software/ai/capture/record_conductor.py` — stdlib only, no install):
+### A) Localhost capture app — one tool does capture + labeling + QC
+A tiny **stdlib server + one browser page**. The browser records **synced webcam + mic per run** (lossless **WAV** for audio + **webm** for video, same `getUserMedia` stream → A/V synced by construction) and the server writes everything straight into `data/raw/<session>/<player>/` with a maximal-metadata `manifest.jsonl` — **no downloads, no clap-sync, no manual file-naming.**
 ```
-cd ~/Desktop/tactus && python3 software/ai/capture/record_conductor.py --player aditya --passes 3
+cd ~/Desktop/tactus && python3 software/ai/capture/serve.py     # then open the printed http://localhost:8765 in CHROME
 ```
-It prints each run in **interleaved** order (kills session drift, H4), waits for you to play it + hit ENTER, asks the y/n intent check, and appends a manifest row (§5) to `data/raw/<session>/<player>/manifest.jsonl`. **One QuickTime file per pass is fine** — save the movie into that session's `video/` (or `audio/`) folder, then hand the folder to the pipeline.
+What it does for you (it tells you everything + guards quality):
+- **Device pickers** (choose the **Saramonic** + **front cam**) and it **disables browser DSP** (echo-cancel / noise-suppress / auto-gain OFF) so the buzz band survives.
+- A live **input-level meter with a red CLIP alarm** (clipping destroys the buzz) + a per-run **silent / too-short** check.
+- **Prompted, interleaved runs** by **Block** (core grid / pose-variation / pluck-sweep / muted / choked / arpeggio / strum / natural holdout). The prompt **is** the label. A **visual metronome counts FRET 1→6** so you just follow it.
+- A fast **y/n intent check**, a **coverage grid** (which string×class is filled), and running **clip / silent / fail** counts. Every save shows the **disk path + bytes** so you watch it land; if the server is down it offers a **download fallback** so a take is never lost.
+- **Maximal metadata** per run: string / fret / finger / class / placement / pluck(+variant) / chord / pass / room, **beat-grid times**, duration, **peak dBFS + clip/silent flags**, sample-rate, video resolution/fps, **mic+cam device labels**, file paths/bytes, marker-present, sync note, app version — so the harness loop can re-slice the data every way (this is the point: depth of metadata).
 
-**Extra blocks** (rerun the conductor or just announce them on the recording): pose-variation (`--finger ring`, `--finger pinky`) → Stage-1 generalization; pluck-sweep (soft/med/hard at a few cells) → buzz ≠ pluck; a few muted/choked runs; ~6–8 **arpeggiated** chords (clean + one deliberate buzz); and a 5-min **natural holdout** ("just play normally" — held out, calibrates false-alarm rate).
+Flow: pick devices → **Build run plan** → per prompt **Record → play to the click → Stop → Yes/No** (auto-saves) → next. Finish a block, switch the **Block** dropdown, **Build** again. Run as many passes/iterations as you want — each session appends under its own folder.
+> Marker not printed yet? Tick **audio-only** — you still get the Stage-2 buzz-cause proof; add video once the ArUco marker is on the headstock (needed for Stage-1 pose + `d`).
+
+### B) Zero-dependency fallback (QuickTime + terminal conductor)
+If the browser route ever misbehaves: **QuickTime → New Movie Recording** (camera = front cam, mic = Saramonic), **clap once** for sync, and run the terminal conductor for the prompts + manifest:
+```
+python3 software/ai/capture/record_conductor.py --player aditya --passes 3
+```
+Same prompted runs, same prompt-is-the-label; you just save the QuickTime movie into the session's `video/` folder yourself.
+
+**Either way** — the rigor move is the **clean / buzz-light / buzz-placement triplet back-to-back on a string** (separable only by vision's `d`); interleaving handles it. Hand off the `data/raw/<session>/` folder (even audio-only) to unblock the first PCA→LDA + confusion matrix.

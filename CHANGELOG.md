@@ -2,6 +2,13 @@
 
 > **Current state lives in [`truth.md`](truth.md), not here.** This log is the chronological record of the project, **including the abandoned pre-pivot era** (3-pillar Experience/Express; Raspberry Pi + ESP32 + MAX98357A; 16/14-channel). Older entries are kept as history — do not read them as the current build (as-built = laptop → 2× Vantec → 6× SK473/PAM8403 → 12× KHD drivers, LEARN + PLAY).
 
+## 2026-06-20 — Localhost capture app (synced A/V + maximal metadata + live QC)
+- **`software/ai/capture/serve.py` + `capture.html`** — stdlib localhost server + one Chrome page. Records **synced webcam+mic per run** (lossless WAV + webm, same `getUserMedia` stream) and writes straight to `data/raw/<session>/<player>/` with a maximal-metadata `manifest.jsonl`. Run: `python3 software/ai/capture/serve.py` → open the printed `http://localhost:8765`. End-to-end save round-trip tested.
+- **Quality guards:** disables browser DSP (echo/noise/AGC off) so the buzz band survives; live input-level meter + **red CLIP alarm**; per-run silent/too-short checks; coverage grid + clip/silent/fail counts; per-run **download fallback** if the server is down (no take lost).
+- **Maximal metadata** per run (for the harness loop): string/fret/finger/class/placement/pluck(+variant)/chord/pass/room, beat-grid times, duration, peak dBFS + clip/silent flags, sample-rate, video res/fps, mic+cam device labels, file paths/bytes, marker-present, sync note, app version.
+- **Blocks:** core grid · pose-variation · pluck-sweep · muted · choked · arpeggiated chords · strummed · natural holdout. Prompt = the label; interleaved order kills session drift.
+- `docs/24 §10` rewritten localhost-first (`record_conductor.py` + QuickTime kept as the zero-dep fallback); `software/ai/capture/README.md` added; `.gitignore` now also drops `*.webm`.
+
 ## 2026-06-20 — Data-collection: frets 1–6 scope lock, last-mile↔data framing, Day-1 recorder
 - **SCOPE LOCK (D6): frets 1–6 only, 1:1 fret→zone** (6 fret-zone motors — we record/coach only what we can render). Resolves the "fret span beyond 6" open thread and supersedes the eng-review V5 neck-spanning ask. Reconciled across `truth.md §3.2`, `docs/24` (§0b/§3 + decisions), and `docs/23` (breadth pass).
 - **`docs/24 §0b` — "what the data actually trains: the two last miles."** Vision (MediaPipe + ArUco/homography) does the bulk for free; capture only pins two residuals — Stage 1 (occluded pose → string,fret,finger) and Stage 2 (buzz B + d → pressure/cause). One recording trains both; the prompt is the label. This is *why* ~1,000 takes suffice vs ~100× for a raw-pixel model.
