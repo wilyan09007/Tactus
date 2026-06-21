@@ -183,6 +183,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 
 def main():
+    try:
+        sys.stdout.reconfigure(line_buffering=True)   # flush each line -> real-time terminal feedback (even if piped)
+    except Exception:
+        pass
     os.makedirs(DATA, exist_ok=True)
     socketserver.ThreadingTCPServer.allow_reuse_address = True
     port = PORT
