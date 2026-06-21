@@ -1,0 +1,17 @@
+{
+  "frames_probed": 200,
+  "neck_found": 200,
+  "reached_fit": 200,
+  "auto_locked": 0,
+  "auto_lock_rate": 0.0,
+  "residual_px_median": 62.483341217041016,
+  "residual_px_min": 16.628631591796875,
+  "auto_accept_px": 6.0,
+  "min_frets": 4,
+  "stage_breakdown": {
+    "fit": 200
+  },
+  "viable": false,
+  "csv": "/Users/aritro/Downloads/tactus/.claude/worktrees/analysis-pipeline/data/analysis/exp/e7b_register_per_frame.csv",
+  "png": "/Users/aritro/Downloads/tactus/.claude/worktrees/analysis-pipeline/data/analysis/exp/e7b_register_overlay.png"
+}

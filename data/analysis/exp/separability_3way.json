@@ -1,0 +1,44 @@
+{
+  "audio-only": {
+    "accuracy": 0.8032407407407407,
+    "n_features": 28,
+    "pairwise_dprime": {
+      "clean__vs__buzz": 1.929891621514477,
+      "clean__vs__muted": 3.696920896517966,
+      "buzz__vs__muted": 1.8103334442209993
+    },
+    "per_class_recall": {
+      "clean": 0.8402777777777778,
+      "buzz": 0.6666666666666666,
+      "muted": 0.9027777777777778
+    }
+  },
+  "vision-only": {
+    "accuracy": 0.3819444444444444,
+    "n_features": 13,
+    "pairwise_dprime": {
+      "clean__vs__buzz": 0.1692550533692681,
+      "clean__vs__muted": 0.524232443525217,
+      "buzz__vs__muted": 0.303464229922678
+    },
+    "per_class_recall": {
+      "clean": 0.3819444444444444,
+      "buzz": 0.3263888888888889,
+      "muted": 0.4375
+    }
+  },
+  "fused": {
+    "accuracy": 0.8078703703703703,
+    "n_features": 41,
+    "pairwise_dprime": {
+      "clean__vs__buzz": 2.0532195664750486,
+      "clean__vs__muted": 3.8603149142952633,
+      "buzz__vs__muted": 1.8709637548963607
+    },
+    "per_class_recall": {
+      "clean": 0.8402777777777778,
+      "buzz": 0.6805555555555556,
+      "muted": 0.9027777777777778
+    }
+  }
+}

@@ -28,6 +28,7 @@ import schema  # noqa: E402  (frozen contract — imported, never edited)
 
 schema.on_path()  # analysis dir + vision dir on sys.path
 
+import json  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
@@ -149,6 +150,88 @@ def _windows_from_onsets(onsets, total_dur):
     return spans
 
 
+# --------------------------------------------- manifest-anchored onset selection
+# The capture cues every note/strum to a metronome and stores the count
+# (expected_note_count) and, for chords, the per-strum cue_ms. A blind
+# onset_detect over-fires ~4-5x on ringing/buzzy notes (docs/26); we instead use
+# that manifest truth: take exactly the cued number of onsets.
+_HOP = 512  # librosa onset_strength default hop; frames<->time use this hop.
+_STRUM_PRE_S, _STRUM_POST_S = 0.15, 0.45   # search window around each chord cue
+
+
+def _as_float(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _onset_peaks(y, sr):
+    """(peak_times_s, peak_strengths, envelope) from the onset-strength envelope,
+    no count cap. Empty arrays if nothing fires."""
+    import librosa
+    env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=_HOP)
+    if env.size == 0:
+        return np.asarray([]), np.asarray([]), env
+    pf = librosa.onset.onset_detect(onset_envelope=env, sr=sr, hop_length=_HOP,
+                                    backtrack=False, units="frames")
+    pf = np.asarray(pf, dtype=int)
+    if pf.size == 0:
+        return np.asarray([]), np.asarray([]), env
+    return librosa.frames_to_time(pf, sr=sr, hop_length=_HOP), env[pf], env
+
+
+def _select_onsets(y, sr, n_expected):
+    """The n_expected strongest, well-separated (>=0.5 s apart) onsets, time-ordered.
+    Falls back to the old blind detector when the count is unknown (n_expected<=0)."""
+    import librosa
+    pt, ps, env = _onset_peaks(y, sr)
+    if pt.size == 0:
+        return _detect_onsets(y, sr)
+    if n_expected and n_expected > 0:
+        chosen = []                                   # times, strongest-first, spaced
+        for i in np.argsort(ps)[::-1]:
+            t = float(pt[i])
+            if all(abs(t - c) >= 0.5 for c in chosen):
+                chosen.append(t)
+            if len(chosen) >= n_expected:
+                break
+        sel = np.asarray(sorted(chosen))
+    else:
+        sel = np.asarray(sorted(pt))
+    # backtrack each onset to the preceding energy minimum so the window starts at
+    # the attack (cleaner feature extraction).
+    frames = librosa.time_to_frames(sel, sr=sr, hop_length=_HOP)
+    bt = librosa.onset.onset_backtrack(frames, env)
+    return librosa.frames_to_time(bt, sr=sr, hop_length=_HOP)
+
+
+def _grid_time(row, i):
+    """Fallback strum time (s) when a cue_ms is missing: a uniform bpm grid (this
+    capture tool places the first cue near 1.3 s)."""
+    bpm = _as_float(_get(row, schema.M_BPM)) or 50.0
+    step = 60.0 / bpm if bpm > 0 else 1.2
+    return 1.3 + i * step
+
+
+def _chord_spans(y, sr, total_dur, chord_seq, row):
+    """One (onset_s, dur_s) per strum, anchored on cue_ms: the strongest onset in
+    [cue-0.15, cue+0.45] s, else the cue itself. Cues are monotonic and ~1.2 s
+    apart so windows don't overlap and the k-th onset stays the k-th chord."""
+    pt, ps, _ = _onset_peaks(y, sr)
+    onsets = []
+    for i, st in enumerate(chord_seq):
+        c = _as_float(st.get(schema.M_CUE_MS))
+        c = c / 1000.0 if c is not None else _grid_time(row, i)
+        if pt.size:
+            m = (pt >= c - _STRUM_PRE_S) & (pt <= c + _STRUM_POST_S)
+            if m.any():
+                onsets.append(float(pt[m][int(np.argmax(ps[m]))]))
+                continue
+        onsets.append(max(0.0, c))
+    return _windows_from_onsets(np.asarray(onsets), total_dur)
+
+
 def _f0_median_hz(y, sr, start_s, dur_s):
     """Median voiced F0 (Hz) over an event window via librosa.pyin. NaN if unvoiced
     or the window is too short to analyze."""
@@ -205,10 +288,6 @@ def _events_for_row(row, guitar_id):
         return [], "load_failed"
 
     total_dur = len(y) / float(sr)
-    onsets = _detect_onsets(y, sr)
-    spans = _windows_from_onsets(onsets, total_dur)
-    if not spans:
-        return [], "no_onsets"
 
     # ---- shared per-run fields (same for every event of the run) ----
     run_id = _get(row, schema.M_RUN, "") or ""
@@ -216,8 +295,21 @@ def _events_for_row(row, guitar_id):
     if not isinstance(frets, list):
         frets = []
     string_num = _string_num_for_row(row)
+    chord_seq = _get(row, schema.M_CHORD_SEQ)
+    is_chord_stream = isinstance(chord_seq, list) and len(chord_seq) > 0
     # Chord / strum / free rows carry no per-note fret assignment.
-    is_chordlike = (string_num == 0) or (len(frets) == 0)
+    is_chordlike = is_chord_stream or (string_num == 0) or (len(frets) == 0)
+
+    # ---- segment: chord-stream anchors one event per cue_ms; everything else
+    #      takes the expected_note_count strongest onsets (the prompt says how
+    #      many). Either way the count is manifest-pinned, not detector-guessed. ----
+    if is_chord_stream:
+        spans = _chord_spans(y, sr, total_dur, chord_seq, row)
+    else:
+        n_expected = _as_int(_get(row, schema.M_EXPECTED_N), 0)
+        spans = _windows_from_onsets(_select_onsets(y, sr, n_expected), total_dur)
+    if not spans:
+        return [], "no_onsets"
 
     video_path = schema.abspath(_get(files, "video"))
     common = {
@@ -243,32 +335,47 @@ def _events_for_row(row, guitar_id):
 
     events = []
     for k, (onset_s, dur_s) in enumerate(spans):
-        # target_fret: k-th onset -> frets[k]; chord/free or overflow -> -1.
-        if is_chordlike or k >= len(frets):
-            target_fret = -1
-        else:
-            target_fret = _as_int(frets[k], -1)
-
-        f0_hz = _f0_median_hz(y, sr, onset_s, dur_s)
-        f0_midi = schema.hz_to_midi(f0_hz)
-        f0_string_est, f0_fret_est = schema.f0_to_string_fret(f0_midi, string_num)
-
-        if target_fret >= 0 and f0_fret_est is not None and f0_fret_est >= 0:
-            label_fret_match = bool(f0_fret_est == target_fret)
-        else:
-            # Unknown / not applicable (chord, overflow, or no usable F0).
-            label_fret_match = None
-
         ev = dict(common)
-        ev["event_id"] = "%s#%d" % (run_id, k)
-        ev["target_fret"] = target_fret
+        # session-prefixed so it is GLOBALLY unique: chord-stream run_ids repeat
+        # across sessions (chordstream_aditya_001 exists in 0145/0244/0249/0305), so
+        # run_id#k alone collides and any merge-on-event_id multiplies chord rows.
+        ev["event_id"] = "%s::%s#%d" % (common["session_id"], run_id, k)
         ev["onset_s"] = float(onset_s)
         ev["dur_s"] = float(dur_s)
-        ev["f0_hz"] = float(f0_hz)
-        ev["f0_midi"] = float(f0_midi)
-        ev["f0_string_est"] = int(f0_string_est) if f0_string_est is not None else 0
-        ev["f0_fret_est"] = int(f0_fret_est) if f0_fret_est is not None else -1
-        ev["label_fret_match"] = label_fret_match
+        ev["chord_name"] = None
+        ev["chord_shape"] = None
+        ev["chord_fingers"] = None
+
+        if is_chord_stream and k < len(chord_seq):
+            # Chord strum: label = the k-th cued chord (G shape-corrected). F0 is a
+            # monophonic estimator, meaningless on a chord, so skip it.
+            st = chord_seq[k]
+            shape, fingers = schema.correct_chord(st)
+            ev["chord_name"] = st.get("chord")
+            ev["chord_shape"] = json.dumps(shape)
+            ev["chord_fingers"] = json.dumps(fingers)
+            ev["target_fret"] = -1
+            ev["f0_hz"] = float("nan")
+            ev["f0_midi"] = float("nan")
+            ev["f0_string_est"] = 0
+            ev["f0_fret_est"] = -1
+            ev["label_fret_match"] = None
+        else:
+            # Single note: k-th onset -> frets[k]; F0-cross-check the prompted fret.
+            target_fret = -1 if (is_chordlike or k >= len(frets)) else _as_int(frets[k], -1)
+            f0_hz = _f0_median_hz(y, sr, onset_s, dur_s)
+            f0_midi = schema.hz_to_midi(f0_hz)
+            f0_string_est, f0_fret_est = schema.f0_to_string_fret(f0_midi, string_num)
+            if target_fret >= 0 and f0_fret_est is not None and f0_fret_est >= 0:
+                label_fret_match = bool(f0_fret_est == target_fret)
+            else:
+                label_fret_match = None
+            ev["target_fret"] = target_fret
+            ev["f0_hz"] = float(f0_hz)
+            ev["f0_midi"] = float(f0_midi)
+            ev["f0_string_est"] = int(f0_string_est) if f0_string_est is not None else 0
+            ev["f0_fret_est"] = int(f0_fret_est) if f0_fret_est is not None else -1
+            ev["label_fret_match"] = label_fret_match
         events.append(ev)
 
     return events, "ok"

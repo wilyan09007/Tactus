@@ -1,0 +1,64 @@
+==============================================================================
+E7 — VISION POSITION MODEL vs RAW MEDIAPIPE  (fretting-hand reading)
+==============================================================================
+data rows (per-finger ground truth): 1661  | runs(groups)=8 | GroupKFold splits=8
+occluded rows: 1475 (88.8%)  visible rows: 186
+
+BEAT-THE-BASELINE TABLE  (out-of-fold; fret MAE lower=better, string acc higher=better)
+  [RandomForest]
+    subset                n  MP fretMAE  Maj fretMAE  Ours fretMAE  MP strAcc  Maj strAcc  Ours strAcc
+    all fingers        1661       3.809        0.428         0.453      0.075       0.170        0.244
+    VISIBLE fingers     186       2.038        0.301         0.823      0.102       0.075        0.075
+    OCCLUDED fingers   1475       4.033        0.444         0.406      0.072       0.182        0.265
+  [MLP]
+    subset                n  MP fretMAE  Maj fretMAE  Ours fretMAE  MP strAcc  Maj strAcc  Ours strAcc
+    all fingers        1661       3.809        0.428         0.552      0.075       0.170        0.229
+    VISIBLE fingers     186       2.038        0.301         0.817      0.102       0.075        0.097
+    OCCLUDED fingers   1475       4.033        0.444         0.519      0.072       0.182        0.246
+
+HEADLINE (RandomForest):
+  all fingers : MP fretMAE 3.81  |  majority floor 0.43  ->  Ours 0.45
+                (BEATS MediaPipe; does NOT beat the majority floor)
+  OCCLUDED    : MP fretMAE 4.03  |  majority floor 0.44  ->  Ours 0.41  (BEATS MediaPipe)
+  string acc  : MP 0.08  |  majority floor 0.17  ->  Ours 0.24  (BEATS the majority floor)
+
+DEGRADE PATH — chord-shape classification from the whole-hand pose
+  (per-event; the task's prescribed fallback when per-finger fret is too noisy):
+  chord_name acc (RF, GroupKFold by run): 0.027  vs majority floor 0.036   (n_events=335, runs=8, 9 chord classes; chance~0.11)
+  => at chance — the whole-hand pose does NOT recover the chord under GroupKFold either.
+
+SIGNAL ABLATION — is the lift VISION, or just the finger->label prior?
+  STRING acc:  majority 0.231 | finger-onehot ONLY 0.250 | vision-pose ONLY 0.169 | both 0.222
+  FRET MAE :   majority 0.428 | finger-onehot ONLY 0.411 | vision-pose ONLY 0.535 | both 0.449
+  READING: vision-pose-ONLY is WORSE than the majority floor on both string and fret;
+           the only lift over chance comes from the finger one-hot (a pure label
+           correlation, zero pixels). => the fretting-hand GEOMETRY in this footage
+           carries no recoverable per-finger string/fret signal.
+
+------------------------------------------------------------------------------
+H4 VERDICT — did the vision position model BEAT raw MediaPipe?
+  PARTLY, but the honest answer is NO in the sense that matters:
+   * vs raw MediaPipe board readout: YES, hugely (fret MAE 3.81->0.45; occluded 4.03->0.41).
+     But that baseline is BROKEN: the homography never registers the
+     gameplay video, so the readout is meaningless. Beating it is hollow.
+   * vs the honest floor (majority class / finger-prior): NO. The ablation
+     shows vision-pose-ONLY is WORSE than majority on both fret and string;
+     all lift comes from the finger->label correlation, not pixels. Chord-
+     from-pose is at chance. => no recoverable fretting signal in THIS data.
+------------------------------------------------------------------------------
+HONESTY / CAVEATS (read before quoting any number):
+  1. ONE player, ONE guitar, ONE camera. GroupKFold by run_id shows
+     generalization across RECORDINGS of this single rig only — NOT
+     across players or guitars. Within-rig proof of concept at best.
+  2. The twin.json homography is hand-clicked on a CALIBRATION pose and
+     does NOT register the gameplay video: in STEP 1, ~0% of fingertips
+     map onto the board and board-Y is systematically negative (diagnostic
+     overlay: diag_registration_overlay.png). This is the ROOT CAUSE — fix
+     per-frame registration before re-running; the modeling code is ready.
+  3. Fret/string truth comes from the prescribed chord shape at onset, not
+     hand-verified per frame; heavy motion blur at strum onset is common,
+     and the fretting hand is small/oblique/distant in frame.
+  4. Fret labels are dominated by fret 2 (~54%), so the majority floor is a
+     strong fret bar; string (base rate ~23%) is the fairer discrimination
+     test, and the pose fails it too. All numbers at base rates.
+==============================================================================
