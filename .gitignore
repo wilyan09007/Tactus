@@ -26,3 +26,11 @@ graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
 # big untracked scaffolds / exports — not Tactus core, keep out of git + graphify
 openui-app/
 ui-assets/
+
+# ML model weights (auto-downloaded by the vision backend; large)
+*.pt
+weights/
+# vision backend test fixtures / annotated outputs (regenerable)
+software/ai/vision/*.jpg
+software/ai/vision/*_annotated.png
+software/ai/vision/selftest_out.png

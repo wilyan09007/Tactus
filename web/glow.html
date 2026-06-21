@@ -5,20 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tactus — live fret-glow annotation</title>
 <script src="https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/alphaTab.min.js"></script>
-<script src="hand-anchor.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <!--
   THEME: "SHERBET" — playful arcade-pop. Display = Fredoka, body = Nunito.
-  String hues = coral/tangerine/lemon/mint/sky/grape.
   -------------------------------------------------------------------------------------------
-  LIVE AR ANNOTATION ON THE REAL NECK. Camera is ALWAYS ON and is the stage background.
-  TWO ways the grid maps onto your real fretboard (the 12-TET law lays the frets inside the quad):
-    1) AUTO (default) — web/hand-anchor.js uses MediaPipe Hands to find your fretting hand and
-       anchor the grid to it (robust to busy backgrounds, where edge-detection fails). Approximate.
-    2) MANUAL fallback — tap "drag-fit" and drag the 4 corner dots onto your neck once; saved
-       (localStorage) so it sticks. Bulletproof on any background. Use this to perfect the fit.
+  LIVE AR ANNOTATION ON THE REAL NECK. Camera ALWAYS ON, the stage background.
+  Grid → real fretboard two ways (12-TET law lays the frets inside the 4-corner quad):
+   1) AUTO — a local Python backend (software/ai/vision/fretboard_server.py: YOLO-World on
+      the M4 Pro GPU) detects the guitar neck and streams its quad over WebSocket
+      (ws://localhost:8770). Robust to busy backgrounds where edge/hand methods failed.
+      Tap "⇄ flip" if the orientation is mirrored.
+   2) MANUAL fallback — tap "✥ drag mode" and drag the 4 corner dots onto your neck once;
+      saved (localStorage). Bulletproof on any background; perfects the fit.
   Per upcoming note, ON the (string,fret) spot: a glowing rounded rect.
    COLOR = string · WASHED→DEEP as the beat nears · approach-frame closes = strum · pop burst.
 -->
@@ -93,6 +93,7 @@
     <div class="cue" id="cue">color = string · <span style="color:var(--berry)">deep + frame closes = strum</span></div>
     <div class="ctl">
       <button id="mode-btn" class="on">✋ auto-fit</button>
+      <button id="flip-btn">⇄ flip</button>
       <button id="pause">pause</button>
     </div>
   </div>
@@ -113,7 +114,6 @@ const SONG_END=CHORDS[CHORDS.length-1].t+SECPC+1.0;
 const ALPHATEX=`\\title "${SONG.title}"\n\\subtitle "${SONG.sub}"\n\\tempo ${SONG.bpm}\n.\n:1\n`+
   CHORDS.map(c=>'('+c.shape.map(([s,f])=>`${f}.${s}`).join(' ')+')').join(' |\n')+' |';
 
-// ---- per-string palette (1..6 = high e .. low E): candy-bright, CVD-aware ----
 const STRING_COLORS=[[255,107,107],[255,159,67],[255,214,53],[38,222,160],[72,182,255],[173,127,255]];
 const STRING_NAMES=['e','B','G','D','A','E'];
 const WASH=[255,250,252];
@@ -126,7 +126,6 @@ function envelope(lead,dur){
   if(lead>=-dur){ return 1-0.62*(-lead/dur); }
   return Math.max(0, 0.38-(-lead-dur)*1.8);
 }
-// ---- real equal-temperament fret spacing ----
 const NUM_FRETS=7;
 const fdist=n=>1-Math.pow(2,-n/12), F7=fdist(NUM_FRETS);
 const ufret=n=>fdist(n)/F7;
@@ -135,11 +134,8 @@ const cellUV=(s,f)=>[pressU(f),(s-1)/5];
 
 // ---- neck grid corners (normalized in .main). u = along neck (0 nut..1 fret7), v = strings (0 high-e..1 low-E) ----
 let C={c00:{x:.16,y:.34},c10:{x:.86,y:.27},c01:{x:.16,y:.66},c11:{x:.86,y:.73}};
-let Ctarget=null;                 // auto target we ease toward
-// 'auto'  = MediaPipe hand anchors the grid (default)
-// 'manual'= user dragged the 4 dots (bulletproof; persisted)
-let mode='auto';
-// restore a saved manual alignment if present (then start in manual so it sticks)
+let Ctarget=null;
+let mode='auto';           // 'auto' = backend detector drives the grid; 'manual' = user dragged
 try{ const s=JSON.parse(localStorage.getItem('tactus_neck')||'null'); if(s&&s.c00&&s.c11){ C=s; mode='manual'; } }catch(e){}
 const main=document.querySelector('.main'), ov=document.getElementById('ov'), ctx=ov.getContext('2d');
 const statusEl=document.getElementById('status');
@@ -147,7 +143,7 @@ function P(u,v,W,H){ const tl=C.c00,tr=C.c10,bl=C.c01,br=C.c11;
   return [ ((1-u)*(1-v)*tl.x+u*(1-v)*tr.x+(1-u)*v*bl.x+u*v*br.x)*W,
            ((1-u)*(1-v)*tl.y+u*(1-v)*tr.y+(1-u)*v*bl.y+u*v*br.y)*H ]; }
 
-// ---- MANUAL fallback: 4 draggable corner handles (always available; persisted) ----
+// ---- MANUAL fallback: 4 draggable corner handles (persisted) ----
 const handles={}; const HKEYS={c00:'nut·e',c10:'f7·e',c01:'nut·E',c11:'f7·E'};
 function saveNeck(){ try{ localStorage.setItem('tactus_neck',JSON.stringify(C)); }catch(e){} }
 ['c00','c10','c01','c11'].forEach(k=>{ const h=document.createElement('div'); h.className='handle'; h.dataset.lbl=HKEYS[k]; main.appendChild(h); handles[k]=h; let drag=false;
@@ -156,14 +152,16 @@ function saveNeck(){ try{ localStorage.setItem('tactus_neck',JSON.stringify(C));
   h.addEventListener('pointerup',()=>{ drag=false; saveNeck(); }); });
 function placeHandles(W,H){ const show=(mode==='manual'); for(const k in handles){ handles[k].style.display=show?'block':'none'; handles[k].style.left=C[k].x*W+'px'; handles[k].style.top=C[k].y*H+'px'; } }
 
-// ---- mode toggle ----
-const modeBtn=document.getElementById('mode-btn');
-function setMode(m){ mode=m; modeBtn.classList.toggle('on',m==='auto'); modeBtn.textContent = m==='auto'?'✋ auto-fit':'✥ drag mode';
+// ---- mode + flip toggles ----
+const modeBtn=document.getElementById('mode-btn'), flipBtn=document.getElementById('flip-btn');
+function setMode(m){ mode=m; modeBtn.classList.toggle('on',m==='auto'); modeBtn.textContent=m==='auto'?'✋ auto-fit':'✥ drag mode';
   if(m==='manual') statusEl.innerHTML='manual — <b>drag the 4 dots</b> onto your neck'; }
 modeBtn.onclick=()=> setMode(mode==='auto'?'manual':'auto');
+let flip=0;                 // bit0 = swap nut/body (along) ; bit1 = swap high-e/low-E (across)
+flipBtn.onclick=()=>{ flip=(flip+1)&3; };
 setMode(mode);
 
-// ---- camera = the live AR background. ALWAYS ON: auto-start, keep retrying ----
+// ---- camera = the live AR background. ALWAYS ON ----
 const cam=document.getElementById('cam');
 async function startCam(){
   try{ cam.srcObject=await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720,facingMode:'environment'}}); cam.style.display='block'; }
@@ -171,28 +169,52 @@ async function startCam(){
 }
 startCam();
 
-// ---- AUTO: MediaPipe hand-anchor -> map onto the real neck. video-normalized -> screen (object-fit:cover) ----
+// video-normalized point -> screen-normalized over .main (object-fit:cover crop)
 function vidToScreen(nx,ny){ const vw=cam.videoWidth,vh=cam.videoHeight,mw=main.clientWidth,mh=main.clientHeight;
   if(!vw||!vh||!mw||!mh) return [nx,ny];
   const s=Math.max(mw/vw,mh/vh), dw=vw*s, dh=vh*s, ox=(dw-mw)/2, oy=(dh-mh)/2;
   return [ (nx*dw-ox)/mw, (ny*dh-oy)/mh ]; }
-setInterval(()=>{
-  try{
-    if(mode!=='auto') return;                         // manual mode: user owns the grid
-    if(!cam.videoWidth){ statusEl.textContent='waiting for camera…'; return; }
-    if(!window.TactusHand || !TactusHand.isReady){ statusEl.textContent='loading hand-tracking…'; return; }
-    const r=TactusHand.detect(cam);
-    if(r && r.confidence>=0.4){
-      const t={}; for(const k of ['c00','c10','c01','c11']){ const[x,y]=vidToScreen(r.quad[k][0],r.quad[k][1]); t[k]={x,y}; }
-      Ctarget=t;
-      statusEl.innerHTML='auto-locked <b>✓</b> (hand)';
-    } else {
-      statusEl.innerHTML='auto — <b>show your fretting hand</b>, or tap ✋ to drag';
-    }
-  }catch(e){ statusEl.textContent='auto error — tap ✋ to drag'; }
-}, 280);
 
-// ---- left panel: real tab via alphaTab (single source = SONG). fallback = chord rows ----
+// ---- AUTO: YOLO-World Python backend over WebSocket ----
+// glow's 7-fret grid covers ~the nut-end 0.6 of the visible neck (nut->body joint).
+const NUT_TO_F7=0.60;
+let ws=null, wsOK=false, inflight=false, inflightT=0;
+function connectWS(){
+  try{ ws=new WebSocket('ws://localhost:8770'); }catch(e){ ws=null; setTimeout(connectWS,2500); return; }
+  ws.binaryType='arraybuffer';
+  ws.onopen =()=>{ wsOK=true; };
+  ws.onclose=()=>{ wsOK=false; ws=null; setTimeout(connectWS,2500); };
+  ws.onerror=()=>{ try{ws.close();}catch(e){} };
+  ws.onmessage=(ev)=>{
+    inflight=false;                       // backend replied -> free to send the next frame
+    if(mode!=='auto') return;
+    let d; try{ d=JSON.parse(ev.data); }catch(e){ return; }
+    if(!d || !d.quad || (d.confidence!=null && d.confidence<0.30)) return;
+    // quad order from backend: [alongStart·A, alongEnd·A, alongEnd·B, alongStart·B]
+    const q=d.quad.map(([nx,ny])=>{ const[x,y]=vidToScreen(nx,ny); return {x,y}; });
+    let nutA=q[0], endA=q[1], endB=q[2], nutB=q[3];
+    if(flip&1){ const a=nutA;nutA=endA;endA=a; const b=nutB;nutB=endB;endB=b; }   // swap nut/body
+    if(flip&2){ const a=nutA;nutA=nutB;nutB=a; const b=endA;endA=endB;endB=b; }   // swap strings
+    const f7A={x:nutA.x+NUT_TO_F7*(endA.x-nutA.x), y:nutA.y+NUT_TO_F7*(endA.y-nutA.y)};
+    const f7B={x:nutB.x+NUT_TO_F7*(endB.x-nutB.x), y:nutB.y+NUT_TO_F7*(endB.y-nutB.y)};
+    Ctarget={c00:nutA, c10:f7A, c01:nutB, c11:f7B};
+  };
+}
+connectWS();
+// frame sender: downscale the live video and stream JPEGs to the backend
+const snap=document.createElement('canvas');
+setInterval(()=>{
+  if(mode!=='auto') return;
+  if(!cam.videoWidth){ statusEl.textContent='waiting for camera…'; return; }
+  if(!wsOK || !ws || ws.readyState!==1){ statusEl.innerHTML='auto detector offline — start the backend, or tap <b>✥</b> to drag'; return; }
+  statusEl.innerHTML = Ctarget ? 'auto-locked <b>✓</b> (neck) — tap ⇄ if flipped' : 'auto — <b>show your guitar</b> (detecting…)';
+  if(inflight && performance.now()-inflightT<6000) return;     // one frame in flight: self-pace to the backend's speed (no lag pile-up)
+  const vw=cam.videoWidth, vh=cam.videoHeight, w=480, h=Math.max(1,Math.round(480*vh/vw));
+  snap.width=w; snap.height=h; snap.getContext('2d').drawImage(cam,0,0,w,h);
+  try{ snap.toBlob(b=>{ if(b && ws && ws.readyState===1){ ws.send(b); inflight=true; inflightT=performance.now(); } }, 'image/jpeg', 0.6); }catch(e){}
+}, 250);
+
+// ---- left panel: real tab via alphaTab. fallback = chord rows ----
 const tabAt=document.getElementById('at'), tabWrap=document.getElementById('tabwrap');
 document.getElementById('songname').textContent=SONG.title+' · '+SONG.sub;
 let atReady=false, atApi=null;
@@ -215,7 +237,6 @@ function spawnPop(x,y,ang,w,h,rgb){ pops.push({x,y,ang,w,h,rgb,life:0}); }
 let now=0,playing=true,last=performance.now();
 document.getElementById('pause').onclick=e=>{playing=!playing;e.target.textContent=playing?'pause':'play';};
 function draw(dt){
-  // AUTO: ease the grid toward the latest hand-anchored quad (smooth tracking). MANUAL: drag owns C.
   if(mode==='auto' && Ctarget){ for(const k in Ctarget){ C[k].x+=(Ctarget[k].x-C[k].x)*0.22; C[k].y+=(Ctarget[k].y-C[k].y)*0.22; } }
   const W=ov.width=main.clientWidth, H=ov.height=main.clientHeight;
   ctx.clearRect(0,0,W,H);

@@ -1,0 +1,6 @@
+# Local YOLO-World venv (heavy: torch + ultralytics). Never commit.
+.venv-yolo/
+# Auto-downloaded model weights
+*.pt
+# Self-test output artifacts
+selftest_out.png
