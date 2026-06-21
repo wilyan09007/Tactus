@@ -224,8 +224,8 @@
       <div class="check"><input type="checkbox" id="aruco"> ArUco marker is on the headstock &amp; visible</div>
       <div class="check"><input type="checkbox" id="clickAudible"> audible click (use earbuds — keeps it out of the mic)</div>
       <label style="margin-top:8px">Chord-stream chord (vision blocks)</label>
-      <select id="streamChord"><option value="">shuffle all 10 (transitions)</option><option>Em</option><option>Am</option><option>C</option><option>G</option><option>D</option><option>E</option><option>A</option><option>Dm</option><option>F</option><option>G7</option></select>
-      <div class="note">Pick ONE → repeats it <b>40×</b> (move light / tilt / vary speed for vision variety; palm-mute between). "shuffle all 10" = <b>100×</b> mixed progression for transition data.</div>
+      <select id="streamChord"><option value="">shuffle all 9 (transitions)</option><option>Em</option><option>Am</option><option>C</option><option>G</option><option>D</option><option>E</option><option>A</option><option>Dm</option><option>F</option></select>
+      <div class="note">Pick ONE → repeats it <b>40×</b> (move light / tilt / vary speed for vision variety; palm-mute between). "shuffle all 9" = <b>100×</b> mixed progression for transition data (slower per chord; set BPM ~40).</div>
       <div class="ctrls"><button id="buildBtn" class="sec">Build / rebuild run plan</button></div>
       <div class="note" id="planNote">—</div>
     </div>
@@ -265,7 +265,7 @@ const CLASSES = [
   ["buzz","BUZZ — fret it but let it RATTLE (too light, OR finger too far back). Must audibly buzz."],
   ["muted","MUTED — just REST the finger on the string, do NOT press to the fret → dead thud, NO pitch"],
 ];
-const CHORDS = ["Em","Am","C","G","D","E","A","Dm","F","G7"];
+const CHORDS = ["Em","Am","C","G","D","E","A","Dm","F"];  // G7 dropped (not learned)
 // open-chord shapes — index = low-E(6),A(5),D(4),G(3),B(2),high-e(1); -1 = string NOT played.
 // all within frets 1-6 (open positions). For a run, frets[] = sounded strings low->high.
 const CHORD_SHAPES = {
@@ -467,7 +467,7 @@ function buildPlan(){
   } else if(block==="chord-stream"){
     const _sc=($("#streamChord") && $("#streamChord").value) || null;
     const seq=buildStream(_sc?40:100, _sc);   // 40 per single chord (vision variety) · 100 shuffle (transitions)
-    plan=[{block:"chord-stream", stream:true, sequence:seq, intended_class:"chord-stream",
+    plan=[{block:"chord-stream", stream:true, sequence:seq, intended_class:"chord-stream", beatsPerChord:(_sc?1:2),
            s_num:0, string:"chord progression", fret_range:"chord", finger:"chord", pluck_strength:pluck,
            expected_note_count:seq.length,
            how:"click ● Record → play each chord as it appears (STRUM + hold till the next). One take, "+seq.length+" chords, NO stopping."}];
@@ -529,7 +529,7 @@ function startRec(){
   const CLAP_MS = 1300;               // recording rolls now -> clap window before the metronome starts
   if(r.stream){
     // continuous chord progression — ONE recording, advance a chord every 2 beats, log cue times.
-    streamCues=[]; let ci=0; const seq=r.sequence||[]; const CHORD_MS=beatMs;   // 1 chord/beat -> BPM sets the strum rate (BPM 75 = 0.8s)
+    streamCues=[]; let ci=0; const seq=r.sequence||[]; const CHORD_MS=beatMs*(r.beatsPerChord||1);   // single-chord=1 beat (BPM75=0.8s); shuffle=2 beats (slower, time to change)
     $("#beatDot").classList.add("on");
     $("#beatBig").textContent="👏 GET SET"; $("#beatHint").textContent="clap once (sync) — chords start in a moment…";
     const showChord=()=>{
