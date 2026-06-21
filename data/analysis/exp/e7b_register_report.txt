@@ -1,0 +1,24 @@
+==============================================================================
+E7b ATTEMPT (A) — PER-FRAME markerless registration on gameplay frames
+==============================================================================
+frames probed (mixed-stream chord onsets): 200
+  neck edges found            :  200  (100.0%)
+  reached a law-fit           :  200  (100.0%)
+  AUTO-LOCKED (res<= 6px)    :    0  (0.0%)
+  fit-residual px  (n=200): min 16.6 · median 62.5 · p90 982.1 · max 1268.7
+  failure-stage breakdown    : {'fit': 200}
+
+VERDICT (attempt A):
+  DEAD — per-frame markerless registration does NOT recover a usable
+  homography on this gameplay footage (auto-lock 0.0%; median residual 62.5px).
+  WHY: the fretting hand occludes the neck/frets at every chord onset,
+  the neck is small/oblique/blurred, and classical Hough fret-wire
+  detection cannot find >= a clean fret set. A self-consistent low
+  residual on a few spurious lines (see overlay) is NOT a real
+  registration. So re-extracting board positions with this H would
+  just substitute one broken registration for another. Attempt A
+  cannot rescue the POSITION (string/fret) result from THIS data.
+------------------------------------------------------------------------------
+Note: this is the registration GATE only. Whether hand-shape (no board
+at all) reads the chord is the SEPARATE attempt B (e7b_handshape.py).
+==============================================================================

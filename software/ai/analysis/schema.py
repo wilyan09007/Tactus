@@ -61,6 +61,25 @@ OPEN_STRING_MIDI = {6: 40, 5: 45, 4: 50, 3: 55, 2: 59, 1: 64}   # E2 A2 D3 G3 B3
 F0_FRET_MAX = 12                   # F0 cross-check may see open/above-scope frets
 
 
+# The captured G is the 3-finger open-B voicing [3,2,0,0,0,3]; the PLAYER played
+# the 4-finger G (B and high-e both fretted at 3, ring + pinky). Correct every G or
+# the position ground truth is wrong on every G strum (docs/27 data nuance #2).
+CHORD_SHAPE_CORRECTIONS = {
+    # name: (shape6, fingers6)  low-E..high-e; -1 = not played, 0 = open, n = fret.
+    "G": ([3, 2, 0, 0, 3, 3], [2, 1, 0, 0, 3, 4]),   # middle, index, -, -, ring, pinky
+}
+
+
+def correct_chord(strum):
+    """(shape6, fingers6) for one chord_sequence strum, applying known shape
+    corrections (the played G is the 4-finger variation). Falls back to the stored
+    6-vectors. low-E..high-e; -1 = not played, 0 = open, n = fret."""
+    fix = CHORD_SHAPE_CORRECTIONS.get(strum.get("chord"))
+    if fix:
+        return list(fix[0]), list(fix[1])
+    return strum.get("shape"), strum.get("fingers")
+
+
 # ----------------------------------------------------------------- manifest fields
 # Centralize field names so manifest parsing lives in one place.
 # Authoritative source: main software/ai/capture/capture.html buildRow().
@@ -85,6 +104,8 @@ M_RUN        = "run_id"
 M_AUDIO      = "audio"             # nested {sample_rate, channels, peak_dbfs, clipped, silent, ...}
 M_VIDEO      = "video"             # nested {present, width, height, frame_rate, ...}
 M_FILES      = "files"            # nested {audio, video, ...} repo-root-relative paths
+M_CHORD_SEQ  = "chord_sequence"   # list[strum] for chord-stream blocks
+M_CUE_MS     = "cue_ms"           # per-strum onset cue (ms) inside a chord-stream run
 
 
 # ----------------------------------------------------------------- event schema
@@ -107,6 +128,9 @@ EVENT_COLUMNS = [
     "audio_peak_dbfs", "audio_clipped", "audio_silent",
     "wav_path", "video_path", "video_frame_rate",
     "guitar_id",         # for twin lookup (set by orchestrator --guitar), may be ""
+    # chord-stream labels (None for single-note events); 6-vectors low-E..high-e,
+    # JSON-encoded. -1 = not played, 0 = open, n = fret. G is shape-corrected.
+    "chord_name", "chord_shape", "chord_fingers",
 ]
 # Key linking a feature row back to its event.
 EVENT_ID = "event_id"

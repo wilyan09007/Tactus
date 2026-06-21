@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tactus — Analysis Results</title>
+<style>
+  :root{--bg:#0d1117;--panel:#161b22;--ink:#e6edf3;--mut:#9aa7b4;--line:#283041;
+        --clean:#2ca02c;--buzz:#d62728;--muted:#7f7f7f;--accent:#58a6ff;--warn:#e3b341}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 22px 64px}
+  h1{font-size:30px;margin:0 0 4px;letter-spacing:-.02em}
+  h2{font-size:20px;margin:38px 0 14px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .sub{color:var(--mut);margin:0 0 8px}
+  .tag{display:inline-block;font-size:12px;color:var(--mut);border:1px solid var(--line);
+       border-radius:20px;padding:2px 10px;margin:2px 4px 2px 0}
+  table{width:100%;border-collapse:collapse;margin:8px 0 4px;font-size:14px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-weight:600}
+  .win{color:var(--clean);font-weight:600}.soft{color:var(--warn);font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-top:14px}
+  figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  figure img{width:100%;display:block;background:#fff}
+  figcaption{padding:10px 12px;color:var(--mut);font-size:13px}
+  figcaption b{color:var(--ink)}
+  a.btn{display:inline-block;background:var(--accent);color:#06101f;text-decoration:none;
+        font-weight:600;padding:10px 16px;border-radius:8px;margin:6px 8px 6px 0}
+  a.btn.alt{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+  .note{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--warn);
+        border-radius:8px;padding:14px 16px;color:var(--mut);margin-top:14px}
+  code{background:#0a0e14;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Tactus — reading the fretting hand &amp; the buzz</h1>
+  <p class="sub">Offline-analysis results · UC Berkeley AI Hackathon · one player (aditya), one guitar (acoustic-1).
+     <b>The honesty is the credibility</b> — every number is held-out, base-rate, fit-on-train-only.</p>
+  <span class="tag"><span class="dot" style="background:var(--clean)"></span>clean</span>
+  <span class="tag"><span class="dot" style="background:var(--buzz)"></span>buzz</span>
+  <span class="tag"><span class="dot" style="background:var(--muted)"></span>muted</span>
+  <span class="tag">432 single notes · 600 chord strums · 83 recordings</span>
+
+  <h2>What holds up (held-out)</h2>
+  <table>
+    <tr><th>Experiment</th><th>Result</th><th>vs chance / baseline</th><th>Verdict</th></tr>
+    <tr><td><b>E1</b> clean/buzz/muted (audio)</td><td>81.2% k-fold (86.2% holdout); d′ clean·buzz 1.93, clean·muted 3.70, buzz·muted 1.81</td><td>33% chance</td><td class="win">strong</td></tr>
+    <tr><td><b>E3</b> harmonic-residual mono→poly transfer <i>(the key bet)</i></td><td>mono buzz axis d′ 1.77 / 83%; chords ≡ mono-clean (KS p .48), distinct from buzz (p≈5e-48); 10% buzz-side tail @ 2.3× residual energy</td><td>geometric transfer</td><td class="win">supported</td></tr>
+    <tr><td><b>E9</b> Redis vector memory <i>(Vector Sets)</i></td><td>neighbor coherence 2.03× class / 2.58× string; "you keep muting the A" → 90% muted, 44% A-string</td><td>base rate</td><td class="win">strong</td></tr>
+    <tr><td><b>E2</b> string-ID from timbre</td><td>0.688 acc; 69% of errors are an adjacent string</td><td>4.1× (1/6)</td><td class="win">works</td></tr>
+    <tr><td><b>E5</b> muted/dead-note detection</td><td>d′ 1.39, AUC 0.82; bimodal = body-tap vs palm-mute</td><td>—</td><td class="win">works</td></tr>
+    <tr><td><b>E4</b> chord off-detection (Mahalanobis)</td><td>AUC 0.899; chord-<i>ID</i> from audio honestly ≈chance (run≡chord leakage flagged)</td><td>—</td><td class="soft">partial</td></tr>
+    <tr><td><b>E7/E8</b> vision position vs MediaPipe <i>(the award)</i></td><td>beats raw MediaPipe (fret MAE 3.81→0.45) but only ties a majority floor; pose-only &lt; floor</td><td>registration-limited</td><td class="soft">honest negative</td></tr>
+  </table>
+
+  <h2>Open the interactive 3D (double-click, works offline)</h2>
+  <a class="btn" href="viz_clean_buzz_muted_3d.html" target="_blank">▶ clean/buzz/muted — rotating 3D semantic space</a>
+  <a class="btn alt" href="e3_transfer.html" target="_blank">▶ mono→poly residual transfer</a>
+  <p class="sub">Axes are labeled by their named-feature loadings (LDA-1 ← hnr · mfcc_1 · chroma_peak, …) — the geometry has meaning.</p>
+
+  <h2>Money shots</h2>
+  <div class="grid">
+    <figure><img src="rotating_clusters.gif" alt="rotating clusters"><figcaption><b>▶ Animated.</b> clean/buzz/muted rotating in named PCA→LDA space — separated on <i>audio alone</i>.</figcaption></figure>
+    <figure><img src="viz_lda_2d.png" alt="LDA 2D"><figcaption><b>E1 · the separation.</b> clean/buzz/muted in the LDA plane with 2σ ellipses. clean isolates; buzz bridges to muted (d′ 1.81) — exactly the audible physics.</figcaption></figure>
+    <figure><img src="viz_clean_buzz_muted_3d.png" alt="3D scatter"><figcaption><b>E1 · 3D money shot.</b> The same three quality classes in named PCA→LDA space.</figcaption></figure>
+    <figure><img src="e3_transfer.png" alt="E3 transfer"><figcaption><b>E3 · the key bet.</b> Single-note buzz axis learned on mono; chord residuals land on the <i>same</i> axis — the buzz primitive transfers to polyphony without a per-chord library.</figcaption></figure>
+    <figure><img src="e5_harmonic_hist.png" alt="E5 muted"><figcaption><b>E5 · muted = missing harmonic.</b> Harmonic-presence score; the muted spike at 0 (body-tap) + lobe (palm-mute) recovers the two muting techniques.</figcaption></figure>
+    <figure><img src="e2_confusion.png" alt="E2 string id"><figcaption><b>E2 · string from timbre.</b> 0.688 (4× chance); errors cling to the diagonal — adjacent-string ambiguity.</figcaption></figure>
+    <figure><img src="e4_offdetect_roc.png" alt="E4 off detection"><figcaption><b>E4 · "wrong chord?"</b> Mahalanobis off-detection ROC, AUC 0.899 — match/off works even though chord-ID from audio doesn't.</figcaption></figure>
+    <figure><img src="money_shot_fret_mae.png" alt="E7 fret mae"><figcaption><b>E7 · the honest negative.</b> We beat raw MediaPipe — but it's un-registered, and we only tie a majority floor.</figcaption></figure>
+    <figure><img src="diag_registration_overlay.png" alt="registration failure"><figcaption><b>Why vision didn't land.</b> The calibration homography floats the fret grid on neither neck of the gameplay frame — the fixable bottleneck is per-frame registration.</figcaption></figure>
+  </div>
+
+  <h2>Read before believing any number</h2>
+  <div class="note">
+    <b>One player, one guitar, one camera.</b> No leave-one-player-out is possible → every result is k-fold / GroupKFold and is <b>optimistic for new players</b>; a 2nd player is the biggest unlock.
+    Preprocessing is fit on train folds only; numbers at natural base rates; the prompt is the label (F0/harmonics only verify).
+    The twin homography is hand-clicked (coarse) and does not register gameplay frames — which is exactly why E7 is reported as an honest negative.
+    Chord audio-quality labels are noisy (chords were often slightly buzzed) → we report chord transfer as geometry, not calibrated accuracy.
+    We also <b>found and fixed a data-integrity bug mid-run</b> (chord <code>event_id</code> collisions across sessions) before it reached a result. Full methodology: <code>docs/28</code>.
+  </div>
+
+</div>
+</body>
+</html>

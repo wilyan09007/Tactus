@@ -1,0 +1,35 @@
+{
+  "experiment": "E3 \u2014 harmonic-residual mono->poly transfer (H2)",
+  "player": "aditya (single player -> k-fold + caveat)",
+  "n_rows_used": 898,
+  "n_rows_dropped_nan": 134,
+  "step1_mono_buzz_axis": {
+    "n_clean": 144,
+    "n_buzz": 144,
+    "cv_accuracy": "0.830 \u00b1 0.044",
+    "cv_dprime_clean_vs_buzz": "1.767 \u00b1 0.310",
+    "res_energy_ratio_standalone_dprime": "0.609"
+  },
+  "step2_transfer_geometry": {
+    "n_chord_residuals": 466,
+    "NOTE": "chords have NO reliable clean per-string fault labels \u2014 geometry only, no fabricated chord accuracy",
+    "mono_clean_axis_mean_std": "-1.809 \u00b1 1.727",
+    "mono_buzz_axis_mean_std": "1.809 \u00b1 2.063",
+    "chord_axis_mean_std": "-1.517 \u00b1 1.971",
+    "chord_position_0clean_1buzz": "0.081",
+    "frac_chords_in_mono_range": "0.989",
+    "frac_chords_on_buzz_side_of_boundary": "0.170",
+    "overlap_chord_vs_buzz": "0.335",
+    "overlap_chord_vs_clean": "0.695",
+    "overlap_clean_vs_buzz_reference": "0.292",
+    "ks_chord_vs_clean": "D=0.078, p=4.80e-01",
+    "ks_chord_vs_buzz": "D=0.671, p=5.24e-48"
+  },
+  "artifacts": {
+    "script": "/Users/aritro/Downloads/tactus/.claude/worktrees/analysis-pipeline/software/ai/analysis/exp/e3_transfer.py",
+    "png": "/Users/aritro/Downloads/tactus/.claude/worktrees/analysis-pipeline/data/analysis/exp/e3_transfer.png",
+    "html": "/Users/aritro/Downloads/tactus/.claude/worktrees/analysis-pipeline/data/analysis/exp/e3_transfer.html",
+    "report_json": "/Users/aritro/Downloads/tactus/.claude/worktrees/analysis-pipeline/data/analysis/exp/e3_report.json"
+  },
+  "verdict_H2": "SUPPORTED (geometric, directionally consistent). The mono buzz axis separates clean|buzz single notes out-of-fold (d'~1.8, acc~0.83). Projected onto that SAME mono-fit axis, poly chord residuals (i) sit inside the mono dynamic range, (ii) are statistically indistinguishable from the mono CLEAN cluster (KS p>0.05) while clearly separated from mono BUZZ (KS p~1e-48), and (iii) show a real buzz-side tail reaching into the mono buzz region. This is exactly H2's prediction: most strums are clean and land on the clean primitive; buzzed strums move along the same axis toward the buzz primitive. CAVEATS: chords have NO reliable per-string clean/buzz labels (so this is geometry, not labelled chord accuracy) and it is a single player (k-fold only) \u2014 no cross-player claim."
+}
