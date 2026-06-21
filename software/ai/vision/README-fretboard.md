@@ -39,7 +39,7 @@ listens.
 
 ## WebSocket protocol
 
-- **URL / port:** `ws://localhost:8770`
+- **URL / port:** `ws://127.0.0.1:8772` (moved off `:8770` — macOS `sharingd` holds a dual-stack listener there; use `127.0.0.1`, not `localhost`)
 - **Client -> server:** one **BINARY** message per frame = raw **JPEG bytes**
   (e.g. a webcam frame encoded as JPEG in the browser).
 - **Server -> client:** one **JSON text** message per frame:
@@ -79,7 +79,7 @@ log line per detection, e.g. `[detect] conf=0.93 got_quad=y method=sam_neck_fret
 ### Browser sketch
 
 ```js
-const ws = new WebSocket("ws://localhost:8770");
+const ws = new WebSocket("ws://127.0.0.1:8772");
 ws.binaryType = "arraybuffer";
 // from a <canvas> drawing the <video>:
 canvas.toBlob(b => b.arrayBuffer().then(buf => ws.send(buf)), "image/jpeg", 0.8);

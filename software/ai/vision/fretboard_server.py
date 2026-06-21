@@ -29,7 +29,7 @@ classes, and SAM2-tiny. If SAM2 or neck extraction fails on a frame we fall
 back to the previous whole-box quad (never crash, never return garbage).
 
 Run as a server:
-    .venv-yolo/bin/python fretboard_server.py            # ws://localhost:8770
+    .venv-yolo/bin/python fretboard_server.py            # ws://127.0.0.1:8772
 
 Self-test on an image (headless, no camera):
     .venv-yolo/bin/python fretboard_server.py --selftest path/to/guitar.jpg
