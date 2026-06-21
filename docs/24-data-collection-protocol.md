@@ -20,6 +20,7 @@ We never tag clips by hand afterward. You **announce a condition, play it, and t
 - **Levels:** gain low enough that the **hardest pluck doesn't clip**; disable macOS input "enhancement."
 - **Click:** slow metronome (~40–60 BPM) so notes separate cleanly for auto-segmentation.
 - **Room:** quiet for the core; one short **noisy block** at the end.
+- **Align mode (use for BOTH capture and inference — this is how we get train≈serve):** before any take, the app reads the **ArUco marker's apparent size/pose + the fretboard-region brightness** to estimate camera distance / angle / lighting, and guides you ("move back / raise the camera / more light") until you're inside the trained range, then **locks**. Capturing AND playing in the same aligned pose makes the vision features match **by construction** — far stronger than hoping the model is robust. The homography already absorbs a lot of camera-angle variation (fretboard-relative features); align-mode closes the rest, and offline **augmentation** (re-project homography to nearby virtual angles + brightness/contrast jitter) is cheap insurance for residual drift. This is an interface feature for the team; **gate capture on it.**
 
 ---
 
@@ -75,6 +76,20 @@ Offline we onset-segment each run into its notes; **every note inherits the run'
 **Medium, consistent pluck for the whole balanced core** (control it). Plus a **pluck-sweep**: at ~3–4 cells, clean + buzz at **soft / medium / hard** (~80 events) → lets us add the pluck-proxy feature and prove buzz ≠ pluck (eng-review D1). Log `pluck_strength` on every run.
 
 ---
+
+## 4b. Pose diversity (Stage 1) + how much data
+**Pose-variation passes (D5):** repeat the position-grid runs with **different fingers and wrist/neck angles** (index vs ring on the same fret; slight hand rotation) so the occlusion model generalizes across hand shapes instead of memorizing one posture. ~2 extra variants × the 18 grid runs ≈ **+200 events, ~15–20 min.** (Arpeggiated chords already add multi-finger poses; this rounds out single-note diversity.)
+
+**How much data — targets** (run method ≈ **5–6 sec wall-clock per labeled event**):
+
+| Tier | Events | Buys you | Wall-clock |
+|---|---|---|---|
+| Minimum (prove the thesis) | ~300 | first separability headline (audio-only confuses cause; +d separates) + occlusion-model sanity | ~45–60 min |
+| **Solid v1 (target)** | **~800–1,000** | both models trainable, per-string-ish, fully demoable — the real training set | ~1.5–2 hr |
+| Strong | ~1,500–2,000 | robust + leave-one-player-out (Aiden records a partial set) | ~3–4 hr (2 people) |
+
+**Per-class floor:** ~**100 clean events per collapse class** before trusting the separability numbers.
+**Stop criterion (let the audit decide, don't guess):** collect until held-out **d′ between {clean, buzz-light, buzz-placement} plateaus** AND the 36-cell grid is covered. Still climbing at 1,000 → collect more; plateaus at 600 → done early.
 
 ## 5. Metadata schema (collect once, slice many ways) — one row per RUN
 | Field | Example |
