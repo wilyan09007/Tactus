@@ -309,10 +309,13 @@ def candidate_adapters(min_channels: int = 8, samplerate: int = 48000) -> list[d
             continue
         if not any(h in d["name"].lower() for h in VANTEC_HINTS):
             continue
-        if _device_openable(i, min_channels, samplerate):
+        api = apis[d["hostapi"]]["name"]
+        # Do NOT probe-open bypass (WDM-KS) endpoints -- even a probe destabilizes the
+        # KS pin (-9996 on the next real open; also breaks resonance_check). Include
+        # them by enumeration; only shared-mode endpoints get the openability probe.
+        if is_bypass_api(api) or _device_openable(i, min_channels, samplerate):
             out.append({"idx": i, "name": d["name"].strip(),
-                        "ch": d["max_output_channels"],
-                        "api": apis[d["hostapi"]]["name"]})
+                        "ch": d["max_output_channels"], "api": api})
     log.debug("validated candidate adapters (>=%dch): %s", min_channels,
               [(c["idx"], c["name"], c["api"]) for c in out])
     return out
