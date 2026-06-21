@@ -5,3 +5,7 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# graphify machine-specific pointers (absolute local paths, auto-regenerated)
+graphify-out/.graphify_python
+graphify-out/.graphify_root
