@@ -147,6 +147,7 @@
       <div class="big" id="promptTitle">—</div>
       <div class="promptline" id="promptTags"></div>
       <div class="do" id="promptDo">—</div>
+      <div id="fretboard" style="margin-top:10px"></div>
       <div style="margin-top:12px;display:flex;align-items:center;gap:12px">
         <span class="beatdot" id="beatDot"></span>
         <span class="huge" id="beatBig">—</span>
@@ -206,6 +207,7 @@
             <option value="arpeggio">Chords — arpeggiated</option>
             <option value="strum">Chords — strummed</option>
             <option value="chord-fault">Chords — per-string fault (granular)</option>
+            <option value="chord-stream">Chords — continuous stream (vision/occlusion)</option>
             <option value="holdout">Natural holdout (held out)</option>
           </select>
         </div>
@@ -279,6 +281,27 @@ function chordMapStr(shape,fingers){ const lab=["E","A","D","G","B","e"];
   return shape.map((fr,i)=>{ if(fr<0) return lab[i]+":x"; if(fr===0) return lab[i]+":0";
     const f=(fingers&&fingers[i]>0)?"("+_FN[fingers[i]]+")":""; return lab[i]+":"+fr+f; }).join("  "); }
 const SNAME=s=>{const x=STRINGS.find(a=>a[0]===s);return x?x[1]:String(s);};
+const POSE_HINTS=["wrist NEUTRAL (natural)","wrist ROTATED, fingers more curled","neck TILTED UP ~15°","move CLOSER / fill the frame","wrist DROPPED, flatter fingers"];
+// build a continuous progression of n chords (shuffled), with a pose change every 10
+function buildStream(n){ const seq=[]; let pose=-1;
+  for(let i=0;i<n;i++){ const np=(i%10===0); if(np) pose=(pose+1)%POSE_HINTS.length;
+    const ch=CHORDS[Math.floor(Math.random()*CHORDS.length)], shape=CHORD_SHAPES[ch]||[], fing=CHORD_FINGERS[ch]||[], notes=chordNotes(shape,fing);
+    seq.push({chord_name:ch, chord_shape:shape, chord_fingers:fing, frets:notes.map(n=>n.fret), strings_played:notes.map(n=>n.s_num), pose:np?("↻ NEW POSE: "+POSE_HINTS[pose]):null}); }
+  return seq; }
+// chord diagram (horizontal neck, nut left): dots w/ finger number, o=open, x=muted
+function chordDiagramSVG(shape,fingers,name){ if(!shape||!shape.length) return "";
+  const rows=["E","A","D","G","B","e"], maxF=Math.max(2,...shape.map(f=>f>0?f:0)), nF=Math.min(Math.max(maxF,3),5);
+  const W=380,H=190,padL=44,padR=14,padT=20,padB=18,gw=W-padL-padR,gh=H-padT-padB;
+  const fx=k=>padL+gw*k/nF, sy=i=>padT+gh*i/5; let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:440px;background:#0c0e13;border:1px solid #262b36;border-radius:8px">`;
+  s+=`<text x="${W/2}" y="14" fill="#e7ecf3" font-size="13" font-weight="700" text-anchor="middle">${name||""}</text>`;
+  for(let i=0;i<6;i++){ s+=`<line x1="${padL}" y1="${sy(i)}" x2="${W-padR}" y2="${sy(i)}" stroke="#39414f" stroke-width="1.5"/><text x="${padL-9}" y="${sy(i)+4}" fill="#8b95a7" font-size="11" text-anchor="end">${rows[i]}</text>`; }
+  for(let k=0;k<=nF;k++){ s+=`<line x1="${fx(k)}" y1="${padT}" x2="${fx(k)}" y2="${H-padB}" stroke="${k===0?'#cdd6e4':'#2a3140'}" stroke-width="${k===0?4:1.5}"/>`; }
+  for(let k=1;k<=nF;k++){ s+=`<text x="${(fx(k-1)+fx(k))/2}" y="${H-4}" fill="#5b6678" font-size="9" text-anchor="middle">${k}</text>`; }
+  shape.forEach((fr,i)=>{ if(fr<0){ s+=`<text x="${padL-24}" y="${sy(i)+4}" fill="#ff5c5c" font-size="13" text-anchor="middle">✕</text>`; }
+    else if(fr===0){ s+=`<text x="${padL-24}" y="${sy(i)+4}" fill="#3ecf8e" font-size="13" text-anchor="middle">○</text>`; }
+    else { const cx=(fx(fr-1)+fx(fr))/2,cy=sy(i); s+=`<circle cx="${cx}" cy="${cy}" r="11" fill="#6ea8ff"/><text x="${cx}" y="${cy+4}" fill="#06101f" font-size="12" font-weight="800" text-anchor="middle">${fingers&&fingers[i]>0?fingers[i]:""}</text>`; } });
+  return s+"</svg>"; }
+function renderFretboard(shape,fingers,name){ const el=$("#fretboard"); if(el) el.innerHTML=chordDiagramSVG(shape,fingers,name); }
 // pose-variation block cycles these per PASS so Stage-1 generalizes across hand shapes
 const POSE_VARIANTS = [
   ["index","wrist NEUTRAL — your natural fretting angle"],
@@ -290,7 +313,7 @@ const POSE_VARIANTS = [
 // ---------------- state ----------------
 let stream=null, audioCtx=null, analyser=null, meterBuf=null, workletNode=null, hasWav=false;
 let pcm=[], recorder=null, recChunks=[], recMime="", recording=false;
-let plan=[], idx=0, t0=0, beatTimes=[], beatTimer=null, runPeak=0, runClip=0, lastBlob=null, lastWav=null, pendingRow=null;
+let plan=[], idx=0, t0=0, beatTimes=[], beatTimer=null, runPeak=0, runClip=0, lastBlob=null, lastWav=null, pendingRow=null, streamCues=[];
 let stats={runs:0,events:0,clip:0,sil:0,fail:0,durs:[]};
 
 function nowStamp(){const d=new Date(),p=n=>String(n).padStart(2,"0");
@@ -437,6 +460,12 @@ function buildPlan(){
               +" string (fret "+tgt.fret+"), rest ring CLEAN   ["+chordMapStr(shape,fing)+"]"})));
       });
     }
+  } else if(block==="chord-stream"){
+    const seq=buildStream(100);   // ONE continuous batch of ~100 chords (one recording, no stopping)
+    plan=[{block:"chord-stream", stream:true, sequence:seq, intended_class:"chord-stream",
+           s_num:0, string:"chord progression", fret_range:"chord", finger:"chord", pluck_strength:pluck,
+           expected_note_count:seq.length,
+           how:"click ● Record → play each chord as it appears (STRUM + hold till the next). One take, "+seq.length+" chords, NO stopping."}];
   } else if(block==="holdout"){
     plan.push({block,string:"free",s_num:0,fret_range:"free",frets:[],finger:"free",intended_class:"natural",
       held_out:true,pluck_strength:"natural",expected_note_count:0,
@@ -457,6 +486,7 @@ function renderPrompt(){
   const r=plan[idx];
   $("#progress").textContent=`run ${idx+1} / ${plan.length}  ·  block "${r.block}"`;
   $("#promptTitle").textContent = r.chord_name ? `${r.is_arpeggio?"Arpeggiate":"Strum"} — ${r.chord_name}`
+      : r.stream ? ("Chord stream — "+r.sequence.length+" chords (one take)")
       : r.block==="holdout" ? "Natural play (held out)"
       : `${r.string}  ·  frets ${r.fret_range}`;
   const tags=[];
@@ -468,6 +498,9 @@ function renderPrompt(){
   if(r.pass)tags.push(["pass",r.pass]);
   $("#promptTags").innerHTML=tags.map(([k,v])=>`<span class="tag">${k}: ${v}</span>`).join("");
   $("#promptDo").innerHTML="▶ "+r.how;
+  if(r.chord_name){ renderFretboard(r.chord_shape, r.chord_fingers, r.chord_name); }
+  else if(r.stream){ const c=(r.sequence||[])[0]; if(c) renderFretboard(c.chord_shape, c.chord_fingers, c.chord_name+"  (first chord)"); }
+  else { const fb=$("#fretboard"); if(fb) fb.innerHTML=""; }
   $("#beatBig").textContent="—"; $("#beatHint").textContent="";
   gate(true);
 }
@@ -488,11 +521,29 @@ function startRec(){
        recorder.start(); }catch(e){ banner("#saveBanner","bad","recorder error: "+e.message); recording=false; return; }
   t0=performance.now();
   const r=plan[idx], bpm=+$("#bpm").value||50, beatMs=60000/bpm;
+  const CLAP_MS = 1300;               // recording rolls now -> clap window before the metronome starts
+  if(r.stream){
+    // continuous chord progression — ONE recording, advance a chord every 2 beats, log cue times.
+    streamCues=[]; let ci=0; const seq=r.sequence||[]; const CHORD_MS=beatMs*2;
+    $("#beatDot").classList.add("on");
+    $("#beatBig").textContent="👏 GET SET"; $("#beatHint").textContent="clap once (sync) — chords start in a moment…";
+    const showChord=()=>{
+      if(ci>=seq.length){ clearInterval(beatTimer); $("#beatBig").textContent="✓ batch done ("+seq.length+")"; $("#beatHint").textContent="hit ■ Stop & save"; return; }
+      const c=seq[ci]; streamCues.push(+(performance.now()-t0).toFixed(1));
+      $("#beatDot").classList.toggle("on");
+      $("#beatBig").textContent=(ci+1)+"/"+seq.length+"  ▸ "+c.chord_name;
+      $("#beatHint").textContent=(c.pose?c.pose+"  ·  ":"")+"strum + hold"+(seq[ci+1]?("   |   next: "+seq[ci+1].chord_name):"");
+      renderFretboard(c.chord_shape,c.chord_fingers,c.chord_name);
+      ci++;
+    };
+    beatTimer=setTimeout(()=>{ showChord(); beatTimer=setInterval(showChord, CHORD_MS); }, CLAP_MS);
+    gate(true); $("#recBtn").disabled=true; $("#stopBtn").disabled=false; $("#skipBtn").disabled=true;
+    return;
+  }
   const isChord = !!r.chord_name;
   const sweep = !isChord && r.frets && r.frets.length>1;
   const reps = r.reps||6;
   const COUNT_IN = (sweep||isChord) ? 3 : 1;   // count-off beats so you feel the tempo BEFORE the first note
-  const CLAP_MS = 1300;               // recording rolls now -> clap window before the metronome starts
   let beat=0;
   // recording is ALREADY rolling, so the clap is captured. Metronome is a GUIDE only;
   // exact note timing is recovered offline from the audio (librosa onsets), not these beats.
@@ -555,9 +606,11 @@ async function stopRec(){
 function buildRow(r, qc){
   const v=stream.getVideoTracks()[0], a=stream.getAudioTracks()[0];
   const vs=v?v.getSettings():{};
-  const rid=[ (r.chord_name||("s"+r.s_num)), (r.fret_range||"x").replace(/[^0-9a-z]/gi,""),
-    (r.intended_class||"x").replace(/[^a-z]/gi,""), "plk"+(r.pluck_variant||r.pluck_strength),
-    $("#player").value, String(stats.runs+1).padStart(3,"0") ].join("_").replace(/\s+/g,"");
+  const rid = r.stream
+    ? ("chordstream_"+$("#player").value+"_"+String(stats.runs+1).padStart(3,"0"))
+    : [ (r.chord_name||("s"+r.s_num)), (r.fret_range||"x").replace(/[^0-9a-z]/gi,""),
+        (r.intended_class||"x").replace(/[^a-z]/gi,""), "plk"+(r.pluck_variant||r.pluck_strength),
+        $("#player").value, String(stats.runs+1).padStart(3,"0") ].join("_").replace(/\s+/g,"");
   return {
     run_id: rid, session_id:$("#session").value, player_id:$("#player").value, app_version:APP,
     block:r.block, string:r.string, fret_range:r.fret_range, frets:r.frets||[], finger:r.finger,
@@ -567,6 +620,8 @@ function buildRow(r, qc){
     strings_played:r.strings_played||null, fingers_played:r.fingers_played||null,
     string_classes:r.string_classes||null, fault_string:r.fault_string||null, fault_type:r.fault_type||null,
     chord_shape:r.chord_shape||null, chord_fingers:r.chord_fingers||null, reps:r.reps||null,
+    batch:!!r.stream,
+    chord_sequence: r.stream ? (r.sequence||[]).map((c,i)=>({chord:c.chord_name, shape:c.chord_shape, fingers:c.chord_fingers, frets:c.frets, strings:c.strings_played, pose:c.pose||null, cue_ms:streamCues[i]})) : null,
     pass:r.pass||null, held_out:!!r.held_out, expected_note_count:r.expected_note_count,
     matched_intent:null, room:$("#room").value, notes:"",
     bpm:+$("#bpm").value||50, beat_times_ms:beatTimes, recorded_at:new Date().toISOString(),
