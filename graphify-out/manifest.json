@@ -340,14 +340,14 @@
     "semantic_hash": "21178346e323c5fa2dfefaf4113e5c31"
   },
   "truth.md": {
-    "mtime": 1782042195.2093651,
-    "ast_hash": "5b5fdb5ffe90ff83837b167c563c64d7",
+    "mtime": 1782045039.3380165,
+    "ast_hash": "b3edcc4a4d4e29e3adb00e2b9a3c83cf",
     "semantic_hash": ""
   },
   "web/glow.html": {
-    "mtime": 1782016137.0056098,
-    "ast_hash": "92419b68e559cd79786d3722cf9aee53",
-    "semantic_hash": "92419b68e559cd79786d3722cf9aee53"
+    "mtime": 1782044963.7206912,
+    "ast_hash": "3cf933b2e8e24802e372d0b99b45fd47",
+    "semantic_hash": ""
   },
   "web/index.html": {
     "mtime": 1782042109.5838447,
@@ -417,6 +417,36 @@
   "web/_prototypes/learn-dashboard-mock.html": {
     "mtime": 1782041028.0846004,
     "ast_hash": "15a9e5ecb41428eb6010225b74066e93",
+    "semantic_hash": ""
+  },
+  "web/fretboard-autodetect.js": {
+    "mtime": 1782044798.1758509,
+    "ast_hash": "b41f06e9a6601545c3b48345d342c628",
+    "semantic_hash": ""
+  },
+  "web/_themes/atelier.html": {
+    "mtime": 1782042834.8181436,
+    "ast_hash": "eea30d23e9fe34cb17f63c0a371cf296",
+    "semantic_hash": ""
+  },
+  "web/_themes/blueprint.html": {
+    "mtime": 1782042881.9232523,
+    "ast_hash": "cf61c64d48e620a6f0142073dc1fcfa9",
+    "semantic_hash": ""
+  },
+  "web/_themes/index.html": {
+    "mtime": 1782043175.7452674,
+    "ast_hash": "5d6da69938ef3a91746b21d82b474abd",
+    "semantic_hash": ""
+  },
+  "web/_themes/neon-noir.html": {
+    "mtime": 1782042902.5924683,
+    "ast_hash": "2eee0e17701e9ebbb3b3c270e0f420ef",
+    "semantic_hash": ""
+  },
+  "web/_themes/sherbet.html": {
+    "mtime": 1782042896.0402792,
+    "ast_hash": "891d42f4b7508fe1814bcbdef3dd5720",
     "semantic_hash": ""
   }
 }
