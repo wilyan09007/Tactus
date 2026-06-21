@@ -127,7 +127,21 @@
 
   <!-- RIGHT: session + QC -->
   <section>
-    <div class="card">
+    <div class="card" style="border-color:#2c3a52">
+      <h3>📐 Framing — keep this consistent (training = demo)</h3>
+      <div class="kv">
+        <b>show</b><span><b>nut → ~fret 7</b>, neck fills the width, roughly horizontal</span>
+        <b>include</b><span>both neck edges + your <b>WHOLE fretting hand</b> (wrist→fingertips, not cropped)</span>
+        <b>skip</b><span>body/soundhole, headstock, plucking hand, your face — <b>don't zoom out</b></span>
+        <b>light</b><span>even; no glare on the strings, no bright window behind</span>
+        <b>lock</b><span>same camera distance/angle + mic spot — whole session AND the demo</span>
+        <b>relax</b><span>background + your body position (features are fretboard-relative)</span>
+      </div>
+      <div class="note">⤷ <b>Core grid:</b> hold ONE steady camera + hand pose. &nbsp;<b>Pose-variation block:</b> the prompt
+        tells you to change finger / wrist / neck angle each pass — that's intentional, it generalizes Stage 1.</div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
       <h3>Session</h3>
       <div class="row">
         <div><label>Player</label><input id="player" value="aditya"></div>
@@ -196,6 +210,13 @@ const CLASSES = [
   ["buzz-placement","FIRM pressure but TOO FAR BACK from the wire → placement buzz"],
 ];
 const CHORDS = ["Em","Am","C","G","D","E","A","Dm"];
+// pose-variation block cycles these per PASS so Stage-1 generalizes across hand shapes
+const POSE_VARIANTS = [
+  ["index","wrist NEUTRAL — your natural fretting angle"],
+  ["ring","wrist ROTATED slightly · fingers more curled"],
+  ["index","neck TILTED UP ~15° · reach over the top"],
+  ["middle","wrist DROPPED · flatter finger angle"],
+];
 
 // ---------------- state ----------------
 let stream=null, audioCtx=null, analyser=null, meterBuf=null, workletNode=null, hasWav=false;
@@ -290,11 +311,17 @@ function buildPlan(){
     block, string:`${n} (${nm})`, s_num:n, fret_range:"1->6", frets:[1,2,3,4,5,6], finger:fing,
     intended_class:cls, intended_placement: cls==="buzz-placement"?"too-far-back":"on-wire",
     pluck_strength:plk, expected_note_count:6, how: (CLASSES.find(c=>c[0]===cls)||["",""])[1]||cls, ...extra}));
-  if(block==="core-grid"||block==="pose-variation"){
+  if(block==="core-grid"){
     for(let p=1;p<=passes;p++) STRINGS.forEach(([n,nm])=>shuffle(CLASSES).forEach(([cls,how])=>plan.push({
       block,string:`${n} (${nm})`,s_num:n,fret_range:"1->6",frets:[1,2,3,4,5,6],finger,intended_class:cls,
       intended_placement: cls==="buzz-placement"?"too-far-back":"on-wire",pluck_strength:pluck,
       expected_note_count:6,how,pass:p})));
+  } else if(block==="pose-variation"){
+    for(let p=1;p<=passes;p++){ const [vf,vnote]=POSE_VARIANTS[(p-1)%POSE_VARIANTS.length];
+      STRINGS.forEach(([n,nm])=>shuffle(CLASSES).forEach(([cls,how])=>plan.push({
+        block,string:`${n} (${nm})`,s_num:n,fret_range:"1->6",frets:[1,2,3,4,5,6],finger:vf,intended_class:cls,
+        intended_placement: cls==="buzz-placement"?"too-far-back":"on-wire",pluck_strength:pluck,
+        pose_variant:vnote,expected_note_count:6,how:`${how} — ${vnote}`,pass:p}))); }
   } else if(block==="pluck-sweep"){
     const cells=[[6,"low-E",3],[4,"D",3],[2,"B",3]];
     cells.forEach(([n,nm,fr])=>["clean","buzz-light"].forEach(cls=>["soft","medium","hard"].forEach(pv=>plan.push({
@@ -339,6 +366,7 @@ function renderPrompt(){
   if(r.finger&&r.finger!=="chord"&&r.finger!=="free")tags.push(["finger",r.finger]);
   tags.push(["pluck",r.pluck_strength]);
   if(r.pluck_variant)tags.push(["pluck var",r.pluck_variant]);
+  if(r.pose_variant)tags.push(["pose",r.pose_variant]);
   if(r.pass)tags.push(["pass",r.pass]);
   $("#promptTags").innerHTML=tags.map(([k,v])=>`<span class="tag">${k}: ${v}</span>`).join("");
   $("#promptDo").innerHTML="▶ "+r.how;
@@ -415,7 +443,7 @@ function buildRow(r, qc){
     run_id: rid, session_id:$("#session").value, player_id:$("#player").value, app_version:APP,
     block:r.block, string:r.string, fret_range:r.fret_range, frets:r.frets||[], finger:r.finger,
     intended_class:r.intended_class, intended_placement:r.intended_placement||null,
-    pluck_strength:r.pluck_strength, pluck_variant:r.pluck_variant||null,
+    pluck_strength:r.pluck_strength, pluck_variant:r.pluck_variant||null, pose_variant:r.pose_variant||null,
     chord_name:r.chord_name||null, is_arpeggio:!!r.is_arpeggio, is_strum:!!r.is_strum,
     pass:r.pass||null, held_out:!!r.held_out, expected_note_count:r.expected_note_count,
     matched_intent:null, room:$("#room").value, notes:"",

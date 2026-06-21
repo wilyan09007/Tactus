@@ -2,6 +2,13 @@
 
 > **Current state lives in [`truth.md`](truth.md), not here.** This log is the chronological record of the project, **including the abandoned pre-pivot era** (3-pillar Experience/Express; Raspberry Pi + ESP32 + MAX98357A; 16/14-channel). Older entries are kept as history — do not read them as the current build (as-built = laptop → 2× Vantec → 6× SK473/PAM8403 → 12× KHD drivers, LEARN + PLAY).
 
+## 2026-06-20 — Markerless fretboard registration + guitar digital twin (no taped marker)
+- **`software/ai/vision/fretboard.py`** — markerless registration from the 12-TET fret-spacing law (`x_n = 1−2^(−n/12)`): the guitar is its own ruler, so no fiducial is needed. Fits the fretboard homography from the guitar's own geometry and validates by reprojecting the fret grid onto the real wires. Synthetic front-cam self-test passes (~1.3px median reproj, recovers signed `d`). This becomes the PRIMARY registration path; the ArUco marker is demoted to an OPTIONAL ground-truth validator (`cad/aruco/`).
+- **`software/ai/vision/calib_serve.py` + `calibrate.html`** — localhost guitar digital-twin capture. Hold the neck at ~6 angles, click the 4 neck corners on each frozen frame; the fret grid overlays live (in-browser 4-pt homography) so you SEE it snap onto your real frets — paperless proof. Saves keyframes to `data/calib/<guitar>/`.
+- **`software/ai/vision/twin.py`** — builds `twin.json` from the keyframes: fret-law intrinsics (pose-invariant) + a validated homography per captured angle + corner-reproj residual + board color. The "memorize the guitar once, solve the pose per frame" split.
+- **`capture.html`** — on-screen **Framing guide** (nut→fret 7, whole fretting hand, lock camera + mic, training=demo) so the operator doesn't memorize the protocol; the **Pose-variation block** now prompts the finger/wrist/neck-angle change each pass (logged as `pose_variant`).
+- **`cad/aruco/`** — `generate_marker.py` + print sheet (4×4_50 id 0), kept ONLY as the optional offline validation rig.
+
 ## 2026-06-20 — Localhost capture app (synced A/V + maximal metadata + live QC)
 - **`software/ai/capture/serve.py` + `capture.html`** — stdlib localhost server + one Chrome page. Records **synced webcam+mic per run** (lossless WAV + webm, same `getUserMedia` stream) and writes straight to `data/raw/<session>/<player>/` with a maximal-metadata `manifest.jsonl`. Run: `python3 software/ai/capture/serve.py` → open the printed `http://localhost:8765`. End-to-end save round-trip tested.
 - **Quality guards:** disables browser DSP (echo/noise/AGC off) so the buzz band survives; live input-level meter + **red CLIP alarm**; per-run silent/too-short checks; coverage grid + clip/silent/fail counts; per-run **download fallback** if the server is down (no take lost).

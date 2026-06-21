@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Tactus — guitar digital twin</title>
+<style>
+  :root{--bg:#0f1115;--panel:#171a21;--line:#262b36;--ink:#e7ecf3;--dim:#8b95a7;
+        --ok:#3ecf8e;--warn:#f5a623;--bad:#ff5c5c;--accent:#6ea8ff;--grid:#39ff9a;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,Segoe UI,Roboto,sans-serif}
+  header{padding:10px 16px;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  header b{font-size:16px}
+  .pill{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--dim)}
+  .pill.ok{color:var(--ok);border-color:#1c4} .pill.bad{color:var(--bad);border-color:#622}
+  main{display:grid;grid-template-columns:1.3fr .8fr;gap:14px;padding:14px;max-width:1280px;margin:0 auto}
+  @media(max-width:980px){main{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .card h3{margin:0 0 10px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--dim)}
+  label{display:block;font-size:12px;color:var(--dim);margin:8px 0 3px}
+  select,input{width:100%;background:#0c0e13;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:14px}
+  button{background:var(--accent);color:#06101f;border:0;border-radius:9px;padding:11px 14px;font-size:15px;font-weight:700;cursor:pointer}
+  button.sec{background:#222836;color:var(--ink)} button.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .stage{position:relative;border-radius:10px;overflow:hidden;background:#000}
+  video,canvas{width:100%;display:block}
+  video{transform:scaleX(-1)}            /* mirror live preview only */
+  #frame{touch-action:none;cursor:crosshair}
+  .ctrls{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .do{margin-top:10px;padding:10px;border-left:3px solid var(--accent);background:#121722;border-radius:0 8px 8px 0;font-size:14px}
+  .big{font-size:22px;font-weight:800}
+  .muted{color:var(--dim)} .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+  .step{font-size:13px;margin:5px 0;color:var(--dim)} .step.on{color:var(--ink);font-weight:700}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px}
+  .kv b{color:var(--dim);font-weight:500}
+  .log{font-size:12px;max-height:160px;overflow:auto;border-top:1px solid var(--line);margin-top:8px;padding-top:8px}
+  .log div{padding:2px 0;border-bottom:1px solid #1b1f28}
+  .note{font-size:12px;color:var(--dim);margin-top:6px}
+  .banner{padding:10px 12px;border-radius:9px;margin-top:10px;font-size:13px}
+  .banner.bad{background:#2a1414;border:1px solid #622;color:#ffb4b4}
+  .banner.ok{background:#0f241a;border:1px solid #1c4;color:#bff3d6}
+</style>
+</head>
+<body>
+<header>
+  <b>🎸 Tactus — guitar digital twin</b>
+  <span class="pill" id="pCam">camera —</span>
+  <span class="pill" id="pSrv">server —</span>
+  <span style="flex:1"></span>
+  <span class="pill" id="pSaved">0 keyframes</span>
+</header>
+
+<main>
+  <section class="card">
+    <h3>Calibrate</h3>
+    <div class="stage">
+      <video id="preview" autoplay muted playsinline></video>
+      <canvas id="frame" style="display:none"></canvas>
+    </div>
+
+    <div class="do" id="guide">Pick your front camera, hold the neck across the frame
+      (nut on the left, ~frets 1&ndash;7 filling the width), then <b>Capture frame</b>.</div>
+
+    <div class="ctrls">
+      <button id="capBtn" disabled>📸 Capture frame</button>
+      <button id="undoBtn" class="ghost" disabled>↶ Undo point</button>
+      <button id="saveBtn" class="sec" disabled>✓ Save keyframe</button>
+      <button id="retryBtn" class="ghost" disabled>↺ Re-capture</button>
+    </div>
+    <div id="banner"></div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h3>Guitar</h3>
+      <div class="row"><label>Guitar id</label><input id="guitar" value="acoustic-1"></div>
+      <label style="margin-top:8px">Camera</label><select id="camSel"></select>
+      <div class="ctrls" style="margin-top:10px"><button id="enableBtn">Enable camera</button></div>
+      <div class="note">Same camera + framing you'll record/play with → the twin matches at capture AND demo time.</div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Click the 4 neck corners</h3>
+      <div class="step" id="s1">1 · nut &times; <b>low-E</b> (thickest string)</div>
+      <div class="step" id="s2">2 · nut &times; <b>high-e</b> (thinnest string)</div>
+      <div class="step" id="s3">3 · <b>fret 7</b> &times; high-e</div>
+      <div class="step" id="s4">4 · <b>fret 7</b> &times; low-E</div>
+      <div class="note">After 4 points the green fret grid overlays — it should land on your real fret wires.
+        Off? <b>Re-capture</b> and click more precisely. Tip: any guitar fret-dot inlays (frets 3/5/7) help you aim.</div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Pose plan (capture each)</h3>
+      <div class="kv" id="poses"></div>
+      <div class="log" id="log"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const POSES=[["straight","neck straight across, camera level"],
+             ["tilt-up","tilt the headstock up ~15°"],
+             ["tilt-down","tilt the headstock down ~15°"],
+             ["closer","move the neck closer / fills more frame"],
+             ["rotated","rotate the neck ~20° in plane"],
+             ["play-pose","exactly how you'll hold it to PLAY"]];
+const X7 = 1 - Math.pow(2,-7/12);                 // fret-7 fraction of scale length
+const fretFrac = n => 1 - Math.pow(2,-n/12);
+const BOARD=[[0,0],[0,1],[X7,1],[X7,0]];          // matches the 4 click order
+let stream=null, frozen=false, pts=[], idx=0, H=null;
+const vid=$("#preview"), cv=$("#frame"), ctx=cv.getContext("2d");
+
+// ---- camera ----
+async function enable(){
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+    await fill(); await apply();
+  }catch(e){ banner("bad","Camera error: "+e.message+" — use Chrome + allow permission."); }
+}
+async function fill(){
+  const ds=await navigator.mediaDevices.enumerateDevices();
+  const el=$("#camSel"); el.innerHTML="";
+  ds.filter(d=>d.kind==="videoinput").forEach(d=>{const o=document.createElement("option");
+    o.value=d.deviceId;o.textContent=d.label||"camera";el.appendChild(o);});
+}
+async function apply(){
+  if(stream) stream.getTracks().forEach(t=>t.stop());
+  stream=await navigator.mediaDevices.getUserMedia({video:{deviceId:$("#camSel").value?{exact:$("#camSel").value}:undefined,
+    width:{ideal:1280},height:{ideal:720}},audio:false});
+  vid.srcObject=stream; const t=stream.getVideoTracks()[0];
+  setPill("#pCam","camera ✓","ok"); $("#capBtn").disabled=false;
+}
+
+// ---- capture + click ----
+function capture(){
+  const w=vid.videoWidth||1280,h=vid.videoHeight||720; cv.width=w; cv.height=h;
+  ctx.save(); ctx.scale(-1,1); ctx.drawImage(vid,-w,0,w,h); ctx.restore();  // un-mirror to true orientation
+  frozen=true; pts=[]; H=null; idx=0;
+  vid.style.display="none"; cv.style.display="block";
+  $("#capBtn").disabled=true; $("#retryBtn").disabled=false; $("#undoBtn").disabled=true; $("#saveBtn").disabled=true;
+  markStep(); $("#guide").innerHTML="Click point <b>1</b>: nut × low-E.";
+}
+function clickPt(ev){
+  if(!frozen||pts.length>=4) return;
+  const r=cv.getBoundingClientRect();
+  const x=(ev.clientX-r.left)*(cv.width/r.width), y=(ev.clientY-r.top)*(cv.height/r.height);
+  pts.push([x,y]); idx=pts.length; redraw(); $("#undoBtn").disabled=false;
+  if(pts.length<4){ markStep(); $("#guide").innerHTML=`Click point <b>${pts.length+1}</b>.`; }
+  else{ H=solveH(BOARD,pts); redraw(); $("#saveBtn").disabled=false;
+        $("#guide").innerHTML="Green grid should hug your fret wires. Good → <b>Save keyframe</b>. Off → <b>Re-capture</b>."; }
+}
+function undo(){ pts.pop(); idx=pts.length; H=null; redraw(); markStep();
+  $("#saveBtn").disabled=true; $("#undoBtn").disabled=pts.length===0;
+  $("#guide").innerHTML=`Click point <b>${pts.length+1}</b>.`; }
+function redraw(){
+  // repaint the frozen frame, then dots + (if solved) the law-driven grid
+  const img=cv; // already has the frame; re-grab via temp? simplest: keep a copy
+  ctx.putImageData(_frameData,0,0);
+  ctx.lineWidth=2;
+  if(H){
+    ctx.strokeStyle="rgba(57,255,154,.9)";
+    for(let n=0;n<=7;n++){const a=proj(H,fretFrac(n),0),b=proj(H,fretFrac(n),1);line(a,b);}
+    ctx.strokeStyle="rgba(57,255,154,.45)";
+    for(let s=0;s<=5;s++){const y=s/5,a=proj(H,0,y),b=proj(H,X7,y);line(a,b);}
+  }
+  ctx.fillStyle="#ff5c5c";
+  pts.forEach(([x,y],i)=>{ctx.beginPath();ctx.arc(x,y,6,0,7);ctx.fill();
+    ctx.fillStyle="#fff";ctx.font="bold 16px sans-serif";ctx.fillText(i+1,x+8,y-8);ctx.fillStyle="#ff5c5c";});
+}
+let _frameData=null;
+function snapshotFrame(){ _frameData=ctx.getImageData(0,0,cv.width,cv.height); }
+function line(a,b){ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}
+
+// ---- tiny 4-point homography (DLT) + projection, pure JS ----
+function solveH(src,dst){
+  const A=[],b=[];
+  for(let i=0;i<4;i++){const [X,Y]=src[i],[u,v]=dst[i];
+    A.push([X,Y,1,0,0,0,-u*X,-u*Y]); b.push(u);
+    A.push([0,0,0,X,Y,1,-v*X,-v*Y]); b.push(v);}
+  const h=gauss(A,b); return [[h[0],h[1],h[2]],[h[3],h[4],h[5]],[h[6],h[7],1]];
+}
+function proj(H,X,Y){const w=H[2][0]*X+H[2][1]*Y+H[2][2];
+  return [(H[0][0]*X+H[0][1]*Y+H[0][2])/w,(H[1][0]*X+H[1][1]*Y+H[1][2])/w];}
+function gauss(A,b){const n=b.length,M=A.map((r,i)=>r.concat(b[i]));
+  for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;
+    [M[c],M[p]]=[M[p],M[c]];const d=M[c][c]||1e-9;
+    for(let r=0;r<n;r++){if(r===c)continue;const f=M[r][c]/d;for(let k=c;k<=n;k++)M[r][k]-=f*M[c][k];}}
+  return M.map((r,i)=>r[n]/(r[i]||1e-9));
+}
+
+// ---- save ----
+async function save(){
+  const blob=await new Promise(res=>cv.toBlob(res,"image/png"));
+  const buf=await blob.arrayBuffer();
+  const label=(POSES[Math.min(savedCount(),POSES.length-1)]||["pose"])[0];
+  const meta={guitar_id:$("#guitar").value,label,idx:savedCount(),
+    points:pts,board_points:BOARD,fret7_fraction:X7,
+    image_w:cv.width,image_h:cv.height,captured_at:new Date().toISOString(),
+    note:"4 clicked neck corners (nut×lowE, nut×highe, f7×highe, f7×lowE); fret law fills the grid"};
+  try{
+    const r=await fetch("/save",{method:"POST",
+      headers:{"X-Meta":btoa(unescape(encodeURIComponent(JSON.stringify(meta))))},body:buf});
+    if(!r.ok)throw new Error(r.status);
+    const j=await r.json(); _saved++; setPill("#pSaved",_saved+" keyframes","ok");
+    logLine(`✓ ${label} → ${j.path}`); banner("ok","saved ✓  "+j.path); reset(); renderPoses();
+  }catch(e){ banner("bad","SAVE FAILED — is calib_serve.py running? "+e.message); }
+}
+let _saved=0; const savedCount=()=>_saved;
+function reset(){ frozen=false; pts=[]; H=null; vid.style.display="block"; cv.style.display="none";
+  $("#capBtn").disabled=false; $("#retryBtn").disabled=true; $("#undoBtn").disabled=true; $("#saveBtn").disabled=true;
+  $("#guide").innerHTML="Move to the next pose, then <b>Capture frame</b>."; markStep(); }
+
+// ---- ui glue ----
+function markStep(){["#s1","#s2","#s3","#s4"].forEach((s,i)=>$(s).className="step"+(i===pts.length?" on":""));}
+function renderPoses(){$("#poses").innerHTML=POSES.map((p,i)=>
+  `<b>${i<_saved?"✓":"•"} ${p[0]}</b><span>${p[1]}</span>`).join("");}
+function setPill(id,t,c){const e=$(id);e.textContent=t;e.className="pill"+(c?" "+c:"");}
+function banner(c,m){$("#banner").innerHTML=`<div class="banner ${c}">${m}</div>`;}
+function logLine(s){const d=document.createElement("div");d.textContent=s;$("#log").prepend(d);}
+async function ping(){try{const r=await fetch("/ping");setPill("#pSrv",r.ok?"server ✓":"server ?","ok");}
+  catch(e){setPill("#pSrv","server down","bad");}}
+
+// capture wraps drawImage; snapshot the pixels right after so redraw can repaint
+const _cap=capture; capture=function(){_cap();snapshotFrame();redraw();};
+
+$("#enableBtn").onclick=enable; $("#camSel").onchange=apply;
+$("#capBtn").onclick=capture; $("#retryBtn").onclick=reset;
+$("#undoBtn").onclick=undo; $("#saveBtn").onclick=save; cv.addEventListener("click",clickPt);
+renderPoses(); ping(); setInterval(ping,8000);
+</script>
+</body>
+</html>
