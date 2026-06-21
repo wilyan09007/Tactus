@@ -31,7 +31,7 @@ Neither is enough. We **fuse** them, and the fusion is the technical contributio
 
 ### 1b. Vision branch (where + which finger) — runs in the **browser**
 - **Hand pose:** **MediaPipe Hands** (in the browser) → 21 landmarks/hand → fingertip pixels + finger identity, ~30 FPS (free, real-time). Vision features flow browser→Python timestamped (truth.md §2).
-- **Fretboard registration:** an **ArUco fiducial** on the headstock + **OpenCV homography** → image → fretboard coordinates (string lines × fret lines). Robust to angle/lighting once calibrated; a one-time neck framing handles the rest.
+- **Fretboard registration (markerless):** fit the **OpenCV homography** from the guitar's own geometry via the **12-TET fret-spacing law** (`x_n = 1−2^(−n/12)` — the instrument is its own ruler), validated by reprojecting the frets onto the real wires → image → fretboard coordinates (string lines × fret lines). No fiducial on the instrument (an ArUco marker is an optional ground-truth validator). Robust to angle/lighting once registered; a one-time per-guitar digital twin + neck framing handles the rest. Code: `software/ai/vision/fretboard.py`.
 - **Fingertip → `(string, fret)`** by grid cell; **placement vs the fret-wire** (distance from fingertip to the fret line) = coarse placement quality; collapsed-joint / finger-too-far flags from the landmark geometry.
 
 ### 1c. Fusion (the part that's a real contribution, not a wrapper)

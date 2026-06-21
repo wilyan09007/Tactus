@@ -56,8 +56,8 @@ PETG for the enclosure (heat tolerance near the warm boards + bank; tougher boss
 4. Drop the Anker/hub into the open back bay → velcro through the floor strap slots → screen out the back.
 5. Lid on, 4× M3. *(Optional wear: waistband through the 2 floor belt slots, or zip-tie via the 4 corner lash holes.)*
 
-## ArUco marker (vision)
-Print a **4×4_50, id 0, ~30 mm ArUco marker on paper**, tape it to the headstock — no CAD needed (truth.md §3.8).
+## ArUco marker (vision) — OPTIONAL validation rig only
+Registration is **markerless** (the 12-TET fret-law homography, `software/ai/vision/fretboard.py` — see `truth.md §3.8`, `docs/25`); **you do not need a marker to record or to run the pipeline.** The marker is kept only as an OPTIONAL offline ground-truth validator. If you do print one: generate it with `python3 cad/aruco/generate_marker.py` (produces `cad/aruco/marker_4x4_50_id0.png` + a print-at-100% sheet, 4×4_50 id 0), keep it **dead flat (never folded)**, and tape it **coplanar with the fretboard near the nut/neck — NOT the angled headstock** (the headstock tilts ~15° off the fretboard plane → a worse homography).
 
 ## Parameters you'll most likely touch
 - `tactus_enclosure.py`: `IX` / `IY` / `IZ` (compartment size), `PLATE_GAP` (base↔lid spacing on the one-print bed).

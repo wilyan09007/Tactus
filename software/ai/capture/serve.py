@@ -109,6 +109,24 @@ class Handler(http.server.BaseHTTPRequestHandler):
         try:
             if path == "/save":
                 meta = json.loads(base64.b64decode(self.headers.get("X-Meta", "")).decode())
+                if "guitar_id" in meta and "session_id" not in meta:
+                    # calibration keyframe — the vision team's calibrate.html posts to /save
+                    # (their calib_serve.py contract). Route it to data/calib so the unified
+                    # server's "Map guitar" page works; their standalone calib_serve.py is untouched.
+                    gid = safe(meta.get("guitar_id", "guitar"))
+                    cd = os.path.join(CALIB, gid); os.makedirs(cd, exist_ok=True)
+                    stem = f'kf_{int(meta.get("idx", 0)):02d}_{safe(meta.get("label", "pose"))}'
+                    cfp = os.path.join(cd, stem + ".png")
+                    with open(cfp, "wb") as f:
+                        f.write(body)
+                    meta["frame_file"] = os.path.relpath(cfp, ROOT)
+                    with open(os.path.join(cd, "meta.jsonl"), "a") as f:
+                        f.write(json.dumps(meta) + "\n")
+                    crel = os.path.relpath(cfp, ROOT)
+                    _KF += 1
+                    print(f"  saved calib   {crel}  (kf #{_KF})")
+                    self._send(200, json.dumps({"ok": True, "path": crel}))
+                    return
                 kind = self.headers.get("X-Kind", "video")            # audio | video
                 sub = "audio" if kind == "audio" else "video"
                 ext = meta.get("ext", "wav" if kind == "audio" else "webm")

@@ -48,7 +48,7 @@ held-out d′    ─► which advice is allowed (overlap ⇒ don't coach it)
 
 ## 3. Data collection protocol
 ```
-RIG:  fixed cam over neck · ArUco on headstock · Saramonic LavMicro-U USB-C lav clipped INSIDE the body
+RIG:  MacBook front cam · markerless fretboard homography (fret-law; ArUco optional) · Saramonic LavMicro-U USB-C lav clipped INSIDE the body
       → straight into a Mac USB port (its own input device, 16/24-bit); SAME mic, training + inference (no skew)
       one Python process, monotonic clock; audio onset stamps t, grab nearest frame(s)
       clap at session start = A/V sync cross-check

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tactus — Beat-Saber AR highway (prototype)</title>
+<!--
+  Core mechanic + LIVE CAMERA AR pass.
+  - Notes fly down the string-lanes toward you (Beat-Saber depth-approach),
+    fret number on each blade, bloom glow. Song-clock from a sample CHART.
+  - Click "start camera" -> webcam shows behind a TRANSPARENT three.js canvas,
+    so the notes composite OVER your real camera feed (hold the guitar up).
+
+  NEXT LAYERS:
+   1) js-aruco2 neck pose -> lock the notes onto the REAL fretboard (not just
+      overlaid). 2) alphaTab -> drive the chart from real GuitarPro/MusicXML.
+
+  Run: double-click, OR serve (python3 -m http.server) and visit /beatsaber.html
+-->
+<style>
+  :root{ --ivory:#F8F4EA; --ink:#16130E; --gold:#efc84b; --line:#E7DFC9; }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#0c0a07;
+    font-family:'Manrope',-apple-system,Segoe UI,Roboto,sans-serif}
+  #app{position:relative;height:100vh;overflow:hidden}
+  #cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;display:none;transform:scaleX(-1)}
+  canvas{display:block;position:absolute;inset:0;z-index:1}
+  .top{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;gap:13px;
+    padding:14px 22px;background:linear-gradient(#F8F4EAf2,#F8F4EAbb);border-bottom:1px solid var(--line)}
+  .brand{font-family:'Bricolage Grotesque','Manrope',sans-serif;font-weight:800;font-size:20px;letter-spacing:-.5px;color:var(--ink)}
+  .learn{background:var(--gold);color:#4a3700;font-weight:600;font-size:11px;padding:4px 9px;border-radius:6px;letter-spacing:.08em}
+  .song{margin-left:auto;font-size:13px;color:#7a7261}
+  .mode{font-size:12px;border:1px solid var(--ink);color:var(--ink);font-weight:500;border-radius:999px;padding:5px 13px}
+  .hint{position:absolute;left:22px;bottom:16px;z-index:3;font-family:'Bricolage Grotesque','Manrope',sans-serif;
+    font-weight:700;font-size:15px;color:#f3e4b0;text-shadow:0 1px 6px #000a}
+  .hint b{color:var(--gold)}
+  .ctl{position:absolute;right:22px;bottom:16px;z-index:3;display:flex;gap:8px}
+  .ctl button{font:inherit;font-size:12px;color:#f3e4b0;background:#1c160bcc;border:1px solid #ffffff2e;
+    border-radius:8px;padding:7px 13px;cursor:pointer}
+  .ctl button:hover{border-color:var(--gold)}
+  .ctl button.on{background:var(--gold);color:#3a2c00;border-color:var(--gold);font-weight:600}
+</style>
+</head>
+<body>
+<div id="app">
+  <video id="cam" autoplay playsinline muted></video>
+  <div class="top">
+    <span class="brand">TACTUS</span>
+    <span class="learn">LEARN</span>
+    <span class="song" id="song">Seven Nation Army</span>
+    <span class="mode" id="modelbl">Practice</span>
+  </div>
+  <div class="hint" id="hint">notes fly in &middot; <b>fret on the beat</b></div>
+  <div class="ctl">
+    <button id="cam-btn">start camera</button>
+    <button id="slower">slower</button>
+    <button id="faster">faster</button>
+    <button id="pause">pause</button>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const BPM = 120;
+const CHART = (() => {
+  const seq = [[5,0],[5,0],[5,3],[5,0],[4,2],[5,0],[5,1],[5,0]];
+  const dt = 60 / BPM * 0.84, notes = []; let t = 1.2;
+  for (let r = 0; r < 8; r++) for (const [s,f] of seq){
+    notes.push({ t:+t.toFixed(3), string:s, fret:f, dur:dt*0.7 }); t += dt;
+  }
+  return { notes, end: t + 1 };
+})();
+const STRING_COLORS = [0xf2d27a, 0xf6c651, 0xf0a64e, 0xe8894e, 0xd98b6a, 0xc9a24e];
+const STRING_NAMES  = ['e','B','G','D','A','E'];
+
+const NUM_STRINGS = 6, LANE = 0.62, SPEED = 7.0, NEAR_Z = 1.5, FAR_Z = -34;
+const laneX = s => (s - (NUM_STRINGS+1)/2) * LANE;
+
+const app = document.getElementById('app');
+const scene = new THREE.Scene();
+const sceneFog = new THREE.Fog(0x0c0a07, 14, 40);
+scene.fog = sceneFog;
+
+const camera = new THREE.PerspectiveCamera(58, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(0, 2.4, 6.2); camera.lookAt(0, 0.3, -10);
+
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+renderer.setSize(innerWidth, innerHeight);
+renderer.setClearColor(0x000000, 0);                       // transparent -> camera shows through
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+app.appendChild(renderer.domElement);
+
+// board: dark stage (hidden in camera mode), lanes, frets, strike line
+const board = new THREE.Group(); scene.add(board);
+const boardMesh = new THREE.Mesh(new THREE.PlaneGeometry(LANE*NUM_STRINGS+0.6, NEAR_Z-FAR_Z),
+  new THREE.MeshBasicMaterial({ color:0x140f0a }));
+boardMesh.rotation.x = -Math.PI/2; boardMesh.position.z = (NEAR_Z+FAR_Z)/2; board.add(boardMesh);
+const laneLines = [];
+for (let s=1; s<=NUM_STRINGS; s++){
+  const g = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(laneX(s),0.01,NEAR_Z), new THREE.Vector3(laneX(s),0.01,FAR_Z)]);
+  const ln = new THREE.Line(g, new THREE.LineBasicMaterial({ color:0x6a5630 })); board.add(ln); laneLines.push(ln);
+}
+for (let z=0; z>=FAR_Z; z-=3){
+  const g = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(laneX(1)-0.3,0.01,z), new THREE.Vector3(laneX(6)+0.3,0.01,z)]);
+  board.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color:0x4a3a22 })));
+}
+const strike = new THREE.Mesh(new THREE.BoxGeometry(LANE*NUM_STRINGS+0.7, 0.04, 0.08),
+  new THREE.MeshBasicMaterial({ color:0xefc84b })); strike.position.set(0,0.06,0); scene.add(strike);
+
+function label(text, color, px){
+  const c=document.createElement('canvas'); c.width=c.height=128; const x=c.getContext('2d');
+  x.fillStyle='#'+color.toString(16).padStart(6,'0'); x.font=`bold ${px}px Manrope,sans-serif`;
+  x.textAlign='center'; x.textBaseline='middle'; x.fillText(text,64,70);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
+}
+for (let s=1; s<=NUM_STRINGS; s++){
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({ map:label(STRING_NAMES[s-1],0xc69e32,80), transparent:true }));
+  sp.position.set(laneX(s),0.2,NEAR_Z+0.5); sp.scale.setScalar(0.5); scene.add(sp);
+}
+
+const fretTex={};
+function fretTexture(f){
+  if(fretTex[f]) return fretTex[f];
+  const c=document.createElement('canvas'); c.width=c.height=128; const x=c.getContext('2d');
+  x.fillStyle='#1a1206'; x.beginPath(); x.roundRect(8,8,112,112,24); x.fill();
+  x.fillStyle='#eedcad'; x.font='bold 78px Manrope,sans-serif'; x.textAlign='center'; x.textBaseline='middle';
+  x.fillText(String(f),64,70);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return fretTex[f]=t;
+}
+const bladeGeo=new THREE.BoxGeometry(0.34,0.12,1);
+const notes=CHART.notes.map(n=>{
+  const col=STRING_COLORS[n.string-1];
+  const mat=new THREE.MeshStandardMaterial({ color:col, emissive:col, emissiveIntensity:2.2, roughness:0.4, metalness:0.1 });
+  const len=Math.max(0.5,n.dur*SPEED);
+  const m=new THREE.Mesh(bladeGeo,mat); m.scale.z=len; m.position.set(laneX(n.string),0.42,FAR_Z);
+  const lbl=new THREE.Sprite(new THREE.SpriteMaterial({ map:fretTexture(n.fret), transparent:true }));
+  lbl.scale.setScalar(0.42); lbl.position.set(0,0.28,0.1); m.add(lbl);
+  m.visible=false; scene.add(m); return { ...n, mesh:m, len, hit:false };
+});
+scene.add(new THREE.AmbientLight(0xffffff,0.6));
+
+const flashes=[];
+function spawnFlash(x,col){
+  const m=new THREE.Mesh(new THREE.RingGeometry(0.12,0.2,24),
+    new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:0.9, side:THREE.DoubleSide }));
+  m.rotation.x=-Math.PI/2; m.position.set(x,0.07,0); scene.add(m); flashes.push({m,life:0});
+}
+
+const composer=new EffectComposer(renderer);
+const renderPass=new RenderPass(scene,camera); renderPass.clearAlpha=0;   // keep transparency through composer
+composer.addPass(renderPass);
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.5,0.3,0.38)); // ~25% glow back: lower threshold (letters+beam catch a little) + tight radius (crisp halo, no spread haze)
+composer.addPass(new OutputPass());
+
+// --- live camera AR ----------------------------------------------------------
+const cam=document.getElementById('cam'); const camBtn=document.getElementById('cam-btn');
+let camOn=false;
+camBtn.onclick=async()=>{
+  if(camOn){ (cam.srcObject?.getTracks()||[]).forEach(t=>t.stop()); cam.style.display='none';
+    boardMesh.visible=true; scene.fog=sceneFog; camOn=false; camBtn.classList.remove('on'); camBtn.textContent='start camera'; return; }
+  try{
+    cam.srcObject=await navigator.mediaDevices.getUserMedia({ video:{ width:1280, height:720 } });
+    cam.style.display='block'; boardMesh.visible=false; scene.fog=null;   // notes float over the feed
+    camOn=true; camBtn.classList.add('on'); camBtn.textContent='camera on';
+    document.getElementById('hint').innerHTML='AR overlay &middot; <b>pose-lock next</b>';
+  }catch(e){ document.getElementById('hint').innerHTML='camera blocked &middot; <b>allow + retry</b>'; }
+};
+
+let now=0,playing=true,rate=1,last=performance.now();
+document.getElementById('slower').onclick=()=>rate=Math.max(0.4,rate-0.15);
+document.getElementById('faster').onclick=()=>rate=Math.min(1.8,rate+0.15);
+document.getElementById('pause').onclick=e=>{ playing=!playing; e.target.textContent=playing?'pause':'play'; };
+
+function frame(t){
+  const dt=Math.min(0.05,(t-last)/1000)*rate; last=t;
+  if(playing){ now+=dt; if(now>CHART.end){ now=0; notes.forEach(n=>n.hit=false); } }
+  for(const n of notes){
+    const z=(now-n.t)*SPEED;
+    if(z<FAR_Z-2||z>NEAR_Z+2){ n.mesh.visible=false; continue; }
+    n.mesh.visible=true; n.mesh.position.z=z;
+    n.mesh.material.emissiveIntensity=(z>-1&&z<1)?3.0:1.8;
+    if(!n.hit&&z>=0){ n.hit=true; spawnFlash(laneX(n.string),STRING_COLORS[n.string-1]); }
+  }
+  for(let i=flashes.length-1;i>=0;i--){ const f=flashes[i]; f.life+=dt*3; f.m.scale.setScalar(1+f.life*4);
+    f.m.material.opacity=Math.max(0,0.9-f.life); if(f.life>=0.9){ scene.remove(f.m); flashes.splice(i,1); } }
+  composer.render(); requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight); composer.setSize(innerWidth,innerHeight); });
+</script>
+</body>
+</html>
