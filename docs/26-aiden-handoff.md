@@ -83,9 +83,14 @@ events; **every event inherits the run's label**; per-event `(string, fret)` com
 
 ## 4. What to build (mirrors `docs/25` §8)
 `ingest manifest → recover WAV↔webm offset → beat-anchored+F0 segmentation w/ count audit →
-format-segregated feature extraction @48k → markerless pose+d (MediaPipe Hands + fretboard.py homography)
-aligned to onsets → covariate-controlled standardize→PCA(~95%)→LDA → matched-modality Mahalanobis d′ +
+format-segregated feature extraction @48k → CROP frames to the fretboard ROI (docs/25 §6d) →
+markerless pose+d (MediaPipe Hands + fretboard.py homography) aligned to onsets →
+covariate-controlled standardize→PCA(~95%)→LDA → matched-modality Mahalanobis d′ +
 confusion (LOPO/LOPosO) → one-screen interval audit.`
+
+> **Framing note:** capture is the **whole guitar** (full-screen, 1080p) — see `docs/25 §6d`. So your first
+> real step on each frame is **crop to the fretboard ROI via the homography, then run MediaPipe on the crop**
+> to recover resolution. Don't run MediaPipe on the full wide frame.
 
 **Feature vector (~40–60 dims, `docs/23` §5):** audio (centroid/flux/flatness/rolloff, HNR, inharmonicity,
 attack/decay, MFCC×13, buzz-energy ratio, ZCR, chroma, pitch-cents) + **pluck-proxy** (attack RMS / onset

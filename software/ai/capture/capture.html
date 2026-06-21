@@ -77,7 +77,7 @@
           <div class="tag" style="display:inline-block;margin:6px 0 4px">① MAP THE GUITAR — ~5 min, NO hand on the neck</div>
           <ol style="margin:0 0 8px;padding-left:20px">
             <li>Terminal: <code>python3 software/ai/vision/calib_serve.py</code> → open the printed URL in <b>Chrome</b>.</li>
-            <li>Enable the <b>front camera</b>. For each of the ~6 poses: neck across the frame, <b>no hand</b> → <b>📸 Capture frame</b>.</li>
+            <li>Enable the <b>front camera</b>. For each of the ~6 poses: <b>whole guitar in frame</b>, <b>no hand</b> → <b>📸 Capture frame</b>.</li>
             <li>Click the <b>4 corners</b>: ① nut×low-E ② nut×high-e ③ fret 7×high-e ④ fret 7×low-E.</li>
             <li>The <b>green grid must hug your real frets</b> → <b>Save</b>. (Off? Re-capture, click more precisely.)</li>
           </ol>
@@ -175,15 +175,14 @@
     <div class="card" style="border-color:#2c3a52">
       <h3>📐 Framing — keep this consistent (training = demo)</h3>
       <div class="kv">
-        <b>show</b><span><b>nut → ~fret 7</b>, neck fills the width, roughly horizontal</span>
-        <b>include</b><span>both neck edges + your <b>WHOLE fretting hand</b> (wrist→fingertips, not cropped)</span>
-        <b>skip</b><span>body/soundhole, headstock, plucking hand, your face — <b>don't zoom out</b></span>
+        <b>show</b><span><b>the WHOLE guitar</b> (full-screen video) — angle so the <b>neck is as large as possible</b>, well-lit & in focus</span>
+        <b>must be clear</b><span>nut + frets 1→7, both neck edges, and your <b>WHOLE fretting hand</b> (wrist→fingertips)</span>
+        <b>resolution</b><span>capture is <b>1080p</b>; offline we crop to the neck → wide framing keeps full <code>d</code> resolution</span>
         <b>light</b><span>even; no glare on the strings, no bright window behind</span>
-        <b>lock</b><span>same camera distance/angle + mic spot — whole session AND the demo</span>
-        <b>relax</b><span>background + your body position (features are fretboard-relative)</span>
+        <b>lock</b><span>same camera angle + mic spot — whole session AND the demo (this IS train/serve match)</span>
+        <b>relax</b><span>background + body position (features are fretboard-relative)</span>
       </div>
-      <div class="note">⤷ <b>Core grid:</b> hold ONE steady camera + hand pose. &nbsp;<b>Pose-variation block:</b> the prompt
-        tells you to change finger / wrist / neck angle each pass — that's intentional, it generalizes Stage 1.</div>
+      <div class="note">⤷ You still <b>only PLAY frets 1–6</b> (6 motors) — the camera just sees the whole guitar (more fret wires + inlays = <b>stronger</b> registration). <b>Core grid:</b> hold ONE steady pose. <b>Pose-variation:</b> the prompt changes finger/wrist/angle each pass.</div>
     </div>
 
     <div class="card" style="margin-top:14px">
@@ -298,7 +297,7 @@ async function applyDevices(){
   const con={audio:{deviceId:$("#micSel").value?{exact:$("#micSel").value}:undefined,
                     echoCancellation:false,noiseSuppression:false,autoGainControl:false}};
   if(!audioOnly) con.video={deviceId:$("#camSel").value?{exact:$("#camSel").value}:undefined,
-                    width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30}};
+                    width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30}};
   stream = await navigator.mediaDevices.getUserMedia(con);
   $("#preview").srcObject = stream;
   const v=stream.getVideoTracks()[0], a=stream.getAudioTracks()[0];

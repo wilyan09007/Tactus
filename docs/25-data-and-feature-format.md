@@ -91,17 +91,33 @@ splits **leak**.
 
 ---
 
-## 7. What this changes for RECORDING (the only 4 things)
+## 6d. Framing: capture WIDE, process CROPPED [operator constraint — resolved]
+The operator records the **whole guitar in frame** (full-screen video). This is required, not a compromise:
+the tight nut→fret-7 framing forced a camera angle so low the screen was unusable, and the live **AR demo +
+train/serve match** both want the same full-frame view. Wide framing lowers pixels-per-fret, but the fix is
+**offline, free, and lossless-enough:**
+- Capture at the **highest resolution the front cam supports (1080p)** — already set in the capture app.
+- In the pipeline, **use the homography to crop each frame to the fretboard ROI (≈ nut→fret 8), then run
+  MediaPipe Hands + compute `d` on the high-res crop.** At 1080p this recovers near-tight-framing resolution,
+  and the buzz-light-vs-placement `d` gap (~5–10 mm) stays well-resolved.
+- Seeing the **whole neck actually helps registration** (more fret wires + inlays at 3/5/7/9/12 + both edges =
+  more anchors for the fret-law homography).
+- **Train and serve at the SAME wide framing.** Frets **1–6** remain the only rendered/coached scope (6 motors);
+  the camera just sees more.
+
+## 7. What this changes for RECORDING (5 things)
 1. **Clap once** at the start of each session (1 sec) — sync insurance.
 2. **Keep video ON** (don't use audio-only) — needed for `d` and the matched ablation.
 3. **Confirm the "wav ✓ (lossless)" pill is green** before a batch (Chrome). "webm only" → buzz band degraded.
 4. **Play tight to the click**, gain **amber, never red**.
+5. **Frame the WHOLE guitar** (full-screen, neck as large as possible, 1080p) — same framing for the demo (§6d).
 
 Everything else above is offline and applied to data you've already recorded. **Do not let any of it delay
 collection.** Get maximum rich, well-framed, prompt-labeled data now.
 
 ## 8. Build order for the offline pipeline (so the headline is correct by construction)
 `ingest manifest → recover WAV↔webm offset (§1) → beat-anchored+F0 segmentation w/ count audit (§2) →
-format-segregated feature extraction @48k (§4) → markerless pose+d aligned to onsets (§1/§6c) →
+format-segregated feature extraction @48k (§4) → crop frames to the fretboard ROI (§6d) →
+markerless pose+d aligned to onsets (§1/§6c) →
 covariate-controlled standardize→PCA→LDA (§5) → matched-modality Mahalanobis d′ + confusion (§3/§6)
 under LOPO/LOPosO (§6b) → one-screen interval audit (docs/24 §8).`

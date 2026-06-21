@@ -60,8 +60,9 @@
       <canvas id="frame" style="display:none"></canvas>
     </div>
 
-    <div class="do" id="guide">Pick your front camera, hold the neck across the frame
-      (nut on the left, ~frets 1&ndash;7 filling the width), then <b>Capture frame</b>.</div>
+    <div class="do" id="guide">Pick your front camera, hold the <b>whole guitar in frame</b>
+      (the same framing you'll record + play with) — make sure the <b>nut, frets 1&ndash;7, and both neck edges</b>
+      are clearly visible — then <b>Capture frame</b>.</div>
 
     <div class="ctrls">
       <button id="capBtn" disabled>📸 Capture frame</button>
@@ -130,7 +131,7 @@ async function fill(){
 async function apply(){
   if(stream) stream.getTracks().forEach(t=>t.stop());
   stream=await navigator.mediaDevices.getUserMedia({video:{deviceId:$("#camSel").value?{exact:$("#camSel").value}:undefined,
-    width:{ideal:1280},height:{ideal:720}},audio:false});
+    width:{ideal:1920},height:{ideal:1080}},audio:false});
   vid.srcObject=stream; const t=stream.getVideoTracks()[0];
   setPill("#pCam","camera ✓","ok"); $("#capBtn").disabled=false;
 }
