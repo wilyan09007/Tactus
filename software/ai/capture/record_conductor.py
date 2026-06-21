@@ -31,15 +31,17 @@ from datetime import datetime
 
 # low-E first (down-strum order), high-e last
 STRINGS = [(6, "low-E"), (5, "A"), (4, "D"), (3, "G"), (2, "B"), (1, "high-e")]
+# 3 acoustically-distinct classes (good / buzz / dead). We do NOT split the buzz
+# cause (light vs placement) -- audio-ambiguous. muted must be UNAMBIGUOUS dead.
 CORE_CLASSES = [
-    ("clean",          "finger JUST BEHIND the wire, GOOD pressure, medium pluck -> rings clear"),
-    ("buzz-light",     "finger in the CORRECT spot, pressed TOO LIGHT -> buzz from low pressure"),
-    ("buzz-placement", "FIRM pressure but finger TOO FAR BACK from the wire -> buzz from placement"),
+    ("clean", "GOOD note -- finger just behind the wire, firm pressure -> rings clean/clear"),
+    ("buzz",  "BUZZ -- fret it but let it RATTLE (too light, or finger too far back). Must audibly buzz."),
+    ("muted", "MUTED -- just REST the finger on the string, do NOT press to the fret -> dead thud, NO pitch"),
 ]
 FRETS = "1->6"  # SCOPE LOCK: 6 fret-zone motors, 1:1 fret->zone. No fret above 6.
 
 STAG = {6: "lowE", 5: "A", 4: "D", 3: "G", 2: "B", 1: "highe"}
-CTAG = {"clean": "clean", "buzz-light": "buzzlight", "buzz-placement": "buzzplace"}
+CTAG = {"clean": "clean", "buzz": "buzz", "muted": "muted"}
 
 
 def ask(msg, default=""):
@@ -98,7 +100,7 @@ TACTUS conductor -- setup BEFORE you start:
                 runs.append({
                     "string": f"{s_num} ({s_name})", "fret_range": FRETS, "finger": args.finger,
                     "intended_class": cname,
-                    "intended_placement": "too-far-back" if cname == "buzz-placement" else "on-wire",
+                    "intended_placement": "on-wire" if cname == "clean" else None,
                     "pluck_strength": args.pluck, "_how": chow, "_pass": p, "_s": s_num,
                 })
 
@@ -145,7 +147,7 @@ TACTUS conductor -- setup BEFORE you start:
     print("\nNext blocks (rerun this, or just announce them on the recording):")
     print("  - pose-variation:  --finger ring   and   --finger pinky   (Stage-1 generalization)")
     print("  - pluck-sweep:     a few cells at soft / medium / hard (buzz != pluck)")
-    print("  - muted + choked:  a few runs each (cheap external flags)")
+    print("  - choked:          a few runs (cheap external flag; muted is now a CORE class)")
     print("  - chords:          ~6-8 shapes ARPEGGIATED, clean + one deliberate buzz")
     print("  - natural holdout: ~5 min 'just play normally' (HELD OUT)")
 

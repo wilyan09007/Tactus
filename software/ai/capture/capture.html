@@ -98,7 +98,7 @@
             <b>3</b><span><b>"wav ✓ lossless" pill green</b> (top bar) before a batch — use Chrome</span>
             <b>4</b><span><b>Tight to the click</b>; gain peaks <b>amber, never red</b></span>
           </div>
-          <div class="banner ok" style="margin:0 0 10px">⭐ <b>The key data:</b> record <b>clean → buzz-light → buzz-placement back-to-back</b> on each string. Cover all <b>6 strings × frets 1–6</b>. That triplet is the whole proof.</div>
+          <div class="banner ok" style="margin:0 0 10px">⭐ <b>The key data:</b> record <b>clean → buzz → muted back-to-back</b> on each string. Cover all <b>6 strings × frets 1–6</b>. That triplet is the whole proof.</div>
           <div class="big" style="font-size:15px;margin-bottom:4px">When done — hand it off</div>
           <ol style="margin:0;padding-left:20px">
             <li>Push the data:<br><code>git add -f data/raw data/calib</code><br><code>git commit -m "data: session $(date +%F)"</code><br><code>git push origin main</code></li>
@@ -195,7 +195,7 @@
       <div class="row3">
         <div><label>Block</label>
           <select id="block">
-            <option value="core-grid">Core grid (6 strings × 3 classes)</option>
+            <option value="core-grid">Core grid (clean · buzz · muted)</option>
             <option value="pose-variation">Pose-variation (vary finger)</option>
             <option value="pluck-sweep">Pluck-sweep (soft/med/hard)</option>
             <option value="muted">Muted runs</option>
@@ -238,7 +238,7 @@
     <div class="card" style="margin-top:14px">
       <h3>Coverage — this block</h3>
       <div id="coverage" class="grid"></div>
-      <div class="note">⭐ record <b>clean / buzz-light / buzz-placement back-to-back</b> on a string — that pair is the whole proof.</div>
+      <div class="note">⭐ record <b>clean / buzz / muted back-to-back</b> on a string — that triplet is the whole proof.</div>
       <div class="log" id="log"></div>
     </div>
   </section>
@@ -249,10 +249,13 @@
 const $ = s => document.querySelector(s);
 const APP = "capture-0.2";
 const STRINGS = [[6,"low-E"],[5,"A"],[4,"D"],[3,"G"],[2,"B"],[1,"high-e"]];
+// 3 acoustically-distinct classes (good vs buzz vs dead). We do NOT split the
+// buzz cause (light vs placement) — that's audio-ambiguous. muted must be an
+// UNAMBIGUOUS dead note, or it blurs into a light buzz.
 const CLASSES = [
-  ["clean","finger JUST BEHIND the wire, GOOD pressure → rings clear"],
-  ["buzz-light","CORRECT spot, pressed TOO LIGHT → buzz from low pressure"],
-  ["buzz-placement","FIRM pressure but TOO FAR BACK from the wire → placement buzz"],
+  ["clean","GOOD note — finger just behind the wire, firm pressure → rings clean/clear"],
+  ["buzz","BUZZ — fret it but let it RATTLE (too light, OR finger too far back). Must audibly buzz."],
+  ["muted","MUTED — just REST the finger on the string, do NOT press to the fret → dead thud, NO pitch"],
 ];
 const CHORDS = ["Em","Am","C","G","D","E","A","Dm"];
 // pose-variation block cycles these per PASS so Stage-1 generalizes across hand shapes
@@ -354,22 +357,22 @@ function buildPlan(){
   plan=[];
   const sweep=(cls,fing,plk,extra={})=>STRINGS.map(([n,nm])=>({
     block, string:`${n} (${nm})`, s_num:n, fret_range:"1->6", frets:[1,2,3,4,5,6], finger:fing,
-    intended_class:cls, intended_placement: cls==="buzz-placement"?"too-far-back":"on-wire",
+    intended_class:cls, intended_placement: cls==="clean"?"on-wire":null,
     pluck_strength:plk, expected_note_count:6, how: (CLASSES.find(c=>c[0]===cls)||["",""])[1]||cls, ...extra}));
   if(block==="core-grid"){
     for(let p=1;p<=passes;p++) STRINGS.forEach(([n,nm])=>shuffle(CLASSES).forEach(([cls,how])=>plan.push({
       block,string:`${n} (${nm})`,s_num:n,fret_range:"1->6",frets:[1,2,3,4,5,6],finger,intended_class:cls,
-      intended_placement: cls==="buzz-placement"?"too-far-back":"on-wire",pluck_strength:pluck,
+      intended_placement: cls==="clean"?"on-wire":null,pluck_strength:pluck,
       expected_note_count:6,how,pass:p})));
   } else if(block==="pose-variation"){
     for(let p=1;p<=passes;p++){ const [vf,vnote]=POSE_VARIANTS[(p-1)%POSE_VARIANTS.length];
       STRINGS.forEach(([n,nm])=>shuffle(CLASSES).forEach(([cls,how])=>plan.push({
         block,string:`${n} (${nm})`,s_num:n,fret_range:"1->6",frets:[1,2,3,4,5,6],finger:vf,intended_class:cls,
-        intended_placement: cls==="buzz-placement"?"too-far-back":"on-wire",pluck_strength:pluck,
+        intended_placement: cls==="clean"?"on-wire":null,pluck_strength:pluck,
         pose_variant:vnote,expected_note_count:6,how:`${how} — ${vnote}`,pass:p}))); }
   } else if(block==="pluck-sweep"){
     const cells=[[6,"low-E",3],[4,"D",3],[2,"B",3]];
-    cells.forEach(([n,nm,fr])=>["clean","buzz-light"].forEach(cls=>["soft","medium","hard"].forEach(pv=>plan.push({
+    cells.forEach(([n,nm,fr])=>["clean","buzz"].forEach(cls=>["soft","medium","hard"].forEach(pv=>plan.push({
       block,string:`${n} (${nm})`,s_num:n,fret_range:String(fr),frets:[fr],finger,intended_class:cls,
       intended_placement:"on-wire",pluck_strength:pv,pluck_variant:pv,expected_note_count:4,
       how:`fret ${fr}, ${cls}, ${pv} pluck — play it ~4×`}))));
@@ -381,7 +384,7 @@ function buildPlan(){
     const arp=block==="arpeggio";
     CHORDS.forEach(ch=>["clean","one-buzz"].forEach(v=>plan.push({
       block,string:"chord",s_num:0,fret_range:"chord",frets:[],finger:"chord",chord_name:ch,
-      intended_class: v==="clean"?"clean":"buzz-light", is_arpeggio:arp, is_strum:!arp,
+      intended_class: v==="clean"?"clean":"buzz", is_arpeggio:arp, is_strum:!arp,
       pluck_strength:pluck, expected_note_count: arp?6:4,
       how: (arp?"ARPEGGIATE ":"STRUM ")+ch+(v==="clean"?" cleanly":" with ONE deliberate buzz/mute")})));
   } else if(block==="holdout"){
