@@ -67,6 +67,49 @@
 </header>
 
 <main>
+  <section class="card" style="grid-column:1/-1;border-color:#2c3a52;background:#10131a">
+    <details open>
+      <summary style="cursor:pointer;font-weight:800;font-size:15px;color:#e7ecf3">📋 EXACTLY what to do — start to finish &nbsp;<span class="muted" style="font-weight:500">(click to collapse)</span></summary>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:12px">
+        <div>
+          <div class="big" style="font-size:15px;margin-bottom:4px">Do these in order, on THIS computer</div>
+          <div class="note" style="margin:0 0 8px">It's our record <i>and</i> demo machine → training matches the demo. First: <code>git pull origin main</code> (you only need Python 3 + Chrome).</div>
+          <div class="tag" style="display:inline-block;margin:6px 0 4px">① MAP THE GUITAR — ~5 min, NO hand on the neck</div>
+          <ol style="margin:0 0 8px;padding-left:20px">
+            <li>Terminal: <code>python3 software/ai/vision/calib_serve.py</code> → open the printed URL in <b>Chrome</b>.</li>
+            <li>Enable the <b>front camera</b>. For each of the ~6 poses: neck across the frame, <b>no hand</b> → <b>📸 Capture frame</b>.</li>
+            <li>Click the <b>4 corners</b>: ① nut×low-E ② nut×high-e ③ fret 7×high-e ④ fret 7×low-E.</li>
+            <li>The <b>green grid must hug your real frets</b> → <b>Save</b>. (Off? Re-capture, click more precisely.)</li>
+          </ol>
+          <div class="tag" style="display:inline-block;margin:6px 0 4px">② RECORD THE DATA — ~1 hr, hand ON, playing</div>
+          <ol style="margin:0;padding-left:20px">
+            <li>Terminal (new tab): <code>python3 software/ai/capture/serve.py</code> → open the printed URL in <b>Chrome</b> (this page).</li>
+            <li>Pick the <b>Saramonic</b> mic + <b>front cam</b>. Leave <b>both checkboxes OFF</b> (video on, no marker).</li>
+            <li>Set the framing (card on the right →). <b>Block = Core grid → Build run plan.</b></li>
+            <li>Per prompt: <b>● Record</b> → play to the <b>FRET 1→6</b> click → <b>■ Stop</b> → <b>Yes/No</b> (redo if a buzz run rang clean).</li>
+            <li>~2–3 passes, then switch <b>Block → Pose-variation</b> for a couple passes (it tells you to change finger/wrist/angle).</li>
+          </ol>
+        </div>
+        <div>
+          <div class="big" style="font-size:15px;margin-bottom:4px">The 4 rules — EVERY session</div>
+          <div class="kv" style="margin-bottom:10px">
+            <b>1</b><span><b>👏 Clap once</b> at the very start (A/V-sync insurance)</span>
+            <b>2</b><span><b>Video ON</b> — both checkboxes off (no audio-only)</span>
+            <b>3</b><span><b>"wav ✓ lossless" pill green</b> (top bar) before a batch — use Chrome</span>
+            <b>4</b><span><b>Tight to the click</b>; gain peaks <b>amber, never red</b></span>
+          </div>
+          <div class="banner ok" style="margin:0 0 10px">⭐ <b>The key data:</b> record <b>clean → buzz-light → buzz-placement back-to-back</b> on each string. Cover all <b>6 strings × frets 1–6</b>. That triplet is the whole proof.</div>
+          <div class="big" style="font-size:15px;margin-bottom:4px">When done — hand it off</div>
+          <ol style="margin:0;padding-left:20px">
+            <li>Push the data:<br><code>git add -f data/raw data/calib</code><br><code>git commit -m "data: session $(date +%F)"</code><br><code>git push origin main</code></li>
+            <li>If git complains about size → <b>AirDrop the <code>data/raw/</code> folder to Aditya</b> instead.</li>
+            <li><b>Tell Aditya</b> it's up → he runs the audit (segment → features → d′ + confusion).</li>
+          </ol>
+        </div>
+      </div>
+    </details>
+  </section>
+
   <!-- LEFT: capture -->
   <section class="card">
     <h3>Capture</h3>
