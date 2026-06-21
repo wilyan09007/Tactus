@@ -1,857 +1,452 @@
 {
+  "cad/_puck_render.py": {
+    "mtime": 1782016106.5435736,
+    "ast_hash": "3618acfb8ea6270fe529ffc8e757457f",
+    "semantic_hash": "3618acfb8ea6270fe529ffc8e757457f"
+  },
   "cad/_verify_enclosure.py": {
-    "mtime": 1781988000.0889366,
+    "mtime": 1782016106.543694,
     "ast_hash": "630ab9c1c366573d50a5f6306f6bc91c",
     "semantic_hash": "630ab9c1c366573d50a5f6306f6bc91c"
   },
+  "cad/aruco/generate_marker.py": {
+    "mtime": 1782016181.880201,
+    "ast_hash": "70127246e7a13b9c2da1393679f6f0bf",
+    "semantic_hash": "70127246e7a13b9c2da1393679f6f0bf"
+  },
   "cad/tactus_enclosure.py": {
-    "mtime": 1781992103.3643928,
+    "mtime": 1782016106.552762,
     "ast_hash": "08a623ce9ed5cb429fb86861e959306e",
     "semantic_hash": "08a623ce9ed5cb429fb86861e959306e"
   },
   "config/channel_map.json": {
-    "mtime": 1781989170.0880167,
+    "mtime": 1782016106.556626,
     "ast_hash": "f1addecf6e803a8d17bd4d5d06a027a0",
     "semantic_hash": "f1addecf6e803a8d17bd4d5d06a027a0"
   },
+  "software/ai/analysis/audit.py": {
+    "mtime": 1782037750.5416038,
+    "ast_hash": "6a84de795bba1df64010926a0d99d5ee",
+    "semantic_hash": "6a84de795bba1df64010926a0d99d5ee"
+  },
+  "software/ai/analysis/collapse.py": {
+    "mtime": 1782037750.541877,
+    "ast_hash": "39f320c80525537878444cb47520f26f",
+    "semantic_hash": "39f320c80525537878444cb47520f26f"
+  },
+  "software/ai/analysis/features_audio.py": {
+    "mtime": 1782037750.542185,
+    "ast_hash": "4f0902572519dc09879a0cc5c1ccfcca",
+    "semantic_hash": "4f0902572519dc09879a0cc5c1ccfcca"
+  },
+  "software/ai/analysis/features_vision.py": {
+    "mtime": 1782037750.5424116,
+    "ast_hash": "723c1bdb9a4e38146f9186079d411f25",
+    "semantic_hash": "723c1bdb9a4e38146f9186079d411f25"
+  },
+  "software/ai/analysis/make_demo_data.py": {
+    "mtime": 1782037750.542653,
+    "ast_hash": "c2469fe0c9314e545fd94b7233eb2606",
+    "semantic_hash": "c2469fe0c9314e545fd94b7233eb2606"
+  },
+  "software/ai/analysis/run_pipeline.py": {
+    "mtime": 1782037750.543098,
+    "ast_hash": "4bf4191eb675226ad50624944a0fb42a",
+    "semantic_hash": "4bf4191eb675226ad50624944a0fb42a"
+  },
+  "software/ai/analysis/schema.py": {
+    "mtime": 1782037750.543373,
+    "ast_hash": "82dd3ce75162e540c23a021db4dce200",
+    "semantic_hash": "82dd3ce75162e540c23a021db4dce200"
+  },
+  "software/ai/analysis/segment.py": {
+    "mtime": 1782037750.543653,
+    "ast_hash": "e47ce1ad6087784c1eb3632429ca7610",
+    "semantic_hash": "e47ce1ad6087784c1eb3632429ca7610"
+  },
+  "software/ai/analysis/test_audit.py": {
+    "mtime": 1782037750.5438838,
+    "ast_hash": "481330afc1fdb86d246aca2a9f67c159",
+    "semantic_hash": "481330afc1fdb86d246aca2a9f67c159"
+  },
+  "software/ai/analysis/test_collapse.py": {
+    "mtime": 1782037750.5441906,
+    "ast_hash": "9e646f35671e7dc39f533006d1c268a5",
+    "semantic_hash": "9e646f35671e7dc39f533006d1c268a5"
+  },
+  "software/ai/analysis/test_features_audio.py": {
+    "mtime": 1782037750.5444796,
+    "ast_hash": "86eefbdb8445bbdc7468360ed1dd9a3f",
+    "semantic_hash": "86eefbdb8445bbdc7468360ed1dd9a3f"
+  },
+  "software/ai/analysis/test_features_vision.py": {
+    "mtime": 1782037750.544751,
+    "ast_hash": "e1bdeed91295e139866f75830d81fdb4",
+    "semantic_hash": "e1bdeed91295e139866f75830d81fdb4"
+  },
+  "software/ai/analysis/test_pipeline.py": {
+    "mtime": 1782037750.545091,
+    "ast_hash": "e00facac40cd5079c601cb008632d900",
+    "semantic_hash": "e00facac40cd5079c601cb008632d900"
+  },
+  "software/ai/analysis/test_segment.py": {
+    "mtime": 1782037750.5453463,
+    "ast_hash": "40063711f30750d5066d0775f2d13699",
+    "semantic_hash": "40063711f30750d5066d0775f2d13699"
+  },
+  "software/ai/capture/record_conductor.py": {
+    "mtime": 1782037750.5463963,
+    "ast_hash": "8e26141a52ac74548003cffe2eefa99d",
+    "semantic_hash": "8e26141a52ac74548003cffe2eefa99d"
+  },
+  "software/ai/capture/serve.py": {
+    "mtime": 1782037750.5467806,
+    "ast_hash": "ec1bbd804553faee6fc7884d2e66bb24",
+    "semantic_hash": "ec1bbd804553faee6fc7884d2e66bb24"
+  },
+  "software/ai/vision/calib_serve.py": {
+    "mtime": 1782016181.8817847,
+    "ast_hash": "f3a5a7df6d5982901c1cd9118525eb3c",
+    "semantic_hash": "f3a5a7df6d5982901c1cd9118525eb3c"
+  },
+  "software/ai/vision/fretboard.py": {
+    "mtime": 1782016181.8820384,
+    "ast_hash": "98e166cd9eda5ebc71fd460997758496",
+    "semantic_hash": "98e166cd9eda5ebc71fd460997758496"
+  },
+  "software/ai/vision/fretboard_detect.py": {
+    "mtime": 1782037750.5473938,
+    "ast_hash": "d51b0616951e87ae6887dcc18ff8b4dc",
+    "semantic_hash": "d51b0616951e87ae6887dcc18ff8b4dc"
+  },
+  "software/ai/vision/twin.py": {
+    "mtime": 1782016181.8821242,
+    "ast_hash": "3382a0d0799cbe159fef7c7acf87d319",
+    "semantic_hash": "3382a0d0799cbe159fef7c7acf87d319"
+  },
+  "software/haptic/resonance_check.py": {
+    "mtime": 1782037750.5476577,
+    "ast_hash": "e3ceba1fd92414b08572d28f42864a05",
+    "semantic_hash": "e3ceba1fd92414b08572d28f42864a05"
+  },
+  "software/haptic/speaker_check.py": {
+    "mtime": 1782037750.547967,
+    "ast_hash": "016b083034072ebf74841fbf20b6ac83",
+    "semantic_hash": "016b083034072ebf74841fbf20b6ac83"
+  },
+  "web/alphatab-loader.js": {
+    "mtime": 1782016137.005009,
+    "ast_hash": "2fa48127b27b617f2471037dfbf865f3",
+    "semantic_hash": "2fa48127b27b617f2471037dfbf865f3"
+  },
+  "web/aruco-poselock.js": {
+    "mtime": 1782016137.0052884,
+    "ast_hash": "502821c76baadc594fb82fc5e98c35a5",
+    "semantic_hash": "502821c76baadc594fb82fc5e98c35a5"
+  },
   "CHANGELOG.md": {
-    "mtime": 1782008051.5314145,
-    "ast_hash": "257b335c75668addb4a132c9823f7523",
-    "semantic_hash": ""
+    "mtime": 1782037750.536286,
+    "ast_hash": "7a188604171736d3e4704f0a0ff33a6f",
+    "semantic_hash": "7a188604171736d3e4704f0a0ff33a6f"
   },
   "README.md": {
-    "mtime": 1781994806.8037572,
+    "mtime": 1782016106.5307658,
     "ast_hash": "e9c124bf8b4c1454cbdd8e3f1d2a69fe",
     "semantic_hash": "e9c124bf8b4c1454cbdd8e3f1d2a69fe"
   },
   "cad/README.md": {
-    "mtime": 1781992564.8727791,
-    "ast_hash": "f2ff340224806114a51c75d07a1e602a",
-    "semantic_hash": "f2ff340224806114a51c75d07a1e602a"
+    "mtime": 1782016181.879999,
+    "ast_hash": "cd3ce07a94ec6f8b485fb0dcb94ec4d3",
+    "semantic_hash": "cd3ce07a94ec6f8b485fb0dcb94ec4d3"
+  },
+  "cad/aruco/print_marker.html": {
+    "mtime": 1782016181.8804193,
+    "ast_hash": "c239720e0c4849d46d221291125e7bad",
+    "semantic_hash": "c239720e0c4849d46d221291125e7bad"
   },
   "docs/00-start-here.md": {
-    "mtime": 1781994805.7513251,
+    "mtime": 1782016106.5574014,
     "ast_hash": "087434f19bc12741924a16a2c42e553b",
     "semantic_hash": "087434f19bc12741924a16a2c42e553b"
   },
   "docs/01-bill-of-materials.md": {
-    "mtime": 1781994809.4246953,
+    "mtime": 1782016106.557526,
     "ast_hash": "0c0cb924f3520f201a2b945c0c2f6522",
     "semantic_hash": "0c0cb924f3520f201a2b945c0c2f6522"
   },
   "docs/02-system-architecture.md": {
-    "mtime": 1781994802.3641644,
+    "mtime": 1782016106.557644,
     "ast_hash": "a1ae7117843be3701ce784614d205c1f",
     "semantic_hash": "a1ae7117843be3701ce784614d205c1f"
   },
   "docs/03-power.md": {
-    "mtime": 1781987210.2260313,
+    "mtime": 1782016106.557794,
     "ast_hash": "1add5a8cfa7ffea7477127288eb03cea",
     "semantic_hash": "1add5a8cfa7ffea7477127288eb03cea"
   },
+  "docs/04-soldering-guide.md": {
+    "mtime": 1782016106.5579517,
+    "ast_hash": "9289543c9ca3dab59309f353abf35fb4",
+    "semantic_hash": "9289543c9ca3dab59309f353abf35fb4"
+  },
   "docs/05-wiring-map.md": {
-    "mtime": 1781994790.3791935,
+    "mtime": 1782016106.5580845,
     "ast_hash": "a504e93d4b79f22b9b7a81c360350590",
     "semantic_hash": "a504e93d4b79f22b9b7a81c360350590"
   },
   "docs/06-safety.md": {
-    "mtime": 1781987210.2265494,
+    "mtime": 1782016106.5582762,
     "ast_hash": "e8a2c73b3e090196da68a26d6a5f703d",
     "semantic_hash": "e8a2c73b3e090196da68a26d6a5f703d"
   },
   "docs/07-haptic-encoding.md": {
-    "mtime": 1781994813.723643,
+    "mtime": 1782016106.5584219,
     "ast_hash": "2a78f63d0f567a8edc817e79339a75d3",
     "semantic_hash": "2a78f63d0f567a8edc817e79339a75d3"
   },
   "docs/08-software-architecture.md": {
-    "mtime": 1781994807.538102,
+    "mtime": 1782016106.5585897,
     "ast_hash": "241ce0ec334e3e55adeebc54c19f1736",
     "semantic_hash": "241ce0ec334e3e55adeebc54c19f1736"
   },
   "docs/09-assembly-checklist.md": {
-    "mtime": 1781994811.2850623,
+    "mtime": 1782016106.5587404,
     "ast_hash": "b6a636df5d22c82203011d15d7627388",
     "semantic_hash": "b6a636df5d22c82203011d15d7627388"
   },
   "docs/10-design-decisions.md": {
-    "mtime": 1781994792.6339314,
+    "mtime": 1782016106.558897,
     "ast_hash": "8b55f8cb8f655fd6bdd6a9c491ecffe2",
     "semantic_hash": "8b55f8cb8f655fd6bdd6a9c491ecffe2"
   },
   "docs/11-ai-and-pitch.md": {
-    "mtime": 1781987210.22742,
+    "mtime": 1782016106.5590422,
     "ast_hash": "eef35b350af6f06b6239c15060c2b3bf",
     "semantic_hash": "eef35b350af6f06b6239c15060c2b3bf"
   },
   "docs/12-perception-references.md": {
-    "mtime": 1781994790.4009147,
+    "mtime": 1782016106.5591667,
     "ast_hash": "1d0db03f155bd67b2190837c22c1d41b",
     "semantic_hash": "1d0db03f155bd67b2190837c22c1d41b"
   },
   "docs/13-open-questions.md": {
-    "mtime": 1781987210.2276645,
+    "mtime": 1782016106.5592868,
     "ast_hash": "e7a049842034a7cd599ae04429739ece",
     "semantic_hash": "e7a049842034a7cd599ae04429739ece"
   },
+  "docs/13_LEARN_WEB_AND_VISUALIZATION.md": {
+    "mtime": 1782016106.5594366,
+    "ast_hash": "ec3db7836f6b7695c58366d4e266f035",
+    "semantic_hash": "ec3db7836f6b7695c58366d4e266f035"
+  },
   "docs/15-build-refinements.md": {
-    "mtime": 1781994794.276822,
+    "mtime": 1782016106.55957,
     "ast_hash": "48e6de4fc968df005b46a1c8a6d87b70",
     "semantic_hash": "48e6de4fc968df005b46a1c8a6d87b70"
   },
   "docs/17-ai-rigor.md": {
-    "mtime": 1781987210.228287,
-    "ast_hash": "1ab6ee286d7f2e828f8f5d23cb6416e3",
-    "semantic_hash": "1ab6ee286d7f2e828f8f5d23cb6416e3"
+    "mtime": 1782016181.8806105,
+    "ast_hash": "4f4bc0f5cab8dee630bfc17861669555",
+    "semantic_hash": "4f4bc0f5cab8dee630bfc17861669555"
   },
   "docs/18-tuning-and-calibration.md": {
-    "mtime": 1781994776.7031515,
+    "mtime": 1782016106.5600743,
     "ast_hash": "255f66200f34adb9cf693c807b714b6f",
     "semantic_hash": "255f66200f34adb9cf693c807b714b6f"
   },
   "docs/19-sponsors-refined.md": {
-    "mtime": 1781987210.228706,
+    "mtime": 1782016106.5602098,
     "ast_hash": "da59cc74c99925ae1b7dfb0dbd54abd6",
     "semantic_hash": "da59cc74c99925ae1b7dfb0dbd54abd6"
   },
   "docs/20-aiml-training-design.md": {
-    "mtime": 1781987210.2289686,
-    "ast_hash": "8de81e01de419b204be22bd861140266",
-    "semantic_hash": "8de81e01de419b204be22bd861140266"
+    "mtime": 1782016181.8807566,
+    "ast_hash": "2d69544412e3c5372fee49a33cdc438e",
+    "semantic_hash": "2d69544412e3c5372fee49a33cdc438e"
+  },
+  "docs/20-eng-review.md": {
+    "mtime": 1782016106.560703,
+    "ast_hash": "ce2dfa49d90b66a4f85c4a10a825032c",
+    "semantic_hash": "ce2dfa49d90b66a4f85c4a10a825032c"
   },
   "docs/21-chord-and-sustain-rendering.md": {
-    "mtime": 1781994784.9257853,
+    "mtime": 1782016106.56086,
     "ast_hash": "e1f73d6a6f17e52ffdb74b8b328714fa",
     "semantic_hash": "e1f73d6a6f17e52ffdb74b8b328714fa"
   },
   "docs/22-interface-ar-and-correction.md": {
-    "mtime": 1781994812.6853971,
-    "ast_hash": "08f9baf67ce4feb86c74417303fc494d",
-    "semantic_hash": "08f9baf67ce4feb86c74417303fc494d"
+    "mtime": 1782037750.5368402,
+    "ast_hash": "f2fd7c6e3ce0839ab402050c4f28c91d",
+    "semantic_hash": "f2fd7c6e3ce0839ab402050c4f28c91d"
+  },
+  "docs/23-data-and-cluster-semantics.md": {
+    "mtime": 1782016181.880994,
+    "ast_hash": "af171f1a22aa11e979e3710ae4fd1f4e",
+    "semantic_hash": "af171f1a22aa11e979e3710ae4fd1f4e"
+  },
+  "docs/24-data-collection-protocol.md": {
+    "mtime": 1782016181.8811204,
+    "ast_hash": "519786fde4cf7cdf05c93bef1fb3a662",
+    "semantic_hash": "519786fde4cf7cdf05c93bef1fb3a662"
+  },
+  "docs/25-data-and-feature-format.md": {
+    "mtime": 1782037750.537324,
+    "ast_hash": "9f64a517703bfe2cedecc35fa3d7dee4",
+    "semantic_hash": "9f64a517703bfe2cedecc35fa3d7dee4"
+  },
+  "docs/26-aiden-handoff.md": {
+    "mtime": 1782037750.5376923,
+    "ast_hash": "64325631b14fb85133461fa7c09cc80d",
+    "semantic_hash": "64325631b14fb85133461fa7c09cc80d"
+  },
+  "docs/27-chord-feedback-and-experiment-plan.md": {
+    "mtime": 1782037750.5380943,
+    "ast_hash": "83c0074cca45cc5496c13e5454d1f6b7",
+    "semantic_hash": "83c0074cca45cc5496c13e5454d1f6b7"
+  },
+  "docs/REF_psychophysics_brief.md": {
+    "mtime": 1782016106.5620656,
+    "ast_hash": "0002f16715f2d74ab60bb620228ea4f5",
+    "semantic_hash": "0002f16715f2d74ab60bb620228ea4f5"
+  },
+  "docs/REF_sponsors_brief.md": {
+    "mtime": 1782016106.562185,
+    "ast_hash": "8c9009259363a6113baa185f5bfbe9f0",
+    "semantic_hash": "8c9009259363a6113baa185f5bfbe9f0"
   },
   "software/README.md": {
     "mtime": 1781932449.4110065,
     "ast_hash": "29d72cda92ea438c9ee4d2269f81deb9",
     "semantic_hash": "29d72cda92ea438c9ee4d2269f81deb9"
   },
+  "software/ai/capture/README.md": {
+    "mtime": 1782016181.8814654,
+    "ast_hash": "716ebb024dfbbfa11c65d84665b54cce",
+    "semantic_hash": "716ebb024dfbbfa11c65d84665b54cce"
+  },
+  "software/ai/capture/capture.html": {
+    "mtime": 1782037750.5459328,
+    "ast_hash": "5da4b4b9b3ac87bfcdd0cba7584cf5a5",
+    "semantic_hash": "5da4b4b9b3ac87bfcdd0cba7584cf5a5"
+  },
+  "software/ai/vision/calibrate.html": {
+    "mtime": 1782037750.547129,
+    "ast_hash": "de870843b40543c64041470e2fd61428",
+    "semantic_hash": "de870843b40543c64041470e2fd61428"
+  },
   "software/requirements.txt": {
-    "mtime": 1781931371.4317226,
-    "ast_hash": "e87dd6818905718caf4a6c759c0df120",
-    "semantic_hash": "e87dd6818905718caf4a6c759c0df120"
+    "mtime": 1782037750.5485191,
+    "ast_hash": "21178346e323c5fa2dfefaf4113e5c31",
+    "semantic_hash": "21178346e323c5fa2dfefaf4113e5c31"
+  },
+  "truth.md": {
+    "mtime": 1782045039.3380165,
+    "ast_hash": "b3edcc4a4d4e29e3adb00e2b9a3c83cf",
+    "semantic_hash": ""
+  },
+  "web/glow.html": {
+    "mtime": 1782044963.7206912,
+    "ast_hash": "3cf933b2e8e24802e372d0b99b45fd47",
+    "semantic_hash": ""
   },
   "web/index.html": {
-    "mtime": 1781987210.230618,
-    "ast_hash": "15a9e5ecb41428eb6010225b74066e93",
-    "semantic_hash": "15a9e5ecb41428eb6010225b74066e93"
+    "mtime": 1782042109.5838447,
+    "ast_hash": "53fac72b3f57501562ace7155d0f352a",
+    "semantic_hash": ""
+  },
+  "docs/REF_ml_brief.md": {
+    "mtime": 1782016106.5619342,
+    "ast_hash": "444f3171880b37bde0ce11b7e5fcb5ca",
+    "semantic_hash": "444f3171880b37bde0ce11b7e5fcb5ca"
+  },
+  "cad/aruco/marker_4x4_50_id0.png": {
+    "mtime": 1782016181.8803053,
+    "ast_hash": "07fe739f86d34a0b508396856b21fd4b",
+    "semantic_hash": "07fe739f86d34a0b508396856b21fd4b"
   },
   "cad/enclosure_preview.png": {
-    "mtime": 1781992121.3670287,
+    "mtime": 1782016106.5476408,
     "ast_hash": "249fe825a5fc532bebb5e5c0583a6478",
     "semantic_hash": "249fe825a5fc532bebb5e5c0583a6478"
   },
-  "diagrams/power-modes.svg": {
-    "mtime": 1781989043.2482626,
-    "ast_hash": "731fea47a80190c6dbf6fd336b3c3461",
-    "semantic_hash": "731fea47a80190c6dbf6fd336b3c3461"
-  },
-  "diagrams/system-flow.svg": {
-    "mtime": 1781989274.342954,
-    "ast_hash": "8904d1291b5e826780eac9bbf46c41b5",
-    "semantic_hash": "8904d1291b5e826780eac9bbf46c41b5"
-  },
-  "cad/_puck_render.py": {
-    "mtime": 1781987727.0575452,
-    "ast_hash": "3618acfb8ea6270fe529ffc8e757457f",
-    "semantic_hash": "3618acfb8ea6270fe529ffc8e757457f"
+  "cad/enclosure_render.png": {
+    "mtime": 1782016106.5478919,
+    "ast_hash": "a2e4f7653213d13e3e003ac6818a9cef",
+    "semantic_hash": "a2e4f7653213d13e3e003ac6818a9cef"
   },
   "diagrams/body-map.svg": {
-    "mtime": 1781989282.1192079,
+    "mtime": 1782016106.5567904,
     "ast_hash": "9403b9265624fab751451799ef96f804",
     "semantic_hash": "9403b9265624fab751451799ef96f804"
   },
   "diagrams/connections.svg": {
-    "mtime": 1781989043.2479315,
+    "mtime": 1782016106.5569184,
     "ast_hash": "8a1da37f24cb3baa4db493c7b613c03c",
     "semantic_hash": "8a1da37f24cb3baa4db493c7b613c03c"
   },
-  "docs/04-soldering-guide.md": {
-    "mtime": 1781987210.2261703,
-    "ast_hash": "9289543c9ca3dab59309f353abf35fb4",
-    "semantic_hash": "9289543c9ca3dab59309f353abf35fb4"
-  },
-  "docs/13_LEARN_WEB_AND_VISUALIZATION.md": {
-    "mtime": 1781987210.2278173,
-    "ast_hash": "ec3db7836f6b7695c58366d4e266f035",
-    "semantic_hash": "ec3db7836f6b7695c58366d4e266f035"
-  },
-  "docs/20-eng-review.md": {
-    "mtime": 1781987210.229099,
-    "ast_hash": "ce2dfa49d90b66a4f85c4a10a825032c",
-    "semantic_hash": "ce2dfa49d90b66a4f85c4a10a825032c"
-  },
-  "docs/23-data-and-cluster-semantics.md": {
-    "mtime": 1782008051.531776,
-    "ast_hash": "a4d86252e5543231e3b1198acbe75b1b",
-    "semantic_hash": ""
-  },
-  "docs/REF_psychophysics_brief.md": {
-    "mtime": 1781987210.2300346,
-    "ast_hash": "0002f16715f2d74ab60bb620228ea4f5",
-    "semantic_hash": "0002f16715f2d74ab60bb620228ea4f5"
-  },
-  "docs/REF_sponsors_brief.md": {
-    "mtime": 1781987210.2301698,
-    "ast_hash": "8c9009259363a6113baa185f5bfbe9f0",
-    "semantic_hash": "8c9009259363a6113baa185f5bfbe9f0"
-  },
-  "truth.md": {
-    "mtime": 1782008051.5328305,
-    "ast_hash": "358a758d9bf44238360c4671c3400449",
-    "semantic_hash": ""
-  },
-  "docs/REF_ml_brief.md": {
-    "mtime": 1781987210.2298915,
-    "ast_hash": "444f3171880b37bde0ce11b7e5fcb5ca",
-    "semantic_hash": "444f3171880b37bde0ce11b7e5fcb5ca"
-  },
-  "cad/enclosure_render.png": {
-    "mtime": 1781993348.0100112,
-    "ast_hash": "a2e4f7653213d13e3e003ac6818a9cef",
-    "semantic_hash": "a2e4f7653213d13e3e003ac6818a9cef"
-  },
-  "docs/24-data-collection-protocol.md": {
-    "mtime": 1782008051.531984,
-    "ast_hash": "bacbb75f984fcc4254f9648fd81a6c22",
-    "semantic_hash": ""
-  },
-  "openui-app/eslint.config.mjs": {
-    "mtime": 1782005552.588689,
-    "ast_hash": "dfa1f5f6a7037bf39dc510f30b180002",
-    "semantic_hash": ""
-  },
-  "openui-app/next.config.ts": {
-    "mtime": 1782005552.5888238,
-    "ast_hash": "daad32b4de0b92afe04301ebf0a6cc76",
-    "semantic_hash": ""
-  },
-  "openui-app/package.json": {
-    "mtime": 1782005552.5900176,
-    "ast_hash": "2fffb8976a259304a6b32ea2dee6b68c",
-    "semantic_hash": ""
-  },
-  "openui-app/postcss.config.mjs": {
-    "mtime": 1782005552.5880988,
-    "ast_hash": "239f3ebf717465dc636818a1a619398d",
-    "semantic_hash": ""
-  },
-  "openui-app/src/app/api/chat/route.ts": {
-    "mtime": 1782005552.5894563,
-    "ast_hash": "fa81f603e41ade5c96c553b54068c48d",
-    "semantic_hash": ""
-  },
-  "openui-app/src/app/layout.tsx": {
-    "mtime": 1782005552.589139,
-    "ast_hash": "c987074e5fc31d454402a2e48521bf95",
-    "semantic_hash": ""
-  },
-  "openui-app/src/app/page.tsx": {
-    "mtime": 1782005552.5896401,
-    "ast_hash": "1542ecd9e56ea8778c476a87490410c9",
-    "semantic_hash": ""
-  },
-  "openui-app/src/library.ts": {
-    "mtime": 1782005552.5898585,
-    "ast_hash": "fea4810372bc5aaee77490289960b118",
-    "semantic_hash": ""
-  },
-  "openui-app/tsconfig.json": {
-    "mtime": 1782005552.5885816,
-    "ast_hash": "ee17fd1c97c735e9f3564e3f5251f125",
-    "semantic_hash": ""
-  },
-  "software/ai/capture/record_conductor.py": {
-    "mtime": 1782008051.5324924,
-    "ast_hash": "65dedacae0b2a6284717da2786adc362",
-    "semantic_hash": ""
-  },
-  "software/ai/capture/serve.py": {
-    "mtime": 1782008051.5326097,
-    "ast_hash": "77fec424ef36be45b968debcf9e9e451",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/5qvSw2rm7lBjtJlyieSG5EPoghYvvuSX9CuXvns6OZo.FKIDPYLX.mjs": {
-    "mtime": 1782005954.7018816,
-    "ast_hash": "ea2438aa8965857a3eda73b49fa42fb7",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/chunk-42U43NKG.mjs": {
-    "mtime": 1782005955.3087847,
-    "ast_hash": "f5fe0cab78140e0e5aa29f68ce8c2888",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/chunk-5P46LMYF.mjs": {
-    "mtime": 1782005956.1452742,
-    "ast_hash": "9b75befc3f0eb9a19f945ab6463f103f",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/chunk-ELYU6EKT.mjs": {
-    "mtime": 1782005957.1326427,
-    "ast_hash": "bac0d5b5f6a61029b51079932ccda746",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/chunk-JL2CIQYY.mjs": {
-    "mtime": 1782005958.1958325,
-    "ast_hash": "1160e68b22e6f4382d9c804b86cf3d85",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/chunk-NBP2LRUB.mjs": {
-    "mtime": 1782005958.590592,
-    "ast_hash": "a5074665bdb19c592265ee271ed8e4ef",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/chunk-QXV6YM5E.mjs": {
-    "mtime": 1782005961.566613,
-    "ast_hash": "94dedffa4ef32331c408f96dcdbf8cdd",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/default_script0.Z27IH27U.mjs": {
-    "mtime": 1782005962.2665453,
-    "ast_hash": "02be03946ec3f11b973ed5cdd96cabd0",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/searchIndex-seq3-SbjuAz0.json": {
-    "mtime": 1782005962.7868476,
-    "ast_hash": "4d817188ab4d4389917b54b2bf227356",
-    "semantic_hash": ""
-  },
-  "openui-app/README.md": {
-    "mtime": 1782005552.588301,
-    "ast_hash": "935cde24b504e5a2fe117561b4cbb4b5",
-    "semantic_hash": ""
-  },
-  "software/ai/capture/README.md": {
-    "mtime": 1782008051.5321891,
-    "ast_hash": "6057619248a8d3485f580afb3b97645f",
-    "semantic_hash": ""
-  },
-  "software/ai/capture/capture.html": {
-    "mtime": 1782008051.5323493,
-    "ast_hash": "e766aa54006b8405c4def389e4f15765",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/asset-urls.txt": {
-    "mtime": 1782005901.562103,
-    "ast_hash": "ac327502b38b5caca06e37230882ca8a",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/page.html": {
-    "mtime": 1782005901.4560435,
-    "ast_hash": "c36bdbed8e27db9bde1725b1b0644eb7",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/0wvLs3kwpRDFDcLj8MB5KOK5G8.png": {
-    "mtime": 1782005929.570826,
-    "ast_hash": "9bb358eceb04a539b462f68bc0d9f1fc",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/20fz3IiBcmjrHWmxHmYSZQzTlPw.png": {
-    "mtime": 1782005931.258476,
-    "ast_hash": "0e35a887c6209f95e6f79185bff7e71b",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/3ibG2bFH3G59fGIvzXg6Qxnn3Cs.png": {
-    "mtime": 1782005932.854031,
-    "ast_hash": "c206bc179336951501888c2731f3b455",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/4NRU5huZ0JfanexRtC34kgv56v8.jpg": {
-    "mtime": 1782005934.8272026,
-    "ast_hash": "444e850f46ad3e489d9052d9598106b7",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/4ouPBOuGWuaQHNsZDDbVcVy7LY.jpg": {
-    "mtime": 1782005935.370035,
-    "ast_hash": "9106e29c678dee63aca9b8edfbd34311",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/550vdbh1cutZ7Ua8OtQCVX4YI4.jpg": {
-    "mtime": 1782005935.7744942,
-    "ast_hash": "7ff89f957f8fabf8a52619fcbdd5ce17",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/ASv9WZelNpzVfOrNpkgEs9GfTFs.jpg": {
-    "mtime": 1782005936.1600645,
-    "ast_hash": "9f43a681cd1774fb22210cb17baead53",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/FPrXmTRHuNShqmf44Dx1o75XA.jpg": {
-    "mtime": 1782005936.6775522,
-    "ast_hash": "debb3f934af709b0ba187130c5de4c79",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/GUzVBWxXNljMWCti0LvDPUJSnIk.jpg": {
-    "mtime": 1782005937.229272,
-    "ast_hash": "9a9b4480fd834168913f8b1955ac0fb7",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/JhbGle453RWF0QjzZnSxbtxRBiA.jpg": {
-    "mtime": 1782005939.2232642,
-    "ast_hash": "3231ec491e93f646682130f75f32d8f4",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/M7FAmn8x7IGCydm6ZUq846Tnpo.png": {
-    "mtime": 1782005939.5181375,
-    "ast_hash": "b3ba120e63fbe9085c283e92e6e5fa63",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/RsPyuSLvyg4zw3fWzNy6K0KztU.png": {
-    "mtime": 1782005940.06309,
-    "ast_hash": "339a66703f4ecee4a7b5e991af2c220a",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/SMMW7xFlfWte74REkoubSqj9kE.jpg": {
-    "mtime": 1782005941.5305367,
-    "ast_hash": "c79fcb2581c66638904e3d605f7a46b5",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/XgatktswpE2ecfXHmrjx9olTVs.jpg": {
-    "mtime": 1782005941.9410949,
-    "ast_hash": "4152e82847aad5014b289d1f4cd68760",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/c4E4fn6DbjtveZkF9xQErzO6Q.jpg": {
-    "mtime": 1782005942.2301736,
-    "ast_hash": "97faa9900fd1858052d99a8917121b92",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/jAH64XwVGWQ3ZuRnjUS02NEe4.png": {
-    "mtime": 1782005942.9691312,
-    "ast_hash": "4840d86cc1043356c2b277adb130691f",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/oE9WNlKdxbfrKK0QylDx0GJ24.jpg": {
-    "mtime": 1782005944.6404333,
-    "ast_hash": "34829e049699207646719add3306be11",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/ppBbune3Nr7bABxbiVwi590y0Y.png": {
-    "mtime": 1782005945.1047697,
-    "ast_hash": "fbcc715bb0dcd5a5f70c97fe1944b1f8",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/twaJIH5bEhG7pbhxKK518cXjHEQ.jpg": {
-    "mtime": 1782005946.8186815,
-    "ast_hash": "294bcd2526ed239ba786bbcd7f518e98",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/wbOxBmg9AviIbYVOhIBXdkASvEk.jpg": {
-    "mtime": 1782005949.3758268,
-    "ast_hash": "1745761d38be489a7650941d2ff8ca1e",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/yC2S2Q7IpJCCGVZMDfLBX9hFI.jpg": {
-    "mtime": 1782005951.4629128,
-    "ast_hash": "ee3f69fe837897761d9852e765c1b74a",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/screenshot.png": {
-    "mtime": 1782005919.9502926,
-    "ast_hash": "37855ddcda45f0e63d0fd253b13d127f",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/ai-data-extraction.svg": {
-    "mtime": 1782005687.1563888,
-    "ast_hash": "e9a80ca08e2ccfddb7d1c9f987c01102",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/biometric-login.svg": {
-    "mtime": 1782005684.9947665,
-    "ast_hash": "66a47ba6363002ee0724f8d2993eecd1",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/budgeting.svg": {
-    "mtime": 1782005687.5526552,
-    "ast_hash": "8ce1c43e31fbed645f1b1af9719f216c",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/charts.svg": {
-    "mtime": 1782005684.4030702,
-    "ast_hash": "e563505ba53739c52f5f1818124cb21d",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/conference-call.svg": {
-    "mtime": 1782005687.8762941,
-    "ast_hash": "a42db8f109937faf9e3f6009a5bc7e83",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/content-team.svg": {
-    "mtime": 1782005686.0486574,
-    "ast_hash": "25c64f925a39966a3ad083438c40b9b2",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/goal.svg": {
-    "mtime": 1782005686.5029054,
-    "ast_hash": "32622d19927b88d8d801218afd202999",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/growth-analytics.svg": {
-    "mtime": 1782005684.7159305,
-    "ast_hash": "1da7b3179870312c307a24039c1dfaae",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/open-book.svg": {
-    "mtime": 1782005686.8427386,
-    "ast_hash": "d0d417fa66e67973676f85f8bb89f6ba",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/searching.svg": {
-    "mtime": 1782005685.3178551,
-    "ast_hash": "0552fdb53a4ae4e690b06c6886ebd3fd",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/select-character.svg": {
-    "mtime": 1782005688.1579762,
-    "ast_hash": "1efa8cd8b3f388db3487d890066f454f",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/branded/web-developer.svg": {
-    "mtime": 1782005685.6941664,
-    "ast_hash": "6b481466a498f641e2d04fafb0834704",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/ai-data-extraction.svg": {
-    "mtime": 1782005687.1392043,
-    "ast_hash": "c4ffd9058338ab7acf4662711059bfca",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/biometric-login.svg": {
-    "mtime": 1782005684.9771504,
-    "ast_hash": "226ac5485248fca5dfada4805e0518b5",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/budgeting.svg": {
-    "mtime": 1782005687.5311303,
-    "ast_hash": "53fd36026959d24b655c2a0719c13e83",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/charts.svg": {
-    "mtime": 1782005684.3863297,
-    "ast_hash": "444c2c0149f33cbe51e3fb984f90db57",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/conference-call.svg": {
-    "mtime": 1782005687.8458252,
-    "ast_hash": "e1c1a9ceb256b3feb10b0604d7630f0b",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/content-team.svg": {
-    "mtime": 1782005686.0293038,
-    "ast_hash": "79c8b3707913b3e9ec04c5f5f6d19796",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/goal.svg": {
-    "mtime": 1782005686.4801745,
-    "ast_hash": "85ba614b9387b23b44adab4d7f9aaceb",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/growth-analytics.svg": {
-    "mtime": 1782005684.6973283,
-    "ast_hash": "18a4d7448de478db216213c3641c6b44",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/open-book.svg": {
-    "mtime": 1782005686.8200562,
-    "ast_hash": "590c1b25b2aca39934c136a6f96790a4",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/searching.svg": {
-    "mtime": 1782005685.302523,
-    "ast_hash": "d4be472d310da725d4d443f21b951b08",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/select-character.svg": {
-    "mtime": 1782005688.1476269,
-    "ast_hash": "3109236c487339929096f14376ad69ce",
-    "semantic_hash": ""
-  },
-  "ui-assets/illustrations/original/web-developer.svg": {
-    "mtime": 1782005685.6818323,
-    "ast_hash": "e422316e71321ed215f13e0a86b243a1",
-    "semantic_hash": ""
-  },
-  "ui-assets/framer-hackathon/assets/5ej96lntDpUSuLwAAgu3BD2PKY.mp4": {
-    "mtime": 1782005928.542058,
-    "ast_hash": "991b364e4b9b6375312838aa15c11db9",
-    "semantic_hash": ""
-  },
-  "/Users/aritro/Downloads/tactus/cad/_puck_render.py": {
-    "mtime": 1781987727.0575452,
-    "ast_hash": "3618acfb8ea6270fe529ffc8e757457f",
-    "semantic_hash": "3618acfb8ea6270fe529ffc8e757457f"
-  },
-  "/Users/aritro/Downloads/tactus/cad/_verify_enclosure.py": {
-    "mtime": 1781988000.0889366,
-    "ast_hash": "630ab9c1c366573d50a5f6306f6bc91c",
-    "semantic_hash": "630ab9c1c366573d50a5f6306f6bc91c"
-  },
-  "/Users/aritro/Downloads/tactus/cad/tactus_enclosure.py": {
-    "mtime": 1781992103.3643928,
-    "ast_hash": "08a623ce9ed5cb429fb86861e959306e",
-    "semantic_hash": "08a623ce9ed5cb429fb86861e959306e"
-  },
-  "/Users/aritro/Downloads/tactus/config/channel_map.json": {
-    "mtime": 1781989170.0880167,
-    "ast_hash": "f1addecf6e803a8d17bd4d5d06a027a0",
-    "semantic_hash": "f1addecf6e803a8d17bd4d5d06a027a0"
-  },
-  "/Users/aritro/Downloads/tactus/software/ai/capture/record_conductor.py": {
-    "mtime": 1782008051.5324924,
-    "ast_hash": "65dedacae0b2a6284717da2786adc362",
-    "semantic_hash": "65dedacae0b2a6284717da2786adc362"
-  },
-  "/Users/aritro/Downloads/tactus/software/ai/capture/serve.py": {
-    "mtime": 1782008051.5326097,
-    "ast_hash": "77fec424ef36be45b968debcf9e9e451",
-    "semantic_hash": "77fec424ef36be45b968debcf9e9e451"
-  },
-  "/Users/aritro/Downloads/tactus/web/alphatab-loader.js": {
-    "mtime": 1782012223.3734686,
-    "ast_hash": "2fa48127b27b617f2471037dfbf865f3",
-    "semantic_hash": "2fa48127b27b617f2471037dfbf865f3"
-  },
-  "/Users/aritro/Downloads/tactus/web/aruco-poselock.js": {
-    "mtime": 1782012275.7956824,
-    "ast_hash": "502821c76baadc594fb82fc5e98c35a5",
-    "semantic_hash": "502821c76baadc594fb82fc5e98c35a5"
-  },
-  "/Users/aritro/Downloads/tactus/CHANGELOG.md": {
-    "mtime": 1782008051.5314145,
-    "ast_hash": "257b335c75668addb4a132c9823f7523",
-    "semantic_hash": "257b335c75668addb4a132c9823f7523"
-  },
-  "/Users/aritro/Downloads/tactus/README.md": {
-    "mtime": 1781994806.8037572,
-    "ast_hash": "e9c124bf8b4c1454cbdd8e3f1d2a69fe",
-    "semantic_hash": "e9c124bf8b4c1454cbdd8e3f1d2a69fe"
-  },
-  "/Users/aritro/Downloads/tactus/cad/README.md": {
-    "mtime": 1781992564.8727791,
-    "ast_hash": "f2ff340224806114a51c75d07a1e602a",
-    "semantic_hash": "f2ff340224806114a51c75d07a1e602a"
-  },
-  "/Users/aritro/Downloads/tactus/docs/00-start-here.md": {
-    "mtime": 1781994805.7513251,
-    "ast_hash": "087434f19bc12741924a16a2c42e553b",
-    "semantic_hash": "087434f19bc12741924a16a2c42e553b"
-  },
-  "/Users/aritro/Downloads/tactus/docs/01-bill-of-materials.md": {
-    "mtime": 1781994809.4246953,
-    "ast_hash": "0c0cb924f3520f201a2b945c0c2f6522",
-    "semantic_hash": "0c0cb924f3520f201a2b945c0c2f6522"
-  },
-  "/Users/aritro/Downloads/tactus/docs/02-system-architecture.md": {
-    "mtime": 1781994802.3641644,
-    "ast_hash": "a1ae7117843be3701ce784614d205c1f",
-    "semantic_hash": "a1ae7117843be3701ce784614d205c1f"
-  },
-  "/Users/aritro/Downloads/tactus/docs/03-power.md": {
-    "mtime": 1781987210.2260313,
-    "ast_hash": "1add5a8cfa7ffea7477127288eb03cea",
-    "semantic_hash": "1add5a8cfa7ffea7477127288eb03cea"
-  },
-  "/Users/aritro/Downloads/tactus/docs/04-soldering-guide.md": {
-    "mtime": 1781987210.2261703,
-    "ast_hash": "9289543c9ca3dab59309f353abf35fb4",
-    "semantic_hash": "9289543c9ca3dab59309f353abf35fb4"
-  },
-  "/Users/aritro/Downloads/tactus/docs/05-wiring-map.md": {
-    "mtime": 1781994790.3791935,
-    "ast_hash": "a504e93d4b79f22b9b7a81c360350590",
-    "semantic_hash": "a504e93d4b79f22b9b7a81c360350590"
-  },
-  "/Users/aritro/Downloads/tactus/docs/06-safety.md": {
-    "mtime": 1781987210.2265494,
-    "ast_hash": "e8a2c73b3e090196da68a26d6a5f703d",
-    "semantic_hash": "e8a2c73b3e090196da68a26d6a5f703d"
-  },
-  "/Users/aritro/Downloads/tactus/docs/07-haptic-encoding.md": {
-    "mtime": 1781994813.723643,
-    "ast_hash": "2a78f63d0f567a8edc817e79339a75d3",
-    "semantic_hash": "2a78f63d0f567a8edc817e79339a75d3"
-  },
-  "/Users/aritro/Downloads/tactus/docs/08-software-architecture.md": {
-    "mtime": 1781994807.538102,
-    "ast_hash": "241ce0ec334e3e55adeebc54c19f1736",
-    "semantic_hash": "241ce0ec334e3e55adeebc54c19f1736"
-  },
-  "/Users/aritro/Downloads/tactus/docs/09-assembly-checklist.md": {
-    "mtime": 1781994811.2850623,
-    "ast_hash": "b6a636df5d22c82203011d15d7627388",
-    "semantic_hash": "b6a636df5d22c82203011d15d7627388"
-  },
-  "/Users/aritro/Downloads/tactus/docs/10-design-decisions.md": {
-    "mtime": 1781994792.6339314,
-    "ast_hash": "8b55f8cb8f655fd6bdd6a9c491ecffe2",
-    "semantic_hash": "8b55f8cb8f655fd6bdd6a9c491ecffe2"
-  },
-  "/Users/aritro/Downloads/tactus/docs/11-ai-and-pitch.md": {
-    "mtime": 1781987210.22742,
-    "ast_hash": "eef35b350af6f06b6239c15060c2b3bf",
-    "semantic_hash": "eef35b350af6f06b6239c15060c2b3bf"
-  },
-  "/Users/aritro/Downloads/tactus/docs/12-perception-references.md": {
-    "mtime": 1781994790.4009147,
-    "ast_hash": "1d0db03f155bd67b2190837c22c1d41b",
-    "semantic_hash": "1d0db03f155bd67b2190837c22c1d41b"
-  },
-  "/Users/aritro/Downloads/tactus/docs/13-open-questions.md": {
-    "mtime": 1781987210.2276645,
-    "ast_hash": "e7a049842034a7cd599ae04429739ece",
-    "semantic_hash": "e7a049842034a7cd599ae04429739ece"
-  },
-  "/Users/aritro/Downloads/tactus/docs/13_LEARN_WEB_AND_VISUALIZATION.md": {
-    "mtime": 1781987210.2278173,
-    "ast_hash": "ec3db7836f6b7695c58366d4e266f035",
-    "semantic_hash": "ec3db7836f6b7695c58366d4e266f035"
-  },
-  "/Users/aritro/Downloads/tactus/docs/15-build-refinements.md": {
-    "mtime": 1781994794.276822,
-    "ast_hash": "48e6de4fc968df005b46a1c8a6d87b70",
-    "semantic_hash": "48e6de4fc968df005b46a1c8a6d87b70"
-  },
-  "/Users/aritro/Downloads/tactus/docs/17-ai-rigor.md": {
-    "mtime": 1781987210.228287,
-    "ast_hash": "1ab6ee286d7f2e828f8f5d23cb6416e3",
-    "semantic_hash": "1ab6ee286d7f2e828f8f5d23cb6416e3"
-  },
-  "/Users/aritro/Downloads/tactus/docs/18-tuning-and-calibration.md": {
-    "mtime": 1781994776.7031515,
-    "ast_hash": "255f66200f34adb9cf693c807b714b6f",
-    "semantic_hash": "255f66200f34adb9cf693c807b714b6f"
-  },
-  "/Users/aritro/Downloads/tactus/docs/19-sponsors-refined.md": {
-    "mtime": 1781987210.228706,
-    "ast_hash": "da59cc74c99925ae1b7dfb0dbd54abd6",
-    "semantic_hash": "da59cc74c99925ae1b7dfb0dbd54abd6"
-  },
-  "/Users/aritro/Downloads/tactus/docs/20-aiml-training-design.md": {
-    "mtime": 1781987210.2289686,
-    "ast_hash": "8de81e01de419b204be22bd861140266",
-    "semantic_hash": "8de81e01de419b204be22bd861140266"
-  },
-  "/Users/aritro/Downloads/tactus/docs/20-eng-review.md": {
-    "mtime": 1781987210.229099,
-    "ast_hash": "ce2dfa49d90b66a4f85c4a10a825032c",
-    "semantic_hash": "ce2dfa49d90b66a4f85c4a10a825032c"
-  },
-  "/Users/aritro/Downloads/tactus/docs/21-chord-and-sustain-rendering.md": {
-    "mtime": 1781994784.9257853,
-    "ast_hash": "e1f73d6a6f17e52ffdb74b8b328714fa",
-    "semantic_hash": "e1f73d6a6f17e52ffdb74b8b328714fa"
-  },
-  "/Users/aritro/Downloads/tactus/docs/22-interface-ar-and-correction.md": {
-    "mtime": 1781994812.6853971,
-    "ast_hash": "08f9baf67ce4feb86c74417303fc494d",
-    "semantic_hash": "08f9baf67ce4feb86c74417303fc494d"
-  },
-  "/Users/aritro/Downloads/tactus/docs/23-data-and-cluster-semantics.md": {
-    "mtime": 1782008051.531776,
-    "ast_hash": "a4d86252e5543231e3b1198acbe75b1b",
-    "semantic_hash": "a4d86252e5543231e3b1198acbe75b1b"
-  },
-  "/Users/aritro/Downloads/tactus/docs/24-data-collection-protocol.md": {
-    "mtime": 1782008051.531984,
-    "ast_hash": "bacbb75f984fcc4254f9648fd81a6c22",
-    "semantic_hash": "bacbb75f984fcc4254f9648fd81a6c22"
-  },
-  "/Users/aritro/Downloads/tactus/docs/REF_psychophysics_brief.md": {
-    "mtime": 1781987210.2300346,
-    "ast_hash": "0002f16715f2d74ab60bb620228ea4f5",
-    "semantic_hash": "0002f16715f2d74ab60bb620228ea4f5"
-  },
-  "/Users/aritro/Downloads/tactus/docs/REF_sponsors_brief.md": {
-    "mtime": 1781987210.2301698,
-    "ast_hash": "8c9009259363a6113baa185f5bfbe9f0",
-    "semantic_hash": "8c9009259363a6113baa185f5bfbe9f0"
-  },
-  "/Users/aritro/Downloads/tactus/software/README.md": {
-    "mtime": 1781932449.4110065,
-    "ast_hash": "29d72cda92ea438c9ee4d2269f81deb9",
-    "semantic_hash": "29d72cda92ea438c9ee4d2269f81deb9"
-  },
-  "/Users/aritro/Downloads/tactus/software/ai/capture/README.md": {
-    "mtime": 1782008051.5321891,
-    "ast_hash": "6057619248a8d3485f580afb3b97645f",
-    "semantic_hash": "6057619248a8d3485f580afb3b97645f"
-  },
-  "/Users/aritro/Downloads/tactus/software/ai/capture/capture.html": {
-    "mtime": 1782008051.5323493,
-    "ast_hash": "e766aa54006b8405c4def389e4f15765",
-    "semantic_hash": "e766aa54006b8405c4def389e4f15765"
-  },
-  "/Users/aritro/Downloads/tactus/software/requirements.txt": {
-    "mtime": 1781931371.4317226,
-    "ast_hash": "e87dd6818905718caf4a6c759c0df120",
-    "semantic_hash": "e87dd6818905718caf4a6c759c0df120"
-  },
-  "/Users/aritro/Downloads/tactus/truth.md": {
-    "mtime": 1782008051.5328305,
-    "ast_hash": "358a758d9bf44238360c4671c3400449",
-    "semantic_hash": "358a758d9bf44238360c4671c3400449"
-  },
-  "/Users/aritro/Downloads/tactus/web/ar.html": {
-    "mtime": 1782012113.1816092,
-    "ast_hash": "48b1fed9593a531bb59c0dcd509d7512",
-    "semantic_hash": "48b1fed9593a531bb59c0dcd509d7512"
-  },
-  "/Users/aritro/Downloads/tactus/web/beatsaber.html": {
-    "mtime": 1782011679.8456378,
-    "ast_hash": "28e7769c11806ce361bc98f59883e599",
-    "semantic_hash": "28e7769c11806ce361bc98f59883e599"
-  },
-  "/Users/aritro/Downloads/tactus/web/glow.html": {
-    "mtime": 1782013440.7391505,
-    "ast_hash": "f154132847823c53333e52725f66e91c",
-    "semantic_hash": "f154132847823c53333e52725f66e91c"
-  },
-  "/Users/aritro/Downloads/tactus/web/index.html": {
-    "mtime": 1781987210.230618,
-    "ast_hash": "15a9e5ecb41428eb6010225b74066e93",
-    "semantic_hash": "15a9e5ecb41428eb6010225b74066e93"
-  },
-  "/Users/aritro/Downloads/tactus/docs/REF_ml_brief.md": {
-    "mtime": 1781987210.2298915,
-    "ast_hash": "444f3171880b37bde0ce11b7e5fcb5ca",
-    "semantic_hash": "444f3171880b37bde0ce11b7e5fcb5ca"
-  },
-  "/Users/aritro/Downloads/tactus/cad/enclosure_preview.png": {
-    "mtime": 1781992121.3670287,
-    "ast_hash": "249fe825a5fc532bebb5e5c0583a6478",
-    "semantic_hash": "249fe825a5fc532bebb5e5c0583a6478"
-  },
-  "/Users/aritro/Downloads/tactus/cad/enclosure_render.png": {
-    "mtime": 1781993348.0100112,
-    "ast_hash": "a2e4f7653213d13e3e003ac6818a9cef",
-    "semantic_hash": "a2e4f7653213d13e3e003ac6818a9cef"
-  },
-  "/Users/aritro/Downloads/tactus/diagrams/body-map.svg": {
-    "mtime": 1781989282.1192079,
-    "ast_hash": "9403b9265624fab751451799ef96f804",
-    "semantic_hash": "9403b9265624fab751451799ef96f804"
-  },
-  "/Users/aritro/Downloads/tactus/diagrams/connections.svg": {
-    "mtime": 1781989043.2479315,
-    "ast_hash": "8a1da37f24cb3baa4db493c7b613c03c",
-    "semantic_hash": "8a1da37f24cb3baa4db493c7b613c03c"
-  },
-  "/Users/aritro/Downloads/tactus/diagrams/power-modes.svg": {
-    "mtime": 1781989043.2482626,
+  "diagrams/power-modes.svg": {
+    "mtime": 1782016106.5571008,
     "ast_hash": "731fea47a80190c6dbf6fd336b3c3461",
     "semantic_hash": "731fea47a80190c6dbf6fd336b3c3461"
   },
-  "/Users/aritro/Downloads/tactus/diagrams/system-flow.svg": {
-    "mtime": 1781989274.342954,
+  "diagrams/system-flow.svg": {
+    "mtime": 1782016106.5572677,
     "ast_hash": "8904d1291b5e826780eac9bbf46c41b5",
     "semantic_hash": "8904d1291b5e826780eac9bbf46c41b5"
+  },
+  "web/README.md": {
+    "mtime": 1782042122.914545,
+    "ast_hash": "6845da65d1b0b2e749820b0c89170f8e",
+    "semantic_hash": ""
+  },
+  "web/_prototypes/README.md": {
+    "mtime": 1782042131.8022835,
+    "ast_hash": "e4b962b73a80f2d2759a273ebd67d668",
+    "semantic_hash": ""
+  },
+  "web/_prototypes/ar.html": {
+    "mtime": 1782016137.0051556,
+    "ast_hash": "48b1fed9593a531bb59c0dcd509d7512",
+    "semantic_hash": ""
+  },
+  "web/_prototypes/beatsaber.html": {
+    "mtime": 1782016137.0054202,
+    "ast_hash": "28e7769c11806ce361bc98f59883e599",
+    "semantic_hash": ""
+  },
+  "web/_prototypes/learn-dashboard-mock.html": {
+    "mtime": 1782041028.0846004,
+    "ast_hash": "15a9e5ecb41428eb6010225b74066e93",
+    "semantic_hash": ""
+  },
+  "web/fretboard-autodetect.js": {
+    "mtime": 1782044798.1758509,
+    "ast_hash": "b41f06e9a6601545c3b48345d342c628",
+    "semantic_hash": ""
+  },
+  "web/_themes/atelier.html": {
+    "mtime": 1782042834.8181436,
+    "ast_hash": "eea30d23e9fe34cb17f63c0a371cf296",
+    "semantic_hash": ""
+  },
+  "web/_themes/blueprint.html": {
+    "mtime": 1782042881.9232523,
+    "ast_hash": "cf61c64d48e620a6f0142073dc1fcfa9",
+    "semantic_hash": ""
+  },
+  "web/_themes/index.html": {
+    "mtime": 1782043175.7452674,
+    "ast_hash": "5d6da69938ef3a91746b21d82b474abd",
+    "semantic_hash": ""
+  },
+  "web/_themes/neon-noir.html": {
+    "mtime": 1782042902.5924683,
+    "ast_hash": "2eee0e17701e9ebbb3b3c270e0f420ef",
+    "semantic_hash": ""
+  },
+  "web/_themes/sherbet.html": {
+    "mtime": 1782042896.0402792,
+    "ast_hash": "891d42f4b7508fe1814bcbdef3dd5720",
+    "semantic_hash": ""
   }
 }

@@ -1,335 +1,511 @@
-# Graph Report - .  (2026-06-20)
+# Graph Report - tactus  (2026-06-21)
 
 ## Corpus Check
-- 13 files · ~59,915 words
+- 68 files · ~105,469 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 690 nodes · 860 edges · 59 communities (53 shown, 6 thin omitted)
-- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 84 edges (avg confidence: 0.85)
-- Token cost: 110,000 input · 12,299 output
+- 1060 nodes · 1481 edges · 93 communities (90 shown, 3 thin omitted)
+- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 82 edges (avg confidence: 0.83)
+- Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `01b1d406`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Hardware BOM & Architecture|Hardware BOM & Architecture]]
-- [[_COMMUNITY_AI Rigor & Fusion Core|AI Rigor & Fusion Core]]
-- [[_COMMUNITY_CAD Enclosure (brain-pack)|CAD Enclosure (brain-pack)]]
-- [[_COMMUNITY_LLM Coach & Learning Loop|LLM Coach & Learning Loop]]
-- [[_COMMUNITY_HapticAudio Research Briefs|Haptic/Audio Research Briefs]]
-- [[_COMMUNITY_Software Modules & Deps|Software Modules & Deps]]
-- [[_COMMUNITY_Actuator Puck CAD|Actuator Puck CAD]]
-- [[_COMMUNITY_Build Refinements & Gotchas|Build Refinements & Gotchas]]
-- [[_COMMUNITY_As-Built Rig & AR Prototypes|As-Built Rig & AR Prototypes]]
-- [[_COMMUNITY_12-Channel Map (strings+zones)|12-Channel Map (strings+zones)]]
-- [[_COMMUNITY_AIML Training Design|AIML Training Design]]
-- [[_COMMUNITY_Enclosure CAD Renders|Enclosure CAD Renders]]
-- [[_COMMUNITY_Chest Plate & Socket CAD|Chest Plate & Socket CAD]]
-- [[_COMMUNITY_ChordSustain Rendering|Chord/Sustain Rendering]]
-- [[_COMMUNITY_Capture App & Protocol|Capture App & Protocol]]
-- [[_COMMUNITY_Design Decisions (rejected)|Design Decisions (rejected)]]
-- [[_COMMUNITY_LEARN Loop Components|LEARN Loop Components]]
-- [[_COMMUNITY_AIML Eng Review|AIML Eng Review]]
-- [[_COMMUNITY_Chord Rendering Spec|Chord Rendering Spec]]
-- [[_COMMUNITY_Capture Save Server|Capture Save Server]]
-- [[_COMMUNITY_Build Refinements (channels)|Build Refinements (channels)]]
-- [[_COMMUNITY_BOM Accounting|BOM Accounting]]
-- [[_COMMUNITY_Assembly Checklist Stages|Assembly Checklist Stages]]
-- [[_COMMUNITY_Power Architecture & Safety|Power Architecture & Safety]]
-- [[_COMMUNITY_Tuning & Calibration Experiments|Tuning & Calibration Experiments]]
-- [[_COMMUNITY_Interface AR Play + Correction|Interface: AR Play + Correction]]
-- [[_COMMUNITY_Capture Recording Functions|Capture Recording Functions]]
-- [[_COMMUNITY_Haptic Encoding Design|Haptic Encoding Design]]
-- [[_COMMUNITY_Vibrotactile Perception Refs|Vibrotactile Perception Refs]]
-- [[_COMMUNITY_SK473KHD Tuning|SK473/KHD Tuning]]
-- [[_COMMUNITY_AI Pitch & Scoping|AI Pitch & Scoping]]
-- [[_COMMUNITY_Open Questions  To-Do|Open Questions / To-Do]]
-- [[_COMMUNITY_Wiring Connectors (forbidden)|Wiring Connectors (forbidden)]]
-- [[_COMMUNITY_System Block Diagram|System Block Diagram]]
-- [[_COMMUNITY_Cluster to Advice Semantics|Cluster to Advice Semantics]]
-- [[_COMMUNITY_Safety & Wire Weight|Safety & Wire Weight]]
-- [[_COMMUNITY_Software Pipeline Overview|Software Pipeline Overview]]
-- [[_COMMUNITY_Assembly Bring-up Gates|Assembly Bring-up Gates]]
-- [[_COMMUNITY_Perception to Design Mapping|Perception to Design Mapping]]
-- [[_COMMUNITY_ArUco Pose-Lock JS|ArUco Pose-Lock JS]]
-- [[_COMMUNITY_Mode A Wall Power|Mode A Wall Power]]
-- [[_COMMUNITY_Mode B Cordless Power|Mode B Cordless Power]]
-- [[_COMMUNITY_Feature Vector & Separability|Feature Vector & Separability]]
-- [[_COMMUNITY_Two-Stage Perception Model|Two-Stage Perception Model]]
-- [[_COMMUNITY_System Architecture Chain|System Architecture Chain]]
-- [[_COMMUNITY_Soldering Guide|Soldering Guide]]
-- [[_COMMUNITY_Psychophysics Brief|Psychophysics Brief]]
-- [[_COMMUNITY_Record Conductor (fallback)|Record Conductor (fallback)]]
-- [[_COMMUNITY_Wiring Map (channel)|Wiring Map (channel)]]
-- [[_COMMUNITY_Project Pivot & Scope|Project Pivot & Scope]]
-- [[_COMMUNITY_Capture Run Planner|Capture Run Planner]]
-- [[_COMMUNITY_Docs Map  Overview|Docs Map / Overview]]
-- [[_COMMUNITY_alphaTab Loader JS|alphaTab Loader JS]]
-- [[_COMMUNITY_Power Cradle CAD|Power Cradle CAD]]
-- [[_COMMUNITY_Laptop to Vantec USB|Laptop to Vantec USB]]
-- [[_COMMUNITY_Haptic-Score Removal|Haptic-Score Removal]]
-- [[_COMMUNITY_Coupling & Amp Rules|Coupling & Amp Rules]]
-- [[_COMMUNITY_Data Volume Target|Data Volume Target]]
+- [[_COMMUNITY_AI Audit Report Generator|AI Audit Report Generator]]
+- [[_COMMUNITY_SpeakerActuator Check Harness|Speaker/Actuator Check Harness]]
+- [[_COMMUNITY_Fretboard Vision Registration|Fretboard Vision Registration]]
+- [[_COMMUNITY_Audio Feature Extraction|Audio Feature Extraction]]
+- [[_COMMUNITY_AI Rigor & Perception Docs|AI Rigor & Perception Docs]]
+- [[_COMMUNITY_Rendering & Sponsor Briefs|Rendering & Sponsor Briefs]]
+- [[_COMMUNITY_Feature Collapse  Fisher Analysis|Feature Collapse / Fisher Analysis]]
+- [[_COMMUNITY_Event Segmentation|Event Segmentation]]
+- [[_COMMUNITY_Vision Feature Extraction|Vision Feature Extraction]]
+- [[_COMMUNITY_Channel Map & Body Diagrams|Channel Map & Body Diagrams]]
+- [[_COMMUNITY_Enclosure CAD Model|Enclosure CAD Model]]
+- [[_COMMUNITY_Learn Loop & Correction Engine|Learn Loop & Correction Engine]]
+- [[_COMMUNITY_Data & Feature Contracts|Data & Feature Contracts]]
+- [[_COMMUNITY_Pipeline Schema Helpers|Pipeline Schema Helpers]]
+- [[_COMMUNITY_AR Play & Calibration UI|AR Play & Calibration UI]]
+- [[_COMMUNITY_Actuator Hardware & Coupling|Actuator Hardware & Coupling]]
+- [[_COMMUNITY_Channel Map Config|Channel Map Config]]
+- [[_COMMUNITY_AmpBOM & Safety Hardware|Amp/BOM & Safety Hardware]]
+- [[_COMMUNITY_Buzz-Inverse & Experiment Plan|Buzz-Inverse & Experiment Plan]]
+- [[_COMMUNITY_Enclosure Render (Preview)|Enclosure Render (Preview)]]
+- [[_COMMUNITY_Brain-Pack Enclosure Print|Brain-Pack Enclosure Print]]
+- [[_COMMUNITY_Capture HTTP Server|Capture HTTP Server]]
+- [[_COMMUNITY_Capture Web App|Capture Web App]]
+- [[_COMMUNITY_Puck Coupler CAD|Puck Coupler CAD]]
+- [[_COMMUNITY_Training Design & Semantics|Training Design & Semantics]]
+- [[_COMMUNITY_MLDSP Methods Brief|ML/DSP Methods Brief]]
+- [[_COMMUNITY_Canonical Docs (truth.md)|Canonical Docs (truth.md)]]
+- [[_COMMUNITY_Power Budget & Modes|Power Budget & Modes]]
+- [[_COMMUNITY_Calibration HTTP Server|Calibration HTTP Server]]
+- [[_COMMUNITY_Data Collection Protocol|Data Collection Protocol]]
+- [[_COMMUNITY_Project History & Haptic Render|Project History & Haptic Render]]
+- [[_COMMUNITY_Engine Pipeline (Fusion)|Engine Pipeline (Fusion)]]
+- [[_COMMUNITY_Demo Data Generator|Demo Data Generator]]
+- [[_COMMUNITY_ArUco Pose-Lock Filter|ArUco Pose-Lock Filter]]
+- [[_COMMUNITY_Separability & Cluster Viz|Separability & Cluster Viz]]
+- [[_COMMUNITY_Audit Tests|Audit Tests]]
+- [[_COMMUNITY_Audio Feature Tests|Audio Feature Tests]]
+- [[_COMMUNITY_Vision Feature Tests|Vision Feature Tests]]
+- [[_COMMUNITY_Segmentation Tests|Segmentation Tests]]
+- [[_COMMUNITY_AR Prototypes (Beat-Saber)|AR Prototypes (Beat-Saber)]]
+- [[_COMMUNITY_Correction Interface & Posterior|Correction Interface & Posterior]]
+- [[_COMMUNITY_Pipeline Runner|Pipeline Runner]]
+- [[_COMMUNITY_Collapse Tests|Collapse Tests]]
+- [[_COMMUNITY_End-to-End Pipeline Test|End-to-End Pipeline Test]]
+- [[_COMMUNITY_Record Conductor CLI|Record Conductor CLI]]
+- [[_COMMUNITY_AlphaTab Chart Loader|AlphaTab Chart Loader]]
+- [[_COMMUNITY_ArUco Marker Asset|ArUco Marker Asset]]
+- [[_COMMUNITY_Channel-Count Drift Note|Channel-Count Drift Note]]
+- [[_COMMUNITY_Community 51|Community 51]]
+- [[_COMMUNITY_Community 52|Community 52]]
+- [[_COMMUNITY_Community 53|Community 53]]
+- [[_COMMUNITY_Community 54|Community 54]]
+- [[_COMMUNITY_Community 55|Community 55]]
+- [[_COMMUNITY_Community 56|Community 56]]
+- [[_COMMUNITY_Community 57|Community 57]]
+- [[_COMMUNITY_Community 58|Community 58]]
+- [[_COMMUNITY_Community 59|Community 59]]
+- [[_COMMUNITY_Community 60|Community 60]]
+- [[_COMMUNITY_Community 61|Community 61]]
+- [[_COMMUNITY_Community 62|Community 62]]
+- [[_COMMUNITY_Community 63|Community 63]]
+- [[_COMMUNITY_Community 64|Community 64]]
+- [[_COMMUNITY_Community 65|Community 65]]
+- [[_COMMUNITY_Community 66|Community 66]]
+- [[_COMMUNITY_Community 67|Community 67]]
+- [[_COMMUNITY_Community 68|Community 68]]
+- [[_COMMUNITY_Community 69|Community 69]]
+- [[_COMMUNITY_Community 70|Community 70]]
+- [[_COMMUNITY_Community 71|Community 71]]
+- [[_COMMUNITY_Community 72|Community 72]]
+- [[_COMMUNITY_Community 73|Community 73]]
+- [[_COMMUNITY_Community 74|Community 74]]
+- [[_COMMUNITY_Community 75|Community 75]]
+- [[_COMMUNITY_Community 76|Community 76]]
+- [[_COMMUNITY_Community 77|Community 77]]
+- [[_COMMUNITY_Community 78|Community 78]]
+- [[_COMMUNITY_Community 79|Community 79]]
+- [[_COMMUNITY_Community 80|Community 80]]
+- [[_COMMUNITY_Community 81|Community 81]]
+- [[_COMMUNITY_Community 82|Community 82]]
+- [[_COMMUNITY_Community 83|Community 83]]
+- [[_COMMUNITY_Community 84|Community 84]]
+- [[_COMMUNITY_Community 86|Community 86]]
+- [[_COMMUNITY_Community 87|Community 87]]
+- [[_COMMUNITY_Community 88|Community 88]]
+- [[_COMMUNITY_Community 89|Community 89]]
+- [[_COMMUNITY_Community 90|Community 90]]
+- [[_COMMUNITY_Community 91|Community 91]]
+- [[_COMMUNITY_Community 92|Community 92]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `Design Decisions (Why, and What We Rejected)` - 15 edges
-2. `15 — Build refinements + the kinks that will bite (read before Saturday)` - 14 edges
-3. `Data collection & labeling protocol` - 14 edges
-4. `20 — AIML training design: multimodal guitar-technique coaching (comprehensive spec)` - 13 edges
-5. `base() — enclosure base shell + mounts + vents` - 13 edges
-6. `21 — Chord, sustain & percussive rendering (extends docs/07)` - 11 edges
-7. `Vibrotactile Music Perception Research Brief` - 11 edges
-8. `Assembly checklist + bring-up` - 10 edges
-9. `KHD 3 Ohm / 5 W driver (the actuator, de-housed from SK473)` - 10 edges
-10. `ai/ Module (transcription, vision, fusion, LLM coach)` - 10 edges
+1. `truth.md — Tactus single source of truth` - 20 edges
+2. `Data Collection & Labeling Protocol` - 16 edges
+3. `run()` - 14 edges
+4. `main()` - 14 edges
+5. `15 — Build refinements + the kinks that will bite (read before Saturday)` - 14 edges
+6. `24 — Data collection & labeling protocol (execute this to feed the AIML pipeline)` - 14 edges
+7. `20 — AIML training design: multimodal guitar-technique coaching (comprehensive spec)` - 13 edges
+8. `_section_separability()` - 12 edges
+9. `_extract_one()` - 12 edges
+10. `Changelog — Tactus` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `MockEngine (WebSocket message emitter)` --semantically_similar_to--> `LLM Coach Loop`  [INFERRED] [semantically similar]
-  web/index.html → software/README.md
-- `glow draggable 4-corner neck calibration grid` --semantically_similar_to--> `Align mode (ArUco pose gate for train=serve)`  [INFERRED] [semantically similar]
-  web/glow.html → docs/24-data-collection-protocol.md
-- `Pivot: Hearth to Tactus` --rationale_for--> `Tactus direction & goal (Deaf-accessible guitar coaching)`  [INFERRED]
-  CHANGELOG.md → truth.md
-- `Scope lock: LEARN + PLAY guitar coaching` --conceptually_related_to--> `Tactus direction & goal (Deaf-accessible guitar coaching)`  [INFERRED]
-  CHANGELOG.md → truth.md
-- `Vision branch (MediaPipe hand pose + ArUco fretboard homography)` --conceptually_related_to--> `LEARN mode (Rocksmith for Deaf players)`  [INFERRED]
-  docs/08-software-architecture.md → README.md
+- `Laptop AI Brain (transcribe/fuse/coach/AR)` --conceptually_related_to--> `Bayesian Position Posterior with theory prior`  [INFERRED]
+  diagrams/system-flow.svg → docs/20-aiml-training-design.md
+- `Component A — Haptic Reference (what it should feel like)` --semantically_similar_to--> `Train/serve match (same mic + camera for training and inference)`  [INFERRED] [semantically similar]
+  docs/13_LEARN_WEB_AND_VISUALIZATION.md → truth.md
+- `Live AR Play View (Beat-Saber depth-approach)` --semantically_similar_to--> `Live Fret-Glow Annotation (glow.html)`  [INFERRED] [semantically similar]
+  docs/22-interface-ar-and-correction.md → web/glow.html
+- `Scope Lock — Frets 1-6 only (6 fret-zone motors, 1:1)` --rationale_for--> `6 Fret-Zone Channels on Torso (ch 7-12)`  [INFERRED]
+  docs/24-data-collection-protocol.md → diagrams/body-map.svg
+- `Bring-up Order (Vantec → speaker-test → haptic → ai)` --conceptually_related_to--> `Vantec → SK473 → 12 Drivers Chain`  [INFERRED]
+  software/README.md → diagrams/system-flow.svg
 
 ## Import Cycles
 - None detected.
 
 ## Hyperedges (group relationships)
 - **AR guitar-coaching interface prototypes** — web_ar_chord_field_ar, web_beatsaber_beat_saber_highway, web_glow_fret_glow_annotation [INFERRED 0.85]
-- **Cluster-to-advice epistemic guardrails** — doc23_prompt_is_label, doc23_lda_supervised_backbone, doc23_causal_clean_fault_pair, doc23_held_out_validation, doc23_promotion_gate [EXTRACTED 0.85]
-- **Capture record-to-save flow** — capture_capture_startrec, capture_capture_stoprec, capture_capture_buildrow, capture_capture_commit, capture_serve_save_server [INFERRED 0.85]
+- **Cross-modal fusion perception (audio + vision -> position + quality)** — docs_08_audio_branch, docs_08_vision_branch, docs_08_fusion, truth_aiml_perception_model, docs_17_disagreement_as_signal [EXTRACTED 0.90]
+- **As-built audio-out chain (laptop -> Vantec -> SK473 -> KHD)** — truth_macbook_m4_pro, truth_vantec_nba200u, truth_sk473_pam8403, truth_khd_driver [EXTRACTED 0.95]
+- **LEARN closed loop (feel target -> haptic reference + VLM + correction engine)** — docs_13_learning_loop, docs_13_haptic_reference, docs_13_feel_the_difference, docs_13_vlm_coach, docs_13_physical_correction_engine [EXTRACTED 0.90]
+- **Offline Separability Pipeline (capture→sync→segment→features→LDA→d')** — 24_data_collection_protocol_collection_protocol, 25_data_and_feature_format_processing_contract, 26_aiden_handoff_offline_pipeline_stages, 25_data_and_feature_format_av_sync_recovery, 25_data_and_feature_format_mahalanobis_dprime [EXTRACTED 0.85]
+- **Buzz-Inverse Identifiability (B from P,d with pluck proxy)** — 20_aiml_training_design_buzz_inverse, 20_aiml_training_design_fingertip_wire_distance, 20_eng_review_pluck_proxy, 20_eng_review_two_class_pressure [EXTRACTED 0.85]
+- **As-Built 12-Channel Render Chain (laptop→Vantec→SK473→drivers→body)** — diagrams_system_flow_render_chain, diagrams_system_flow_vantec_sk473_drivers, diagrams_body_map_body_map, diagrams_power_modes_power_modes, diagrams_connections_connections [INFERRED 0.85]
 
-## Communities (59 total, 6 thin omitted)
+## Communities (93 total, 3 thin omitted)
 
-### Community 0 - "Hardware BOM & Architecture"
-Cohesion: 0.07
-Nodes (44): Build-tonight TL;DR, Pick your lane, Start here (teammates), Status, What tactus is (30 seconds), AudioVox 18 AWG speaker wire (the only body wire), LEO SALES 40mm speakers (spare actuators), Raspberry Pi 5 (owned, cut from critical path) (+36 more)
-
-### Community 1 - "AI Rigor & Fusion Core"
-Cohesion: 0.05
-Nodes (40): Buzz Inverse (Pressure from Sound), Localhost WebSocket JSON Contract (the Seam), 0. The thesis — AI where it's *unsolved*, determinism where it's *solved*, 17 — The AI core: audio + vision → high-granularity (string, fret, finger, quality) → targeted feedback, 1. High-granularity POSITION — why fusion beats either modality alone, 1a. Audio branch (what + how-clean), 1b. Vision branch (where + which finger) — runs in the **browser**, 1c. Fusion (the part that's a real contribution, not a wrapper) (+32 more)
-
-### Community 2 - "CAD Enclosure (brain-pack)"
+### Community 0 - "AI Audit Report Generator"
 Cohesion: 0.08
-Nodes (39): SK473 amp+driver units mount on the VEST (decision), FlashForge Adventurer 5M (220x220x220 bed), Headless manifold3d render pipeline (no OpenSCAD on arm64), tactus_box (superseded split enclosure), tactus_enclosure (base+lid, one print), tactus_enclosure_plate.stl (175x202 one-print bed), tactus_power_cradle (vented sled), tactus_box.scad — main electronics enclosure (brain-pack) (+31 more)
+Nodes (57): _amber_ramp(), _assemble_html(), _build_recommendations(), _card(), _coerce_float(), _confusion_from_block(), _confusion_png(), _coverage_counts() (+49 more)
 
-### Community 3 - "LLM Coach & Learning Loop"
-Cohesion: 0.06
-Nodes (33): LLM Coach (Anthropic, Phrase-Level), Redis Coach Memory (Mistake History, Vector Search), Anti-Slop Rule (No Pixel Without Real Data), Feel-the-Difference Replay (Your Version vs Correct), Component A — Haptic Reference (Ground Truth), Camera-Centric Interface (Every Pixel Real), The Learning Loop (Feel Target, Play, Correct), Offline Local Redis Memory (Practice Anywhere) (+25 more)
+### Community 1 - "Speaker/Actuator Check Harness"
+Cohesion: 0.11
+Nodes (37): getkey(), main(), make_glide(), Read ONE keypress, no Enter required, returned lowercased.      Enter comes back, A linear-frequency chirp f0 -> f1 over `dur` s. Driving through the band     mak, ask(), channel_label(), diagnose() (+29 more)
 
-### Community 4 - "Haptic/Audio Research Briefs"
-Cohesion: 0.07
-Nodes (30): AI Where Unsolved, Deterministic Where Solved, Deterministic Renderer (Encoder + Pulse Synth), Audio Branch (pYIN/YIN live, CREPE/basic-pitch offline), Demo-Floor Insurance (Deterministic Path, Zero ML), Audio to Haptic ML/DSP Research Brief, Haptic-Score Idea Cut (Direct Signal to Vibration Now), Information Transfer Evaluation (IT bits, d-prime), Learned Model Prior Art (HapticGen, HapticLDM, Sound2Hap) (+22 more)
-
-### Community 5 - "Software Modules & Deps"
-Cohesion: 0.08
-Nodes (30): ai/ Module (transcription, vision, fusion, LLM coach), ALSA Multichannel Write (3 Vantec / 8ch), Bring-up order, LLM Coach Loop, haptic/ Module (encoder, synth, alsa_out), Honest-Scoping Rules (coarse placement, no pressure sensor), Install, software (+22 more)
-
-### Community 6 - "Actuator Puck CAD"
-Cohesion: 0.09
-Nodes (27): actuator_puck.scad — Ø52 driver coupling puck (cup + button), button() — domed contact button bonded to the dust cap, cup() — rigid coupling cup that grips the Ø52 driver frame, box(), button(), cup(), cyly(), cylz() (+19 more)
-
-### Community 7 - "Build Refinements & Gotchas"
+### Community 2 - "Fretboard Vision Registration"
 Cohesion: 0.10
-Nodes (19): 0. The 60-second mental model of the whole rig, 10. Laptop connection + power — exactly what plugs into what, 11. SK473 reality (live teardown, Jun 20): it's 6 stereo PAIRS = **12 channels**, and the amp *is* separable, 12. UPDATE (Jun 20 teardown): use the SK473's OWN drivers (KHD 3 Ω/5 W), and the ≤2-at-once power win, 15 — Build refinements + the kinks that will bite (read before Saturday), 1. ⚠️ THE BIG ONE — PAM8403 is a BTL amp: never common the "−" outputs, 2. ⚠️ The Vantec/ALSA enumeration trap (this eats Saturday if you don't pre-empt it), 3. Wire gauge — you only have 18 AWG, so the build has to respect it (+11 more)
+Nodes (35): board_grid(), aggregate_frames(), autodetect(), detect_frets(), detect_neck_edges(), fit_law(), _gray(), overlay() (+27 more)
 
-### Community 8 - "As-Built Rig & AR Prototypes"
-Cohesion: 0.18
-Nodes (17): Align mode (ArUco pose gate for train=serve), As-built rig (laptop to Vantec to PAM8403 to KHD), ALSA CM6206 enumeration trap (bind by-id), 12-channel map (6 back strings + 6 torso fret-zones), Scope lock: frets 1-6 only, 1:1 fret to zone, Localhost WebSocket browser-Python sync, MacBook front camera (train/serve match), Locked software architecture (browser vision + Python audio) (+9 more)
+### Community 3 - "Audio Feature Extraction"
+Cohesion: 0.09
+Nodes (30): _chroma(), _extract_one(), _f0_features(), _flux(), _hnr(), _inharmonicity(), main(), _mfcc() (+22 more)
 
-### Community 9 - "12-Channel Map (strings+zones)"
+### Community 4 - "AI Rigor & Perception Docs"
+Cohesion: 0.19
+Nodes (14): Funneling separation rule (separate simultaneous cues), docs/07-haptic-encoding.md (note -> actuator encoding), Location+timing pitch code (not vibration frequency), Pulse shape (160 Hz, 50 ms, 3 intensity levels), Amp choice: gut SK473/PAM8403 (reject car amp/DigiAMP+/MAX98357A), docs/10-design-decisions.md (why, and what was rejected), Model Human Cochlea precedent (frequency bands across torso), Neosensory Buzz precedent (Eagleman, 4 wrist actuators) (+6 more)
+
+### Community 5 - "Rendering & Sponsor Briefs"
+Cohesion: 0.09
+Nodes (24): Accessibility / Ddoski's World (sensory substitution), One Coherent Sponsor Story (critical-path pipeline), QNX Dropped (Pi cut), Sponsor & Prize Alignment (as-built rig), Anthropic Prize — Claude vision as coaching brain, Most Technical — fusion + buzz inverse + separability, Chord, Sustain & Percussive Rendering, Sustain = Envelope-Modulated Looped Shimmer (re-trigger) (+16 more)
+
+### Community 6 - "Feature Collapse / Fisher Analysis"
+Cohesion: 0.16
+Nodes (20): _dprime(), _f(), _fisher_per_axis(), _fit_fold(), _jsonify(), _kfold_folds(), _lopo_folds(), main() (+12 more)
+
+### Community 7 - "Event Segmentation"
+Cohesion: 0.16
+Nodes (20): _as_int(), _detect_onsets(), _empty_frame(), _events_for_row(), _f0_median_hz(), _get(), _load_audio(), main() (+12 more)
+
+### Community 8 - "Vision Feature Extraction"
+Cohesion: 0.15
+Nodes (19): _angle_at(), _default_provider(), _event_features(), _load_active_keyframe(), main(), _nearest_fret(), _pose_angles(), Board Y (0..1, 0 = low-E) -> string name 6..1 (low-E=6 .. high-e=1).     schema. (+11 more)
+
+### Community 9 - "Channel Map & Body Diagrams"
 Cohesion: 0.13
-Nodes (15): Back ch5 — A string site, Back ch2 — B string site, Back ch4 — D string site, Back ch3 — G string site, Back ch1 — high E string site, Back ch6 — low E string site, BACK — 6 strings (ch 1–6), config/channel_map.json (source of truth) (+7 more)
+Nodes (20): Scope Lock — Frets 1-6 only (6 fret-zone motors, 1:1), Body Map Diagram (12 channels), 6 Fret-Zone Channels on Torso (ch 7-12), 6 String Channels on Back (ch 1-6), Connections Diagram (no soldering), NEVER Connect rules (safety), Mode A — Wall (10-port powered hub), Mode B — Cordless (Anker 737 battery) (+12 more)
 
-### Community 10 - "AIML Training Design"
+### Community 10 - "Enclosure CAD Model"
+Cohesion: 0.25
+Nodes (17): box_at(), build_base(), build_lid(), cleanup(), cyl(), D(), main(), make_text() (+9 more)
+
+### Community 11 - "Learn Loop & Correction Engine"
+Cohesion: 0.22
+Nodes (9): The learning loop (feel target -> play -> rewind -> fix), WebSocket JSON contract (frame/error-event/reference schema), Honesty discipline (new sensory channel, ordinal pressure), LEARN mode (coach a target song), Localhost WebSocket (browser<->Python sync), Locked software architecture (browser vision + Python audio over WebSocket), PLAY mode (real-time tuning feedback), Tactus (Deaf-accessible guitar-coaching wearable) (+1 more)
+
+### Community 12 - "Data & Feature Contracts"
+Cohesion: 0.24
+Nodes (10): Contrastive Multimodal Embedding (cut-first stretch), Prompted, Dual-Witnessed Labeling (prompt is the label), Separability Study (LDA/PCA, Fisher ratio, d'), AIML Training Design (multimodal coaching spec), Leave-One-Player-Out Cross-Validation, The Run is the Correlated CV Unit (grouped CV), Data Handoff for Offline Pipeline (Aiden), Iron Rules (violating invalidates the result) (+2 more)
+
+### Community 13 - "Pipeline Schema Helpers"
 Cohesion: 0.13
-Nodes (14): 0. The eight locked decisions, 10. Open questions for ENG review, 11. Award alignment (why this wins, `docs/19`), 1. The data pipeline (capture + labeling), 20 — AIML training design: multimodal guitar-technique coaching (comprehensive spec), 2. The vision stack (D3) — seeing through the hand, 3. The audio stack + the buzz inverse (D4→D6), 4. The fusion model (D8) — one Bayesian framework (+6 more)
+Nodes (14): abspath(), f0_to_string_fret(), hz_to_midi(), iter_session_player(), on_path(), out_dir(), Yield (session_id, player_id, dir) for every <session>/<player> under `base`., data/analysis/<session>/<player>/, created if missing. (+6 more)
 
-### Community 11 - "Enclosure CAD Renders"
-Cohesion: 0.18
-Nodes (14): Enclosure base box (open top, blue CAD preview), Corner screw bosses on base, Enclosure lid, interior view (blue CAD preview), Triangulated rib / support structure on lid underside, Corner screw holes on lid, Internal partitions / component mounting structure, Rectangular port window cutout in base side wall, Row of circular wire/vent holes (Ø16 mm, USB-A pass-through) (+6 more)
+### Community 14 - "AR Play & Calibration UI"
+Cohesion: 0.19
+Nodes (13): Live AR Play View (Beat-Saber depth-approach), ArUco Pose-Lock Registration (web/aruco-poselock.js), Virtual Neck Fallback (demo insurance), Align Mode (train≈serve by construction), Guitar Digital-Twin Calibrate UI (calibrate.html), 12-TET Fret-Law Grid (fretFrac 2^-n/12), 4-Point Homography DLT solver (solveH/gauss/proj), Pose Plan (6 keyframes per guitar) (+5 more)
 
-### Community 12 - "Chest Plate & Socket CAD"
-Cohesion: 0.26
-Nodes (14): tactus_chest_plate.scad — body-contoured plate holding 6 string drivers, bore_at(z) — through-hole so the cone/button reaches skin, shell() — curved torso-cylinder shell panel between z_lo..z_hi, socket_at(z) — places a driver_socket on the inner face at height z, strap_slots(z_lo, z_hi) — edge slots to lash onto the laser-tag vest, tile(z_lo, z_hi) — one print tile (shell + sockets - bores - slots), tile_abs(z_lo, z_hi) — print tile built at absolute z coordinates, tactus_node_mount.scad — per-node split-clamp + telescoping driver mount (+6 more)
+### Community 15 - "Actuator Hardware & Coupling"
+Cohesion: 0.21
+Nodes (13): docs/00-start-here.md (on-ramp + build TL;DR), docs/01-bill-of-materials.md (as-purchased BOM), docs/02-system-architecture.md (sense->understand->render chain), docs/13-open-questions.md (unconfirmed/unbought items), ALSA enumeration trap (CM6206 cards reorder), As-built rig (laptop -> 2x Vantec -> 6x SK473 -> 12x KHD drivers), BTL isolation rule (every actuator gets own 2-wire pair), 12-channel map (6 back strings + 6 torso fret-zones) (+5 more)
 
-### Community 13 - "Chord/Sustain Rendering"
-Cohesion: 0.18
-Nodes (13): Chord onset encodes how it was struck (strum sweep / pluck bloom / arpeggio), Chord, Sustain & Percussive Rendering, Fret-zones carry chord SHAPE (pulsed in sync) + root emphasis, GSTACK eng-review report (PAUSED; B1-B7 open, 3 critical silent-failure gates), Percussive & muted hits (sharp pop across motors; muted strings don't fire), Renderer input: per-string (onset, pitch->string/fret, envelope, decay) stream, Sustain = envelope-modulated looped shimmer (LOCKED), One phase-locked signal coherence (screen + body + sound from one stream) (+5 more)
+### Community 16 - "Channel Map Config"
+Cohesion: 0.15
+Nodes (12): channels, _comment, intensity_levels, pulse, duration_ms, freq_hz, _note, spare (+4 more)
 
-### Community 14 - "Capture App & Protocol"
-Cohesion: 0.23
-Nodes (12): capture.html localhost capture UI, enable() - getUserMedia with DSP off, meterLoop() - live level meter + clip detection, setupAudio() - AudioWorklet PCM capture + analyser, Capture README (two recording routes), serve.py localhost save server, Clean/buzz-light/buzz-placement triplet (the crux), Capture matrix (class defs + position grid) (+4 more)
+### Community 17 - "Amp/BOM & Safety Hardware"
+Cohesion: 0.28
+Nodes (9): docs/04-soldering-guide.md (gut SK473, attach actuators, build bus), Strain-relief (heat-shrink + hot-glue blob, both ends), Tone-test before glue (verify each amp individually), docs/05-wiring-map.md (channel-by-channel wiring), Bounded isolation (isolated 5V rail, shared signal ground), docs/06-safety.md (electrical + mechanical risk elimination), Wire-weight problem (18 AWG levers/tears joints), docs/09-assembly-checklist.md (staged bring-up gates) (+1 more)
 
-### Community 15 - "Design Decisions (rejected)"
-Cohesion: 0.17
-Nodes (12): Amplification — gut SK473 boards (PAM8403), Audio source / channels — USB 7.1 (Vantec NBA-200U, CM6206), Decision: bass dropped (was Logitech Z313), Bass — dropped (was Logitech Z313), Decision: brain is the laptop (M4 Pro 48 GB), Pi cut from critical path, Brain — laptop (Pi cut from critical path), Design Decisions (Why, and What We Rejected), Encoding — location + timing, not frequency (+4 more)
+### Community 18 - "Buzz-Inverse & Experiment Plan"
+Cohesion: 0.21
+Nodes (13): AI only where the problem is unsolved, Buzz Inverse Problem (B = f(P, d), invert to recover P), Fingertip-to-wire distance d (key engineered feature), Live 3D Cluster Viz (WebGL centerpiece), Occlusion Pose-to-Placement Model (audio as free teacher), 2-Class Pressure (too-light vs good) (D5), Two Last Miles (occluded pose + buzz cause), 3D Semantic Viz (rotating PCA→LDA, named axes) (+5 more)
 
-### Community 16 - "LEARN Loop Components"
-Cohesion: 0.17
-Nodes (12): 13 — LEARN: Closing the Loop (feel the target · see the fix), 1. The learning loop (one flow — replaces the old practice modes), 2. The four components, 3. Local memory — practice anywhere, offline (Redis, baked in), 4. The interface (camera-centric, every pixel real), 5. Architecture + parallelization (the seam), 6. Sponsors this unlocks (a much deeper story), 7. Honest scope — demoable this weekend vs research-bet (+4 more)
+### Community 19 - "Enclosure Render (Preview)"
+Cohesion: 0.24
+Nodes (11): Enclosure Base (Lower Shell), Corner Screw Mount Bosses, Tactus Two-Part Enclosure, Internal PCB Standoffs / Mounting Ribs, Enclosure Lid (Top Cover), Port Window Cutout, Enclosure Protects/Houses Tactus Electronics, Tactus Enclosure CAD Preview Render (+3 more)
 
-### Community 17 - "AIML Eng Review"
-Cohesion: 0.17
-Nodes (12): 20 — Eng review of the AIML training design (`docs/20-aiml-training-design.md`), Completion summary, Corrected identifiability (what's observed vs hidden), Data collection — breadth vs depth (fits 2–4 hrs), Decisions taken (this review), Diagrams, Failure modes (per new codepath: realistic failure · test? · error handling? · silent?), Implementation tasks (+4 more)
+### Community 20 - "Brain-Pack Enclosure Print"
+Cohesion: 0.25
+Nodes (11): Enclosure Base (box body), Tactus Brain-Pack Electronics (housed hardware), TACTUS Brain-Pack Enclosure (tactus_enclosure_plate.stl), TACTUS Engraved Logo (lid), FlashForge 5M Bed 220x220mm, Enclosure Lid (TACTUS engraved, prints face-down), Red PETG Filament, Cable/Connector Port (+3 more)
 
-### Community 18 - "Chord Rendering Spec"
-Cohesion: 0.17
-Nodes (11): 1. Single note (recap of `docs/07`), 21 — Chord, sustain & percussive rendering (extends docs/07), 2. Chords — the onset encodes HOW it was struck, 3. Sustain = envelope-modulated looped shimmer (LOCKED), 4. The other axis + foundation, 5. Percussive & muted hits, 6. Power (reconciles `docs/15 §12`), 7. Tunable parameters (→ `docs/18` experiments) (+3 more)
-
-### Community 19 - "Capture Save Server"
+### Community 21 - "Capture HTTP Server"
 Cohesion: 0.29
 Nodes (3): Handler, Aggregate a session's manifest so the page can cross-check what's on disk., safe()
 
-### Community 20 - "Build Refinements (channels)"
-Cohesion: 0.18
-Nodes (11): Channel count — 12, Tightened connector list (3 rails: line-level / BTL drive / 5V power), 40mm speakers are not exciters — coupling (contact button + backer + preload) is make-or-break, Build refinements + the kinks that will bite, PAM8403 is BTL — never common the '-' outputs (isolated pair per channel), Mode A power correction: hub is a buck'd 12V brick, run at felt level, Single-channel-first build order (prove one full channel, then mass-produce), SK473 teardown (Jun 20): 6 stereo PAIRS = 12 channels, amp is separable (+3 more)
+### Community 22 - "Capture Web App"
+Cohesion: 0.14
+Nodes (18): Localhost Capture App (serve.py), Metadata Schema (one row per run), Offline A/V Sync Recovery (WAV↔webm cross-correlate), Beat-Anchored + F0 Segmentation, Capture Wide, Process Cropped (homography ROI crop), Pitch Control via Covariates (not per-cell z-score), WAV-only for the Buzz Study (Opus mangles buzz band), Matched-Modality Ablation (same events, mask vision) (+10 more)
 
-### Community 21 - "BOM Accounting"
-Cohesion: 0.20
-Nodes (10): Actuators (the SK473's own KHD drivers), Amplifiers, Audio source (DAC / channels), Bill of materials, Channel accounting, Not needed for the audio path, Owned now, Power (+2 more)
-
-### Community 22 - "Assembly Checklist Stages"
-Cohesion: 0.20
-Nodes (10): Assembly checklist + bring-up, Go/no-go summary, Stage 0 — bench prep, Stage 1 — prove the audio path (BEFORE any soldering), Stage 2 — gut + tone-test each amp (×6), Stage 3 — power, Stage 4 — chord stress test, Stage 5 — mount + couple (+2 more)
-
-### Community 23 - "Power Architecture & Safety"
-Cohesion: 0.22
-Nodes (9): Fewer-ports fallback, Hard rules (break these and you fry something), Mode A — wall (RECOMMENDED for the judged demo), Mode B — cordless (the portability "wow"), Per-bus loads (computed the right way), Power architecture + the chord-safety guarantee, Pre-power checklist (every session), The numbers (per channel / per amp) (+1 more)
-
-### Community 24 - "Tuning & Calibration Experiments"
-Cohesion: 0.22
-Nodes (8): 18 — Tuning & calibration: the on-body experiments (fill in Saturday), Experiment 1 — drive-frequency sweep (do this FIRST, per zone), Experiment 2 — punchiness (pulse shape), Experiment 3 — coupling pressure, Experiment 4 — per-channel gain calibration, Record the winners (these become the renderer defaults), Safety bounds (don't cross while experimenting), The 4 knobs you're tuning
-
-### Community 25 - "Interface: AR Play + Correction"
-Cohesion: 0.22
-Nodes (9): 22 — The interface: live AR play + targeted 2D correction (the centerpiece), A. LIVE AR PLAY — Beat-Saber depth-approach on your real fretboard, Award alignment (`docs/19`), B. TARGETED CORRECTION (on error) — the super-simple 2D fretboard, Build order (de-risked), Coherence (one phase-locked signal → screen + body + sound), Open questions for eng review, Per-finger position + pressure — what's supportable (ties to `docs/20`) (+1 more)
-
-### Community 26 - "Capture Recording Functions"
-Cohesion: 0.25
-Nodes (8): buildRow() - maximal-metadata manifest row, commit() - POST blobs + manifest to server, encodeWav() - lossless PCM16 WAV encoder, offerDownload() - per-run download fallback, startRec() - MediaRecorder + visual metronome, stopRec() - finalize blobs + QC checks, File/folder convention (data/raw + manifest.jsonl), Metadata schema (one row per run)
-
-### Community 27 - "Haptic Encoding Design"
-Cohesion: 0.25
-Nodes (8): Chords / strums, Design rules (or it turns to mush), Fret → 6 torso zones (12 frets onto 12 channels), Haptic encoding — note → actuator, Relationship to the coach, The 2-axis code, The premise (why this design exists), Worked example — string 6, fret 1 vs fret 2
-
-### Community 28 - "Vibrotactile Perception Refs"
-Cohesion: 0.25
-Nodes (8): Decision: encode note as location + timing, not frequency, Perception References (Vibrotactile Findings), Funneling / sensory saltation (separate simultaneous cues across regions), Neosensory Buzz (Eagleman) — 4 wrist actuators, learnable code, Precedents: Model Human Cochlea, SoundShirt, Braille / the vOICe, Temporal acuity ~5ms gap detection (skin's strength) -> sharp pulses + sweep, Two-point discrimination (fingertip 2-4mm, forearm 35-40mm, torso/back 40-50mm), Vibrotactile frequency: peak 200-300 Hz, Weber ~20-30% (poor pitch)
-
-### Community 29 - "SK473/KHD Tuning"
-Cohesion: 0.29
-Nodes (8): Decision: gut SK473 boards (PAM8403), one amp per 2 channels, Switch body actuators to SK473's own 12x KHD 3 Ohm/5 W drivers (de-housed), Tuning & Calibration Experiments (on-body), Experiment 1 — drive-frequency sweep per zone (back vs torso 60/100/150/200/250 Hz), Experiment 2 — punchiness (pulse shape 30/50/80 ms, flat vs sharp-decay), Experiment 4 — per-channel gain calibration (equal feel across 12 sites), The 4 tuning knobs (drive freq, pulse shape, coupling pressure, per-channel gain), Tuning safety bounds (never clip; surface <40C; felt level only)
-
-### Community 30 - "AI Pitch & Scoping"
-Cohesion: 0.25
-Nodes (8): AI engine + pitch (for judges and the software team), Any song (generalizability), Build-first (MVP for max judge ROI), Honest scoping (this is rigor, not weakness), Rigor moves (cheap, high-credibility), The AI pieces (ranked by how non-gimmicky), The honest framing (say this to judges), Track / prize alignment
-
-### Community 31 - "Open Questions / To-Do"
-Cohesion: 0.25
-Nodes (8): Open: ALSA Enumeration Reorder Across Reboots, Buy / make, Confirm, Decide, Open: KHD Driver Diameter Un-measured (spk_dia placeholder), Known limitations (state honestly in the demo), Repo / logistics, Open Questions + To-Do
-
-### Community 32 - "Wiring Connectors (forbidden)"
-Cohesion: 0.29
-Nodes (7): 2 KHD Ø52 mm drivers (de-house → body), ⛔ NEVER connect (forbidden wiring rules), Powered hub / Anker 737 (5 V source, Mode A/B), SK473 captive 3.5 mm plug (box's 2 channels), SK473 board (L/R out, inside master speaker), SK473 captive USB-A lead (powers the PAM8403), Vantec output jack (1 of 4 stereo jacks)
-
-### Community 33 - "System Block Diagram"
-Cohesion: 0.29
-Nodes (7): config/channel_map.json (source of truth), 12× KHD Ø52 mm 4Ω drivers (6 back + 6 torso), 🎸 guitar · 📷 webcam · 🎤 mic (inputs), LAPTOP — AI brain (transcribe · fuse · LLM coach · AR/UI), POWER · 5 V separate (Mode A hub / Mode B Anker 737), 6× SK473 box — PAM8403 amps (used intact), 2× Vantec NBA-200U 7.1 (CM6206) audio source
-
-### Community 34 - "Cluster to Advice Semantics"
-Cohesion: 0.33
-Nodes (7): Causal clean/fault pair grounding, Eigenvector to advice semantics, Held-out (leave-one-player-out) validation, Hybrid scheme (supervised backbone + validated discovery), LDA supervised backbone (readable eigenvectors), Promotion gate for discovered sub-families, Prompted labels assign meaning (not discovered)
-
-### Community 35 - "Safety & Wire Weight"
-Cohesion: 0.29
-Nodes (7): Electrical, Eliminate it — every joint, no exceptions, Mechanical — the wire weight problem (this breaks things), Mounting the actuator (so it's felt, not heard, and stays put), One-line pre-flight, Risk table (and how each is eliminated), Safety — eliminate every risk
-
-### Community 36 - "Software Pipeline Overview"
-Cohesion: 0.29
-Nodes (7): "Any song", Compute placement (be honest in the demo), Pipeline, Software architecture, Stack, Suggested layout, Two timescales
-
-### Community 37 - "Assembly Bring-up Gates"
-Cohesion: 0.29
-Nodes (7): Assembly checklist + bring-up (staged go/no-go gates), Stage 1 — prove audio path before any soldering (speaker-test -c8), Stage 2 — gut + tone-test each amp (12 channels buzz), Stage 4 — chord stress test (fire all 12 at once), Stage 5 — mount + couple (6 strings on back, 6 fret-zones on torso), Stage 6 — software bring-up (channel map, renderer, AI engine, coach), Vantec/ALSA enumeration trap (bind by USB port, verify channel order)
-
-### Community 38 - "Perception to Design Mapping"
-Cohesion: 0.29
-Nodes (7): Funneling / sensory saltation — why we separate simultaneous hits, How each maps to our design, Perception references (why the encoding is shaped this way), Precedents (this approach works, with training), Spatial acuity — why sites are spread, and resolution lives on the limbs, Temporal acuity — the skin's strength, Vibrotactile frequency — why we don't encode pitch as frequency
-
-### Community 40 - "Mode A Wall Power"
-Cohesion: 0.33
-Nodes (6): 10-port powered hub (~50 W AC, data + 5 V), Laptop (upstream USB data), MODE A — WALL (judged demo), 6× SK473 (USB-A — 5 V only), 3× Vantec (data + their 5 V), 🔌 Wall outlet
-
-### Community 41 - "Mode B Cordless Power"
-Cohesion: 0.33
-Nodes (6): Anker 737 battery (24 000 mAh · 140 W), Laptop (Mode B data source), 6× SK473 USB-A (5 V), 3× Vantec (straight to laptop USB), MODE B — CORDLESS (walk-around), PD-powered USB-A hub
-
-### Community 42 - "Feature Vector & Separability"
-Cohesion: 0.33
-Nodes (6): Concatenated feature vector (audio + vision named features), Pluck-proxy feature (attack RMS / onset slope), Redis nearest-neighbor mistake retrieval, Separability study (PCA to LDA, Fisher/silhouette/d-prime), Interval audit dashboard (anti-drift), Pluck control + pluck-sweep (confound)
-
-### Community 43 - "Two-Stage Perception Model"
+### Community 23 - "Puck Coupler CAD"
 Cohesion: 0.40
-Nodes (6): Pose-variation passes (D5), Stage 1 - occluded pose to (string,fret,finger), Stage 2 - buzz B + d to pressure/cause, The two last miles (occluded pose + buzz cause), Bayesian fusion with theory prior, Two-stage perception model (WHERE + HOW CLEAN)
+Nodes (9): box(), button(), cup(), cyly(), cylz(), D(), main(), # NOTE: the .scad's rim_lip subtraction is a geometric no-op (it lies inside (+1 more)
 
-### Community 44 - "System Architecture Chain"
-Cohesion: 0.33
-Nodes (6): Brain placement, Channel budget, Connector cheat-sheet (where confusion happens), System architecture, The full chain, every connector, Why two devices per "DAC + power"
+### Community 24 - "Training Design & Semantics"
+Cohesion: 0.31
+Nodes (9): Breadth vs Depth Data Collection Split, Eng Review of AIML Training Design, Pluck/Attack-Energy Proxy Feature (D1), Causal Clean/Fault Pair (proves the fix), Data, Representation & Eigenvector-to-Advice Semantics, Concatenated Feature Vector (~40-60 dims audio+vision), Hybrid Scheme (supervised backbone + gated discovery), Labels Assign Meaning (geometry only proves separation) (+1 more)
 
-### Community 45 - "Soldering Guide"
-Cohesion: 0.33
-Nodes (6): Job 1 — gut an SK473 (×6), Job 2 — attach actuators to the amp (×12), Job 3 — build the 5V solder bus (cordless / Mode B), Joint quality, Order of operations (matches [09-assembly-checklist.md](09-assembly-checklist.md)), Soldering guide
+### Community 25 - "ML/DSP Methods Brief"
+Cohesion: 0.25
+Nodes (9): Two-Tier Latency Contract, Readable Eigenvector (named-feature LDA loadings), Pairwise Mahalanobis d' in LDA Subspace, CREPE / pYIN / basic-pitch F0 estimators, Haptic-Score Generative Idea (CUT for LEARN+PLAY pivot), Information Transfer Evaluation (IT bits, d'), Audio-Tactile Latency Asymmetry (haptic-leads tolerated), Audio→Haptic ML/DSP Research Brief (+1 more)
 
-### Community 46 - "Psychophysics Brief"
-Cohesion: 0.33
-Nodes (5): 1. Tactile Psychophysics, 2. Tactile Illusions, 3. Prior Art, 4. Honest framing, REF — Vibrotactile Music Perception Research Brief (raw, cited)
+### Community 26 - "Canonical Docs (truth.md)"
+Cohesion: 0.19
+Nodes (14): Pressure from timbre, no sensor (reject FSR), docs/11-ai-and-pitch.md (AI engine + pitch for judges), AI/determinism split (ML where unsolved, deterministic where solved), Buzz inverse (B = f(P,d); vision pins d, audio measures B), Fusion perception model (disagreement = detected mistake), docs/17-ai-rigor.md (AI core rigor argument), Arize/Phoenix tracing + eval (F0, classifier, VLM accuracy), Disagreement-as-signal (cross-modal mismatch = error detector) (+6 more)
 
-### Community 47 - "Record Conductor (fallback)"
+### Community 27 - "Power Budget & Modes"
+Cohesion: 0.07
+Nodes (26): Capture — prompted data collection, Fallback: terminal conductor + QuickTime, Files, Recommended: localhost app (capture + labeling + QC in one page), 0. The principle — the prompt IS the label, 0b. What the data actually trains — the two "last miles", 10. Recording — the localhost capture app (recommended) + a zero-dep fallback, 1. The rig (+18 more)
+
+### Community 29 - "Data Collection Protocol"
+Cohesion: 0.29
+Nodes (8): Prompt-only Label, Audio Verifier Only (D2), D2 Relabel/Drop Selection-Bias Leak (critical gap), Capture Matrix (6 strings x 6 frets x classes), Data Collection & Labeling Protocol, Interval Audit Dashboard (anti-digression), The Prompt IS the Label (no hand-tagging), Prompted Runs (continuous sweep, not one-note blocks), Capture README (prompted data collection)
+
+### Community 30 - "Project History & Haptic Render"
+Cohesion: 0.25
+Nodes (8): Localhost capture app (serve.py + capture.html), CHANGELOG.md (chronological project history incl. pre-pivot), Hearth -> Tactus full pivot, 2-axis code (string->back actuator + fret->torso zone+intensity), Component A — Haptic Reference (what it should feel like), Deterministic haptic renderer (signal->vibration transform), Saramonic LavMicro-U (USB-C digital lavalier mic), Train/serve match (same mic + camera for training and inference)
+
+### Community 31 - "Engine Pipeline (Fusion)"
+Cohesion: 0.28
+Nodes (9): Audio branch (F0/transcription + dynamics + technique model), F0 engine (pYIN/YIN live; CREPE offline), Fusion (time-align + reconcile audio vs vision), MediaPipe Hands (21 landmarks/hand), Redis memory (per-user mistake history, vector search), Reference diff (target MIDI/tab vs played), docs/08-software-architecture.md (engine pipeline), Vision branch (MediaPipe Hands + fretboard homography) (+1 more)
+
+### Community 32 - "Demo Data Generator"
+Cohesion: 0.43
+Nodes (6): build(), _hz(), main(), _note(), One plucked note: decaying harmonic stack, optional broadband buzz burst, OR, Write a synthetic batch under raw_dir. Returns the list of player dirs.
+
+### Community 33 - "ArUco Pose-Lock Filter"
+Cohesion: 0.10
+Nodes (28): makePoseLock(), OneEuro, _alongNeckEnds(), angDeg(), _applyAffine(), _assignCorners(), clamp01(), _confidence() (+20 more)
+
+### Community 34 - "Separability & Cluster Viz"
+Cohesion: 0.50
+Nodes (4): Bayesian Position Posterior with theory prior, Targeted 2D Correction Fretboard (per-finger fix), Every Pixel is a Sense the Deaf Learner Lacks, Interface: Live AR Play + Targeted 2D Correction
+
+### Community 35 - "Audit Tests"
+Cohesion: 0.47
+Nodes (5): _build_events_df(), _build_metrics(), main(), ~30 rows across the 3 core classes / strings 6..1 / frets 1..6.      Determinist, Minimal metrics dict matching collapse.py's shape (docs/24 §8):       split, cla
+
+### Community 36 - "Audio Feature Tests"
+Cohesion: 0.47
+Nodes (5): _event_row(), main(), 0.6 s exponentially-decaying 110 Hz tone followed by 0.4 s of silence., One events.csv row filling every schema.EVENT_COLUMNS field., _write_a2_wav()
+
+### Community 37 - "Vision Feature Tests"
+Cohesion: 0.47
+Nodes (5): _build_twin(), main(), _make_provider(), Synthetic twin: 4 image corners (a foreshortened-ish rectangle) matched to     b, Stub provider returning a known index-fingertip pixel per event.      event 'v#0
+
+### Community 38 - "Segmentation Tests"
+Cohesion: 0.53
+Nodes (5): _make_manifest(), _make_wav(), _pluck(), A decaying sinusoid ('pluck') followed by silence. The envelope is tapered     t, test_segment()
+
+### Community 39 - "AR Prototypes (Beat-Saber)"
 Cohesion: 0.60
-Nodes (4): ask(), main(), show(), Zero-dep fallback (QuickTime + terminal conductor)
+Nodes (6): alphaTab real-song chart source (planned), ar.html chord-field AR prototype, js-aruco2 neck pose-lock (planned next layer), beatsaber.html Beat-Saber AR highway prototype, Live camera AR overlay (transparent canvas over webcam), Note/chord chart (string,fret,t,dur)
 
-### Community 48 - "Wiring Map (channel)"
-Cohesion: 0.40
-Nodes (5): ALSA side, Labeling rule, The map, Why this layout, Wiring map — channel by channel
+### Community 40 - "Correction Interface & Posterior"
+Cohesion: 0.10
+Nodes (19): 0. The 60-second mental model of the whole rig, 10. Laptop connection + power — exactly what plugs into what, 11. SK473 reality (live teardown, Jun 20): it's 6 stereo PAIRS = **12 channels**, and the amp *is* separable, 12. UPDATE (Jun 20 teardown): use the SK473's OWN drivers (KHD 3 Ω/5 W), and the ≤2-at-once power win, 15 — Build refinements + the kinks that will bite (read before Saturday), 1. ⚠️ THE BIG ONE — PAM8403 is a BTL amp: never common the "−" outputs, 2. ⚠️ The Vantec/ALSA enumeration trap (this eats Saturday if you don't pre-empt it), 3. Wire gauge — you only have 18 AWG, so the build has to respect it (+11 more)
 
-### Community 49 - "Project Pivot & Scope"
-Cohesion: 0.50
-Nodes (5): Scope lock: LEARN + PLAY guitar coaching, Pivot: Hearth to Tactus, AI only where the problem is unsolved (rigor split), Tactus direction & goal (Deaf-accessible guitar coaching), Honesty discipline (new sensory channel, ordinal pressure)
+### Community 41 - "Pipeline Runner"
+Cohesion: 0.60
+Nodes (4): main(), _manifests(), Run the full pipeline over every manifest under raw_dir (optionally filtered, run_batch()
 
-### Community 50 - "Capture Run Planner"
-Cohesion: 0.50
-Nodes (4): buildPlan() - interleaved run plan generator, Coverage grid + live QC stats, Arpeggiated chords (per-string labels + multi-finger pose), Prompted RUNS (sweep one condition across frets)
+### Community 42 - "Collapse Tests"
+Cohesion: 0.60
+Nodes (4): _dprime(), main(), _make_df(), Pull pairwise d'(a,b) out of whatever key shape collapse used.
 
-### Community 51 - "Docs Map / Overview"
-Cohesion: 0.50
-Nodes (4): Docs map, 🎸 Tactus, The 30-second version, The rig (as-built — full detail in [`truth.md`](truth.md))
+### Community 43 - "End-to-End Pipeline Test"
+Cohesion: 0.67
+Nodes (3): _buzz_pair_dprime(), Pull d'(buzz-light, buzz-placement) out of whatever key shape collapse used., test_end_to_end()
 
-### Community 52 - "alphaTab Loader JS"
+### Community 44 - "Record Conductor CLI"
+Cohesion: 0.83
+Nodes (3): ask(), main(), show()
+
+### Community 45 - "AlphaTab Chart Loader"
 Cohesion: 1.00
 Nodes (3): AT(), loadChart(), loadScore()
 
+### Community 47 - "ArUco Marker Asset"
+Cohesion: 0.67
+Nodes (3): ArUco Marker 4x4_50 ID 0, ArUco Dictionary DICT_4X4_50, Fiducial Pose Estimation and Calibration
+
+### Community 51 - "Community 51"
+Cohesion: 0.18
+Nodes (11): The one correction (3 axes: wrong note, duration, pressure), README.md (Tactus project overview), 0. What is true vs what is stale (read first), 1. Direction & goal, 2. Locked software architecture, 5. Haptic encoding (the deterministic renderer), 6. The AI/ML (perception model), 7. Sponsors / tracks targeted (+3 more)
+
+### Community 52 - "Community 52"
+Cohesion: 0.13
+Nodes (15): 2026-06-19 — Direction changes (per Aditya): reframe + remove the score, 2026-06-19 — Full pivot: Hearth → Tactus, 2026-06-19 — Hardware corrected after live inventory cross-check (physics), 2026-06-19 — LEARN re-architected: vision + haptic closed-loop guitar coaching (per Aditya), 2026-06-19 — Refinement pass on the as-built rig (enclosure CAD + build kinks + LEARN UI), 2026-06-19 — Vest-primary form factor + LEARN web app added to scope (per Aditya), 2026-06-20 — Data-collection: frets 1–6 scope lock, last-mile↔data framing, Day-1 recorder, 2026-06-20 — docs/26 handoff + repo-wide markerless reconciliation (+7 more)
+
+### Community 53 - "Community 53"
+Cohesion: 0.14
+Nodes (14): 0. The eight locked decisions, 10. Open questions for ENG review, 11. Award alignment (why this wins, `docs/19`), 1. The data pipeline (capture + labeling), 20 — AIML training design: multimodal guitar-technique coaching (comprehensive spec), 2. The vision stack (D3) — seeing through the hand, 3. The audio stack + the buzz inverse (D4→D6), 4. The fusion model (D8) — one Bayesian framework (+6 more)
+
+### Community 54 - "Community 54"
+Cohesion: 0.15
+Nodes (12): 13 — LEARN: Closing the Loop (feel the target · see the fix), 1. The learning loop (one flow — replaces the old practice modes), 2. The four components, 3. Local memory — practice anywhere, offline (Redis, baked in), 4. The interface (camera-centric, every pixel real), 5. Architecture + parallelization (the seam), 6. Sponsors this unlocks (a much deeper story), 7. Honest scope — demoable this weekend vs research-bet (+4 more)
+
+### Community 55 - "Community 55"
+Cohesion: 0.15
+Nodes (12): 20 — Eng review of the AIML training design (`docs/20-aiml-training-design.md`), Completion summary, Corrected identifiability (what's observed vs hidden), Data collection — breadth vs depth (fits 2–4 hrs), Decisions taken (this review), Diagrams, Failure modes (per new codepath: realistic failure · test? · error handling? · silent?), Implementation tasks (+4 more)
+
+### Community 56 - "Community 56"
+Cohesion: 0.15
+Nodes (12): 0. The pivot (what changed — read first), 10. Open risks, 1. Three deliverables, 27 — Chord feedback, mono↔poly transfer, and the 3D semantic viz (analysis + experiment plan), 2. Data inventory, 3. Core hypotheses (first principles), 4. Pipeline, 5. Experiment matrix (multiple labelings — run them all, let one win) (+4 more)
+
+### Community 57 - "Community 57"
+Cohesion: 0.17
+Nodes (11): 1. Single note (recap of `docs/07`), 21 — Chord, sustain & percussive rendering (extends docs/07), 2. Chords — the onset encodes HOW it was struck, 3. Sustain = envelope-modulated looped shimmer (LOCKED), 4. The other axis + foundation, 5. Percussive & muted hits, 6. Power (reconciles `docs/15 §12`), 7. Tunable parameters (→ `docs/18` experiments) (+3 more)
+
+### Community 58 - "Community 58"
+Cohesion: 0.17
+Nodes (12): 1. A/V sync is RECOVERED offline, not assumed [HIGH], 25 — Corrected data & feature processing contract (the offline pipeline codes against THIS), 2. Segmentation = beat-anchored priors + F0-assigned frets (NOT onset-detect + sweep-order) [HIGH], 3. The audio-only vs fused ablation runs on the SAME events [HIGH], 4. Never mix lossy and lossless audio in the buzz study [MED-HIGH], 5. Control pitch with string/fret as COVARIATES, not per-cell z-score [MED-HIGH], 6. Separability metric = pairwise Mahalanobis d′ in the LDA subspace [MED], 6b. Cross-validation: the RUN is the correlated unit [MED] (+4 more)
+
+### Community 59 - "Community 59"
+Cohesion: 0.18
+Nodes (10): ArUco marker (vision) — OPTIONAL validation rig only, Assembly (no soldering — truth.md §3, docs/09), CAD — the printed enclosure + body-coupling pucks (FlashForge Adventurer 5M), Parameters you'll most likely touch, ★ PRINT THIS — the verified print-ready set, Reference parts (OpenSCAD-only — need an OpenSCAD machine to re-render), Render → STL (headless, no OpenSCAD), Slicing (FlashForge Adventurer 5M — open-frame, web-confirmed) (+2 more)
+
+### Community 60 - "Community 60"
+Cohesion: 0.18
+Nodes (11): 0. The thesis — AI where it's *unsolved*, determinism where it's *solved*, 17 — The AI core: audio + vision → high-granularity (string, fret, finger, quality) → targeted feedback, 1. High-granularity POSITION — why fusion beats either modality alone, 1a. Audio branch (what + how-clean), 1b. Vision branch (where + which finger) — runs in the **browser**, 1c. Fusion (the part that's a real contribution, not a wrapper), 2. High-granularity TARGETED FEEDBACK — three axes, each a measured signal, 3. The rigor moves (cheap, high-credibility — have these ready at the table) (+3 more)
+
+### Community 61 - "Community 61"
+Cohesion: 0.18
+Nodes (11): 1. How a cluster becomes advice (the epistemics), 23 — Data, representation, training & the eigenvector→advice semantics (extends docs/20), 2. The hybrid scheme (OH1), 3. Data collection protocol, 4. How much data (with the why), 5. Data representation, 6. Promotion gate — when a discovered sub-family earns advice, 7. Training procedure (most of it isn't deep learning) (+3 more)
+
+### Community 62 - "Community 62"
+Cohesion: 0.22
+Nodes (5): 1. Tactile Psychophysics, 2. Tactile Illusions, 3. Prior Art, 4. Honest framing, REF — Vibrotactile Music Perception Research Brief (raw, cited)
+
+### Community 63 - "Community 63"
+Cohesion: 0.20
+Nodes (10): Actuators (the SK473's own KHD drivers), Amplifiers, Audio source (DAC / channels), Bill of materials, Channel accounting, Not needed for the audio path, Owned now, Power (+2 more)
+
+### Community 64 - "Community 64"
+Cohesion: 0.20
+Nodes (10): Assembly checklist + bring-up, Go/no-go summary, Stage 0 — bench prep, Stage 1 — prove the audio path (BEFORE any soldering), Stage 2 — gut + tone-test each amp (×6), Stage 3 — power, Stage 4 — chord stress test, Stage 5 — mount + couple (+2 more)
+
+### Community 65 - "Community 65"
+Cohesion: 0.22
+Nodes (9): Fewer-ports fallback, Hard rules (break these and you fry something), Mode A — wall (RECOMMENDED for the judged demo), Mode B — cordless (the portability "wow"), Per-bus loads (computed the right way), Power architecture + the chord-safety guarantee, Pre-power checklist (every session), The numbers (per channel / per amp) (+1 more)
+
+### Community 66 - "Community 66"
+Cohesion: 0.22
+Nodes (9): Chords / strums, Design rules (or it turns to mush), Fret → 6 torso zones (12 frets onto 12 channels), Haptic encoding — note → actuator, Pulse shape, Relationship to the coach, The 2-axis code, The premise (why this design exists) (+1 more)
+
+### Community 67 - "Community 67"
+Cohesion: 0.22
+Nodes (9): ALSA / multichannel, "Any song", Compute placement (be honest in the demo), Haptic renderer, Pipeline, Software architecture, Stack, Suggested layout (+1 more)
+
+### Community 68 - "Community 68"
+Cohesion: 0.22
+Nodes (9): Amplification — gut SK473 boards (PAM8403), Audio source / channels — USB 7.1 (Vantec NBA-200U, CM6206), Bass — dropped (was Logitech Z313), Brain — laptop (Pi cut from critical path), Channel count — 12, Design decisions (why, and what we rejected), Encoding — location + timing, not frequency, Power — two modes (+1 more)
+
+### Community 69 - "Community 69"
+Cohesion: 0.22
+Nodes (8): 18 — Tuning & calibration: the on-body experiments (fill in Saturday), Experiment 1 — drive-frequency sweep (do this FIRST, per zone), Experiment 2 — punchiness (pulse shape), Experiment 3 — coupling pressure, Experiment 4 — per-channel gain calibration, Record the winners (these become the renderer defaults), Safety bounds (don't cross while experimenting), The 4 knobs you're tuning
+
+### Community 70 - "Community 70"
+Cohesion: 0.22
+Nodes (9): 22 — The interface: live AR play + targeted 2D correction (the centerpiece), A. LIVE AR PLAY — Beat-Saber depth-approach on your real fretboard, Award alignment (`docs/19`), B. TARGETED CORRECTION (on error) — the super-simple 2D fretboard, Build order (de-risked), Coherence (one phase-locked signal → screen + body + sound), Open questions for eng review, Per-finger position + pressure — what's supportable (ties to `docs/20`) (+1 more)
+
+### Community 71 - "Community 71"
+Cohesion: 0.22
+Nodes (9): 3.1 Compute / brain, 3.2 Audio-out chain & channel map (12 channels), 3.3 Drivers & body coupling, 3.4 Amps (PAM8403, filterless Class-D, BTL), 3.5 Power, 3.6 Wire, 3.7 CAD / enclosure (FlashForge Adventurer 5M, 220×220×220 mm bed), 3.8 Sensing (+1 more)
+
+### Community 72 - "Community 72"
+Cohesion: 0.25
+Nodes (8): AI engine + pitch (for judges and the software team), Any song (generalizability), Build-first (MVP for max judge ROI), Honest scoping (this is rigor, not weakness), Rigor moves (cheap, high-credibility), The AI pieces (ranked by how non-gimmicky), The honest framing (say this to judges), Track / prize alignment
+
+### Community 73 - "Community 73"
+Cohesion: 0.23
+Nodes (12): actuator_puck (cup + button coupler), docs/15-build-refinements.md (as-built teardown log + kinks), PAM8403 BTL warning (never common the minus outputs), Single-channel-first build order (prove one end-to-end), SK473 teardown (6 stereo pairs = 12 channels; amp separable), Use SK473's own KHD drivers (factory-matched, punchier), 4 tuning knobs (drive freq, pulse shape, coupling, per-channel gain), Per-channel software gain (the volume control, pots bypassed) (+4 more)
+
+### Community 74 - "Community 74"
+Cohesion: 0.29
+Nodes (7): Electrical, Eliminate it — every joint, no exceptions, Mechanical — the wire weight problem (this breaks things), Mounting the actuator (so it's felt, not heard, and stays put), One-line pre-flight, Risk table (and how each is eliminated), Safety — eliminate every risk
+
+### Community 75 - "Community 75"
+Cohesion: 0.29
+Nodes (7): Funneling / sensory saltation — why we separate simultaneous hits, How each maps to our design, Perception references (why the encoding is shaped this way), Precedents (this approach works, with training), Spatial acuity — why sites are spread, and resolution lives on the limbs, Temporal acuity — the skin's strength, Vibrotactile frequency — why we don't encode pitch as frequency
+
+### Community 76 - "Community 76"
+Cohesion: 0.29
+Nodes (7): 19 — Sponsor & prize alignment (refined to the as-built rig), Action items, Dropped — do NOT apply or build for, The system as one coherent sponsor story, Tier 1 — go hard (highest win probability; build the demo around these), Tier 2 — strong, low marginal effort (claim them, don't reorganize for them), Tier 3 — only if it's free
+
+### Community 77 - "Community 77"
+Cohesion: 0.29
+Nodes (7): 0. Read these first (in order), 1. What you're getting, 26 — Data handoff for the offline pipeline (Aiden), 2. Manifest row schema (real example — fields are authoritative, not `run_id`), 3. The 6 processing gotchas (full detail in `docs/25` — don't skip), 4. What to build (mirrors `docs/25` §8), 5. Deps
+
+### Community 78 - "Community 78"
+Cohesion: 0.29
+Nodes (7): Competitive white space (triad nobody fully occupies), Deaf-culture framing (do-or-die), Instrument-haptics psychophysics, Instrument prior art, Pitch engines, REF — Instrument-Learning + Sponsor + Deaf-Framing Brief (raw, cited), Sponsor integrations (deep, non-bolt-on)
+
+### Community 79 - "Community 79"
+Cohesion: 0.29
+Nodes (6): Brain placement, Channel budget, Connector cheat-sheet (where confusion happens), System architecture, The full chain, every connector, Why two devices per "DAC + power"
+
+### Community 80 - "Community 80"
+Cohesion: 0.33
+Nodes (6): Job 1 — gut an SK473 (×6), Job 2 — attach actuators to the amp (×12), Job 3 — build the 5V solder bus (cordless / Mode B), Joint quality, Order of operations (matches [09-assembly-checklist.md](09-assembly-checklist.md)), Soldering guide
+
+### Community 81 - "Community 81"
+Cohesion: 0.33
+Nodes (6): Buy / make, Confirm, Decide, Known limitations (state honestly in the demo), Open questions + to-do, Repo / logistics
+
+### Community 82 - "Community 82"
+Cohesion: 0.33
+Nodes (5): Helpers (prepared, not yet wired), `_prototypes/`, Run, Tactus — web, What glow.html is
+
+### Community 83 - "Community 83"
+Cohesion: 0.40
+Nodes (5): Build-tonight TL;DR, Pick your lane, Start here (teammates), Status, What tactus is (30 seconds)
+
+### Community 84 - "Community 84"
+Cohesion: 0.40
+Nodes (5): ALSA side, Labeling rule, The map, Why this layout, Wiring map — channel by channel
+
+### Community 86 - "Community 86"
+Cohesion: 0.50
+Nodes (4): Docs map, 🎸 Tactus, The 30-second version, The rig (as-built — full detail in [`truth.md`](truth.md))
+
+### Community 87 - "Community 87"
+Cohesion: 0.50
+Nodes (4): Bring-up order, Install, software, What to build first (MVP slices)
+
+### Community 89 - "Community 89"
+Cohesion: 0.25
+Nodes (8): print_marker.html (ArUco print sheet, scale at 100%), ArUco marker 4x4_50 id 0 (optional validation rig), FlashForge Adventurer 5M (220^3 PETG bed), cad/README.md (printed enclosure + coupling pucks), Guitar digital twin (per-guitar reference keyframes), Markerless fretboard registration (12-TET fret-law homography), Stage 1 — WHERE (vision-led position: string, fret, finger, d), Whole-guitar framing at 1080p + offline ROI crop
+
+### Community 90 - "Community 90"
+Cohesion: 0.38
+Nodes (7): Per-bus load math (amps_on_bus x per-amp draw), docs/03-power.md (chord-safety power math), USB-C 5.1k CC resistor (enables cut USB-C PD feed), One-powered-hub-does-both topology (data + 5V power), Power Mode A — wall 10-port hub, Power Mode B — Anker 737 cordless bus, Sequential strum sweep (<=2 drivers active -> ~2-3W peak)
+
+### Community 91 - "Community 91"
+Cohesion: 0.33
+Nodes (6): LLM coach (Anthropic Claude, phrase-level), Deepgram hands-free voice (rewind/slower/again), Feel-the-difference (your version vs correct, back-to-back), docs/13_LEARN_WEB_AND_VISUALIZATION.md (LEARN loop + WebSocket contract), No-hardware fallback (runs on laptop against recording), Component C — VLM coach (Claude vision finger highlight)
+
+### Community 92 - "Community 92"
+Cohesion: 0.50
+Nodes (4): 4. Exact purchases — granular parts ledger (owned now), Body-side fabricated parts (3D-printed, `cad/`) — dimensions, Electronics (the rig), Tools
+
 ## Knowledge Gaps
-- **330 isolated node(s):** `The 30-second version`, `The rig (as-built — full detail in [`truth.md`](truth.md))`, `Docs map`, `What lives inside (per truth.md §3 — laptop is the brain, no Pi)`, `Render → STL (headless, no OpenSCAD)` (+325 more)
+- **362 isolated node(s):** `ndarray`, `2026-06-20 — Framing pivot: whole-guitar capture (1080p) + offline ROI crop`, `2026-06-20 — docs/26 handoff + repo-wide markerless reconciliation`, `2026-06-20 — Markerless fretboard registration + guitar digital twin (no taped marker)`, `2026-06-20 — Localhost capture app (synced A/V + maximal metadata + live QC)` (+357 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `KHD 3 Ohm / 5 W driver (the actuator, de-housed from SK473)` connect `Hardware BOM & Architecture` to `Actuator Puck CAD`?**
-  _High betweenness centrality (0.132) - this node is a cross-community bridge._
-- **Why does `actuator_puck (cup + button coupler, spk_dia=52)` connect `Actuator Puck CAD` to `Hardware BOM & Architecture`?**
-  _High betweenness centrality (0.130) - this node is a cross-community bridge._
-- **Why does `Design Decisions (Why, and What We Rejected)` connect `Design Decisions (rejected)` to `Hardware BOM & Architecture`, `SK473/KHD Tuning`, `Build Refinements (channels)`, `Vibrotactile Perception Refs`?**
-  _High betweenness centrality (0.095) - this node is a cross-community bridge._
+- **Why does `truth.md — Tactus single source of truth` connect `Community 51` to `Community 71`, `Actuator Hardware & Coupling`, `Amp/BOM & Safety Hardware`, `Community 62`, `Community 89`, `Community 90`, `Community 91`, `Community 92`, `Project History & Haptic Render`, `Engine Pipeline (Fusion)`?**
+  _High betweenness centrality (0.096) - this node is a cross-community bridge._
+- **Why does `cad/README.md (printed enclosure + coupling pucks)` connect `Community 89` to `Community 73`, `Enclosure CAD Model`, `Community 51`?**
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `# NOTE: the .scad's rim_lip subtraction is a geometric no-op (it lies inside`, `Cylinder of length h centered at (cx,cy,cz), running along axis x/y/z.`, `Vertical-edge rounded rectangular prism, min-corner at (0,0,z0).` to the rest of the system?**
-  _368 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Hardware BOM & Architecture` be split into smaller, more focused modules?**
-  _Cohesion score 0.06994535519125683 - nodes in this community are weakly interconnected._
-- **Should `AI Rigor & Fusion Core` be split into smaller, more focused modules?**
-  _Cohesion score 0.0545876887340302 - nodes in this community are weakly interconnected._
-- **Should `CAD Enclosure (brain-pack)` be split into smaller, more focused modules?**
-  _Cohesion score 0.08205128205128205 - nodes in this community are weakly interconnected._
+  _502 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `AI Audit Report Generator` be split into smaller, more focused modules?**
+  _Cohesion score 0.07562008469449485 - nodes in this community are weakly interconnected._
+- **Should `Speaker/Actuator Check Harness` be split into smaller, more focused modules?**
+  _Cohesion score 0.10526315789473684 - nodes in this community are weakly interconnected._
+- **Should `Fretboard Vision Registration` be split into smaller, more focused modules?**
+  _Cohesion score 0.09815078236130868 - nodes in this community are weakly interconnected._
+- **Should `Audio Feature Extraction` be split into smaller, more focused modules?**
+  _Cohesion score 0.09269162210338681 - nodes in this community are weakly interconnected._
