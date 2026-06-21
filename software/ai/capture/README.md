@@ -13,7 +13,7 @@ hit **Build run plan**, then per prompt: **Record → play to the visual click �
 - synced webcam+mic per run (lossless **WAV** + **webm**), browser DSP disabled so the buzz band survives
 - live **CLIP alarm** + silent/too-short checks + coverage grid + **maximal metadata** (for the harness loop)
 - if the server is down it offers a per-run **download** so nothing is lost
-- **audio-only** mode if the ArUco marker isn't on the headstock yet (Stage-2 only; Stage-1 needs video)
+- **audio-only** mode is a last-resort start (Stage-2 buzz-cause proof only). Registration is **markerless** (no fiducial needed) — keep **video on** for Stage-1 pose + `d`; map the guitar first with `software/ai/vision/calib_serve.py` (the digital twin).
 
 ## Fallback: terminal conductor + QuickTime
 ```

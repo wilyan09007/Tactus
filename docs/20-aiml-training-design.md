@@ -12,7 +12,7 @@ Extends `docs/17-ai-rigor.md` with the locked model (the buzz response-surface +
 |---|---|---|
 | D1 | Supervision | **Self-collected deliberate-technique dataset**, multimodal (synced video+audio). |
 | D2 | Labeling | **Prompted + audio-verified** — the prompt is the intended label; an independent audio check must agree or the sample is relabeled/dropped. Dual-witness labels, balanced by a capture checklist. |
-| D3 | Vision | **Hybrid:** MediaPipe Hands + OpenCV/ArUco homography → fretboard-relative pose [deterministic]; read fret directly when visible; when occluded (common), a **trained model maps visible hand-pose → occluded (string, fret, sub-fret, per-finger quality)**, with **audio (pitch→fret) as the free teacher.** Do **not** rewrite hand tracking. |
+| D3 | Vision | **Hybrid:** MediaPipe Hands + **markerless** OpenCV homography (fret-law; ArUco optional, `software/ai/vision/fretboard.py`) → fretboard-relative pose [deterministic]; read fret directly when visible; when occluded (common), a **trained model maps visible hand-pose → occluded (string, fret, sub-fret, per-finger quality)**, with **audio (pitch→fret) as the free teacher.** Do **not** rewrite hand tracking. |
 | D4→D6 | Fault model | **Buzz is cause-blind in audio** (empirically: a pressure-buzz and a placement-buzz sound the same). So model **buzz magnitude B = f(pressure P, wire-distance d)**; vision measures **d**, audio measures **B**, **invert the fitted surface to recover P.** Pressure is an *inverse problem*, not a sensor reading. |
 | D5 | Validation | **Separability study** (LDA/PCA + Fisher ratio, silhouette, pairwise d′, confusion matrix) across audio-only / vision-only / fused — empirically proves fusion is required and decides the taxonomy from data. |
 | D7 | Representation | **Both:** engineered-feature core (LDA/UMAP) for the dependable model + the **live 3D cluster viz**; a learned **contrastive multimodal embedding** as the research-grade stretch (+ Redis nearest-neighbor retrieval). Embedding is cut-first. |
@@ -24,7 +24,7 @@ Extends `docs/17-ai-rigor.md` with the locked model (the buzz response-surface +
 
 **Every sample = a synchronized `(video frame(s), audio window)` pair** at a known, prompted condition.
 
-**Capture rig.** Fixed camera down/over the neck; **ArUco fiducial on the headstock/body** (off the hand, so the fretboard frame survives occlusion); mic/contact-mic near the soundhole. One Python capture process timestamps both streams on a monotonic clock; the **audio onset** stamps the event time, and the nearest video frame(s) are grabbed. (A clap/transient at session start cross-checks A/V sync.)
+**Capture rig.** MacBook front camera on the neck; **markerless fretboard registration** (fret-law homography, off-the-hand fretboard frame survives occlusion; ArUco optional validator only); mic clipped inside the body near the soundhole. One Python capture process timestamps both streams on a monotonic clock; the **audio onset** stamps the event time, and the nearest video frame(s) are grabbed. (A clap/transient at session start cross-checks A/V sync.)
 
 **Prompted, dual-witnessed labeling (D2).** The app prompts an exact condition — e.g. *"low-E, fret 3, ring finger, pressure TOO LIGHT"* — so the **prompt is the intended label** (no manual annotation). Then an independent **audio check** (buzz/HNR/decay) must agree; disagreements are relabeled by the audio outcome or dropped. Classes stay balanced because the capture **checklist** dictates what's played.
 
@@ -36,7 +36,7 @@ Extends `docs/17-ai-rigor.md` with the locked model (the buzz response-surface +
 
 ```
 camera ─► MediaPipe Hands (21 landmarks/hand)  ─┐
-       ─► OpenCV + ArUco homography ────────────┘─► hand pose in FRETBOARD-RELATIVE coords
+       ─► OpenCV markerless homography ─────────┘─► hand pose in FRETBOARD-RELATIVE coords
                                                      │
    fingertip + local grid VISIBLE? ── yes ──► read (string,fret) deterministically
                                     ── no  ──► TRAINED pose→placement model:

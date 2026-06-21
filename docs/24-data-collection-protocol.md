@@ -14,7 +14,7 @@ We never tag clips by hand afterward. You **announce a condition, play it, and t
 ---
 
 ## 0b. What the data actually trains — the two "last miles"
-Vision is mostly **solved for free**: MediaPipe Hands (pretrained by Google) + ArUco/OpenCV homography turn raw pixels into clean, named, **fretboard-relative pose features** — and when the contact point is *visible* you just **read** (string, fret) off the grid (no model at all). So this capture is **not** teaching perception; it pins exactly **two small residuals**, and one recording trains both:
+Vision is mostly **solved for free**: MediaPipe Hands (pretrained by Google) + a **markerless OpenCV homography** (the 12-TET fret-law) turn raw pixels into clean, named, **fretboard-relative pose features** — and when the contact point is *visible* you just **read** (string, fret) off the grid (no model at all). So this capture is **not** teaching perception; it pins exactly **two small residuals**, and one recording trains both:
 
 | The "last mile" (the ONLY trained part) | What it needs from your playing | Fed by |
 |---|---|---|
@@ -25,13 +25,13 @@ The prompt is the label for both (`(string,fret,finger)` for Stage 1, `class` fo
 
 ## 1. The rig
 - **Mic:** Saramonic LavMicro-U clipped **inside the body at a marked, repeatable spot** (capsule toward the strings), USB-C into the Mac. Same spot every session AND the demo.
-- **Camera: the MacBook front camera** — the *same* camera the live AR interface uses, in the *same* playing position → train/serve match. **ArUco marker printed + taped to the headstock** (visible to the front cam). We do **not** need live MediaPipe during capture — record video, run MediaPipe+ArUco **offline** to extract pose + `d`, aligned to audio by timestamp.
-  - ⚠️ A front view foreshortens the neck and the hand self-occludes the contact point — so vision `d` is **noisier** than overhead. That's fine: it's the real deployment condition (the occlusion problem the model exists to solve), the ArUco homography still recovers the fretboard plane, and **labels are prompt-grounded** so we train the occlusion model to predict the prompted truth from the noisy pose.
-  - If the marker isn't printed yet: **start audio-only** (still proves "audio alone can't separate buzz cause"); add video the moment the marker's up.
+- **Camera: the MacBook front camera** — the *same* camera the live AR interface uses, in the *same* playing position → train/serve match. **Registration is MARKERLESS** (resolved — see `truth.md §3.8`, `docs/25`): we fit the fretboard homography from the guitar's own geometry via the 12-TET fret-spacing law (`software/ai/vision/fretboard.py`), no fiducial on the instrument. We do **not** need live MediaPipe during capture — record video, run MediaPipe + markerless homography **offline** to extract pose + `d`, aligned to audio by timestamp. (A printed **ArUco marker is OPTIONAL** — a ground-truth validation rig only; if used, place it coplanar with the fretboard near the nut/neck, never the angled headstock.)
+  - ⚠️ A front view foreshortens the neck and the hand self-occludes the contact point — so vision `d` is **noisier** than overhead. That's fine: it's the real deployment condition (the occlusion problem the model exists to solve), the homography still recovers the fretboard plane (validated by reprojecting the frets onto the real wires), and **labels are prompt-grounded** so we train the occlusion model to predict the prompted truth from the noisy pose.
+  - **Capture the per-guitar digital twin first** (`calibrate.html`/`twin.py`): a few reference keyframes at your playing angles so offline registration is robust. If you ever need to start before that: **audio-only** still proves "audio alone can't separate buzz cause"; add video for `d` + Stage 1.
 - **Levels:** gain low enough that the **hardest pluck doesn't clip**; disable macOS input "enhancement."
 - **Click:** slow metronome (~40–60 BPM) so notes separate cleanly for auto-segmentation.
 - **Room:** quiet for the core; one short **noisy block** at the end.
-- **Align mode (use for BOTH capture and inference — this is how we get train≈serve):** before any take, the app reads the **ArUco marker's apparent size/pose + the fretboard-region brightness** to estimate camera distance / angle / lighting, and guides you ("move back / raise the camera / more light") until you're inside the trained range, then **locks**. Capturing AND playing in the same aligned pose makes the vision features match **by construction** — far stronger than hoping the model is robust. The homography already absorbs a lot of camera-angle variation (fretboard-relative features); align-mode closes the rest, and offline **augmentation** (re-project homography to nearby virtual angles + brightness/contrast jitter) is cheap insurance for residual drift. This is an interface feature for the team; **gate capture on it.**
+- **Align mode (use for BOTH capture and inference — this is how we get train≈serve):** before any take, the app reads the **detected neck/fret geometry (or the digital-twin reference keyframe) apparent size/pose + the fretboard-region brightness** to estimate camera distance / angle / lighting, and guides you ("move back / raise the camera / more light") until you're inside the trained range, then **locks**. Capturing AND playing in the same aligned pose makes the vision features match **by construction** — far stronger than hoping the model is robust. The homography already absorbs a lot of camera-angle variation (fretboard-relative features); align-mode closes the rest, and offline **augmentation** (re-project homography to nearby virtual angles + brightness/contrast jitter) is cheap insurance for residual drift. This is an interface feature for the team; **gate capture on it.**
 
 ---
 
@@ -119,6 +119,11 @@ Offline we onset-segment each run into its notes; **every note inherits the run'
 | `room` | quiet / noisy |
 | `source_wav`, `source_video`, `notes` | paths + free text |
 
+> The table above is the conceptual core; the **localhost app writes a richer row** (adds `pose_variant`,
+> `beat_times_ms`, `expected_note_count`, `audio{sample_rate,format,peak_dbfs,clipped,silent}`,
+> `video{width,height,frame_rate}`, `devices{mic_label,cam_label}`, `aruco_marker_present`, `audio_only`,
+> `files{...}`, …). The **authoritative full schema + a real example row is in [`docs/26`](26-aiden-handoff.md) §2.**
+
 Rich metadata = the "many hypotheses on one dataset" capability: re-bin by pressure-only, by cause, per-string, 2-class vs 3-class — offline, no re-recording.
 
 ---
@@ -136,7 +141,7 @@ Clap at each session start = A/V sync check. Name strictly → I can auto-genera
 ---
 
 ## 7. What I need from you
-1. **Rig:** mic inside body (marked), MacBook front cam in playing position + ArUco on headstock (or audio-only to start), gain not clipping, slow click.
+1. **Rig:** mic inside body (marked), MacBook front cam in playing position (markerless — no fiducial needed; capture the digital twin first), gain not clipping, slow click.
 2. **Run the Day-1 slice** (§3) — ~45–60 min.
 3. **Prompted runs**, one continuous take each, then the y/n `matched_intent` check; **arpeggiate** chords.
 4. **Name files + fill the manifest** (§5) as you go.
@@ -147,7 +152,7 @@ Clap at each session start = A/V sync check. Name strictly → I can auto-genera
 ## 8. The pipeline + the interval audit (your anti-digression dashboard)
 Hand me a batch every ~15–20 min; `/loop` me and I run:
 1. **Onset-segment** runs → events; attach labels from the manifest + F0 cross-check.
-2. (video) **MediaPipe + ArUco offline** → pose + `d` per event, aligned by onset.
+2. (video) **MediaPipe + markerless homography offline** → pose + `d` per event, aligned by onset (`software/ai/vision/fretboard.py`; `docs/25` for the sync/registration contract).
 3. **Features** (~40–60 named audio + `d` + pluck-proxy).
 4. **Collapse:** standardize → PCA → **LDA** (readable eigenvectors) → UMAP viz.
 5. **Separability** under leave-one-player/position-out: Fisher / silhouette / pairwise d′ / confusion — **audio-only vs fused (+d)**.
@@ -187,7 +192,7 @@ What it does for you (it tells you everything + guards quality):
 - **Maximal metadata** per run: string / fret / finger / class / placement / pluck(+variant) / chord / pass / room, **beat-grid times**, duration, **peak dBFS + clip/silent flags**, sample-rate, video resolution/fps, **mic+cam device labels**, file paths/bytes, marker-present, sync note, app version — so the harness loop can re-slice the data every way (this is the point: depth of metadata).
 
 Flow: pick devices → **Build run plan** → per prompt **Record → play to the click → Stop → Yes/No** (auto-saves) → next. Finish a block, switch the **Block** dropdown, **Build** again. Run as many passes/iterations as you want — each session appends under its own folder.
-> Marker not printed yet? Tick **audio-only** — you still get the Stage-2 buzz-cause proof; add video once the ArUco marker is on the headstock (needed for Stage-1 pose + `d`).
+> No marker needed — registration is markerless. Keep **video on** (needed for Stage-1 pose + `d`). **audio-only** is only a last-resort start (Stage-2 buzz-cause proof only).
 
 ### B) Zero-dependency fallback (QuickTime + terminal conductor)
 If the browser route ever misbehaves: **QuickTime → New Movie Recording** (camera = front cam, mic = Saramonic), **clap once** for sync, and run the terminal conductor for the prompts + manifest:

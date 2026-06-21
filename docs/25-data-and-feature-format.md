@@ -8,6 +8,9 @@ governs how raw `data/raw/` becomes features + the separability headline.
 
 > TL;DR for the person recording: **clap once per session, keep video on, confirm the WAV-lossless
 > pill is green, play tight to the click.** Then collect as much as possible. The rest is Aiden/me.
+>
+> **Aiden (offline pipeline):** start at [`docs/26`](26-aiden-handoff.md) — the data-handoff orientation
+> (exact file layout + manifest example + where to begin), then code against this contract.
 
 ---
 
