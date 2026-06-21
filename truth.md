@@ -62,6 +62,10 @@ LAPTOP ──USB data──► 2× VANTEC (USB→8 analog ch each; V3 spare)
 POWER (5 V, fully separate from audio): wall 10-port hub (Mode A) OR Anker 737 bus (Mode B)
         → feeds ONLY the amps' 5 V leads. Laptop + Vantecs run off the laptop's own USB.
 ONE shared ground (laptop ↔ Vantec ↔ 3.5 mm sleeve ↔ amp). Isolation = "+5 V never touches a signal line."
+
+AUDIO IN:  Saramonic LavMicro-U (USB-C digital lav, clipped INSIDE the guitar) ──USB──► LAPTOP
+        → its OWN USB input device (has its own ADC); the Vantecs stay OUTPUT-only, V3 spare.
+          Same mic for training + live inference.
 ```
 
 ### 3.1 Compute / brain
@@ -108,8 +112,11 @@ Parametric OpenSCAD + pre-rendered STLs in `cad/`:
 - **`tactus_chest_plate` / `tactus_node_mount`:** body-side mounts. Use **VHB + zip-ties through a slot grid** (dimension-tolerant), not tight press-fit, because several sizes are estimated. **Decision (locked): the SK473 amp+driver units mount on the VEST** — each box's 3.5 mm audio runs to a Vantec and its USB to the hub; the printed box holds only the 2 Vantec + power.
 
 ### 3.8 Sensing
-- **Camera** (USB webcam aimed down the neck, or laptop cam) → MediaPipe + ArUco. **Print the ArUco marker** for the headstock (`cad/README` has the slot).
-- **Mic / contact mic** near the soundhole; keep F0 clean in a loud room.
+- **Camera: the MacBook front camera** — the same one the live AR interface uses, in the same playing position → **train/serve match**. → MediaPipe + ArUco. A front view foreshortens the neck and the hand self-occludes the contact point (that's the occlusion problem the model solves); the ArUco homography still recovers the fretboard plane and labels are prompt-grounded, so a noisier `d` doesn't break training. **Print the ArUco marker** for the headstock (`cad/README` has the slot). Data-collection protocol: `docs/24`.
+- **Mic (LOCKED — bought): Saramonic LavMicro-U** — a **wired digital USB-C lavalier**, clipped **inside the guitar body (at the soundhole).** A mentor flagged the noisy-venue problem — an open laptop mic distorts the granular buzz feedback; clipping the mic close to the source + the guitar body shielding the room is the fix. **The SAME mic is the audio input for both training and live inference** (the model never sees a different mic at test time — no train/serve skew).
+  - **Specs:** pre-polarized condenser, **omnidirectional**; frequency response **30 Hz – 20 kHz** (comfortably covers the fret-buzz harmonics); sensitivity **−42 ±3 dB** (1 kHz, 0 dB = 1 V/Pa); **16/24-bit @ 44.1/48 kHz**, multibit Delta-Sigma ADC; gain **0–35 dB**; **6.6 ft (2 m)** USB-C cable; ~20 g. In the box: USB-C lav, **USB-C→USB-A adapter**, 2 windscreens, 2 clips, pouch.
+  - **Connection (plug-and-play — no Vantec, no plug-in-power, no adapter gamble):** it's a **digital USB mic with its own ADC**, so it plugs **straight into a free Mac USB-C port** (or via the included USB-A adapter into the powered hub) and appears in macOS as **its own input device.** The **Vantecs stay OUTPUT-only and V3 stays a true spare.** In software, open the **mic as the input stream and the Vantec(s) as the output stream independently** — two separate USB-audio devices, **no macOS aggregate device needed** (analysis→render is decoupled, so their independent clocks don't matter for our pulse haptics). Mono capture is fine — that's what F0/buzz wants.
+  - **Settings + Stage-1 check:** confirm it appears under *System Settings → Sound → Input* and the meter moves on a strum; **disable any input "enhancement"/noise-cancel** (it strips the buzz we measure); set gain so a hard strum doesn't clip (clipping shreds the buzz-energy band). The 2 m cable reaches the laptop with margin — no extension needed. **Fallback** if a USB-C port is scarce: the included USB-A adapter into the hub; last-resort mic swap = the DJI Mic Mini (USB-C, but wireless/compressed).
 
 ---
 
@@ -130,6 +137,7 @@ Parametric OpenSCAD + pre-rendered STLs in `cad/`:
 | AudioVox 18 AWG speaker wire | 995381 | 1 | 18 AWG, 2-conductor zip-cord, 100 ft, stranded | ≈$20 | **the only body wire** + Mode B 5 V bus |
 | Elegoo ESP-32 USB-C (3-pack) | 961193 | 1 (+2 prior = 5) | — | (confirm) | **NOT in the audio path** (sensor work only) |
 | Adafruit 22 AWG solid-core (6-color) | 889089 | 2 | — | (confirm) | **stale — not physically present** (`docs/15 §3`) |
+| **Saramonic LavMicro-U** USB-C lavalier | — | 1 (bought) | digital USB mic (own ADC), omni condenser, 30 Hz–20 kHz, 16/24-bit @ 44.1/48 kHz, 2 m USB-C cable + USB-A adapter | $30 (Best Buy) | **Canonical audio input** — clip inside the guitar → **straight into a Mac USB port** (its own input device; Vantecs stay output-only). Training + inference. See §3.8. |
 | Guitar | — | 1 | acoustic, from a friend | $0 | the instrument |
 
 ### Tools
@@ -183,6 +191,7 @@ Anthropic (Claude vision = the coaching brain: frame + target + fault → the pl
 3. **Browser→Python vision-feature schema + A/V sync** — lock Saturday AM. (§2)
 4. **Actuator coupling** — prove ONE puck feels strong before building 12. (§3.3)
 5. **On-body tuning** — drive freq / pulse / coupling / per-channel gain. (`docs/18`)
+6. **Mic input** — confirm the Saramonic LavMicro-U appears as a macOS input and the meter moves in Stage-1; disable any input enhancement; set gain so a hard strum doesn't clip. (§3.8)
 
 ---
 
