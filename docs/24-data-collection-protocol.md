@@ -4,6 +4,7 @@ Status: **ACTIVE — start now.** Extends `docs/20` (training design), `docs/23`
 
 > **Goal:** high-volume, *labeled-by-construction* data fast, with an interval audit so we never drift. Decisions locked in office-hours:
 > - **D1** single-note-dominant; **D2** collapse regions = {clean, buzz-too-light, buzz-placement} per string, muted/choked as cheap external flags; **D3** balanced classes + a natural-ratio holdout; **D4** **prompted RUNS + arpeggiated chords + interval audit**; camera = **MacBook front cam** (train/serve match).
+> - **SCOPE LOCK (D6):** **frets 1–6 only, 1:1 fret→zone** — we have 6 fret-zone motors, so we record/coach only what we can render (this *supersedes* the eng-review V5 neck-spanning ask; 12-via-intensity is post-hackathon). See §0b for *what* the data trains.
 
 ---
 
@@ -11,6 +12,16 @@ Status: **ACTIVE — start now.** Extends `docs/20` (training design), `docs/23`
 We never tag clips by hand afterward. You **announce a condition, play it, and the whole take inherits that label.** Your hand-work = executing prompted runs + a 2-second "did it come out as intended?" (y/n) per take. Every sample's ground truth is the prompt; audio only *verifies* (never silently relabel — log disagreements). This is what makes the labels trustworthy for the Most-Technical / Redis / Annapurna pitch.
 
 ---
+
+## 0b. What the data actually trains — the two "last miles"
+Vision is mostly **solved for free**: MediaPipe Hands (pretrained by Google) + ArUco/OpenCV homography turn raw pixels into clean, named, **fretboard-relative pose features** — and when the contact point is *visible* you just **read** (string, fret) off the grid (no model at all). So this capture is **not** teaching perception; it pins exactly **two small residuals**, and one recording trains both:
+
+| The "last mile" (the ONLY trained part) | What it needs from your playing | Fed by |
+|---|---|---|
+| **Stage 1 — occluded pose → (string, fret, finger)** | the *same* position played with *varied* hand shapes/angles | the position grid + **pose-variation passes (D5)** |
+| **Stage 2 — buzz B + d → pressure / cause** | clean vs the two buzz causes **back-to-back at the same spot**, with vision's `d` | the **clean / too-light / placement** triplet |
+
+The prompt is the label for both (`(string,fret,finger)` for Stage 1, `class` for Stage 2); audio only verifies. Even at inference the Stage-1 "last mile" isn't alone — **audio pitch** narrows the candidate frets and the **theory prior** (the prompted/intended chord) constrains it, fused by the Bayesian posterior. **This is why ~1,000 takes suffice** where a raw-pixel model would need ~100× — we label a few hundred *residual* examples by construction, not a perception dataset. That economy is the payoff of the AI-only-where-unsolved split (`docs/17`).
 
 ## 1. The rig
 - **Mic:** Saramonic LavMicro-U clipped **inside the body at a marked, repeatable spot** (capsule toward the strings), USB-C into the Mac. Same spot every session AND the demo.
@@ -26,7 +37,7 @@ We never tag clips by hand afterward. You **announce a condition, play it, and t
 
 ## 2. Capture protocol — prompted RUNS, not one-note blocks
 A **run** = one fixed condition swept across a string's frets in a single continuous take.
-1. Announce/log the condition (manifest row, §5): `(string, class, pluck, finger)`.
+1. The **conductor prompts** the exact condition; the prompt *is* the label, auto-logged to the manifest (§5): `(string, class, pluck, finger)`. (Day-1 zero-build flow — QuickTime + the terminal conductor — is in §10.)
 2. Record one continuous WAV (+ MP4) for the run.
 3. Play the sweep to the click: e.g. **frets 1→6 on the low-E, all buzz-too-light**, one note per tick.
 4. Stop. 2-sec check: did all notes come out as intended? Set `matched_intent` y/n (re-do if a buzz run rang clean).
@@ -51,6 +62,7 @@ Offline we onset-segment each run into its notes; **every note inherits the run'
 > ⭐ **buzz-too-light vs buzz-placement is the crux.** Same sound, the only reliable difference is `d`. Record them back-to-back on the same string. Nailing this pair = the inverse-problem proof.
 
 ### Position grid: 6 strings × 6 frets = 36 cells, via runs
+> **Frets 1–6 is the FULL scope** (6 fret-zone motors, 1:1 fret→zone) — the Stage-1 model only needs to generalize *within* 1–6; **no high-neck collection.** This is a rigor line, not a shortcut: *we record only what the body can render.*
 - Per string: a run for each of **clean / buzz-too-light / buzz-placement**, sweeping **frets 1→6** = 18 runs × 6 notes = 108 events/pass.
 - Do **~3–4 passes** → ~350–430 single-note position events, ~40 min.
 - + a few **muted** and **choked** runs (~15 min), + the **pluck-sweep** (below).
@@ -157,3 +169,22 @@ Hand me a batch every ~15–20 min; `/loop` me and I run:
 - **buzz that rang clean** → that's what `matched_intent` y/n + the F0 audit catch; re-do the run.
 - **Inconsistent pluck** in the controlled core → leaks into the buzz signal. Medium only; use the sweep for variation.
 - **Mislabeled run** → poisons ~6 notes. Check the manifest row before recording.
+
+---
+
+## 10. Day-1 recording — do this NOW (zero-build, can't-fail)
+No localhost / align-mode harness needed to start. **QuickTime captures synced A/V in ONE file; a terminal conductor tells you what to play and writes the manifest.** (The browser align-mode harness is the *next* build, for the M4 with the camera.)
+
+**Setup (once):**
+1. **Mic:** plug in the Saramonic → *System Settings → Sound → Input = Saramonic*; **disable any input "enhancement"/noise-cancel**; set gain so a **hard strum doesn't clip**.
+2. **Metronome:** phone app at **~50 BPM** (slow → notes separate for auto-segmentation).
+3. **QuickTime → New Movie Recording** → click the **⌄** by the record button: **Camera = front cam** (you in playing position), **Microphone = Saramonic** → **Record**. *(Audio-only fallback if the ArUco marker isn't printed yet: New Audio Recording, mic = Saramonic — still proves audio alone can't separate the buzz cause.)*
+4. **CLAP once, loud** at the very start = the A/V sync mark.
+
+**Run the conductor** (`software/ai/capture/record_conductor.py` — stdlib only, no install):
+```
+cd ~/Desktop/tactus && python3 software/ai/capture/record_conductor.py --player aditya --passes 3
+```
+It prints each run in **interleaved** order (kills session drift, H4), waits for you to play it + hit ENTER, asks the y/n intent check, and appends a manifest row (§5) to `data/raw/<session>/<player>/manifest.jsonl`. **One QuickTime file per pass is fine** — save the movie into that session's `video/` (or `audio/`) folder, then hand the folder to the pipeline.
+
+**Extra blocks** (rerun the conductor or just announce them on the recording): pose-variation (`--finger ring`, `--finger pinky`) → Stage-1 generalization; pluck-sweep (soft/med/hard at a few cells) → buzz ≠ pluck; a few muted/choked runs; ~6–8 **arpeggiated** chords (clean + one deliberate buzz); and a 5-min **natural holdout** ("just play normally" — held out, calibrates false-alarm rate).

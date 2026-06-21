@@ -83,7 +83,7 @@ AUDIO IN:  Saramonic LavMicro-U (USB-C digital lav, clipped INSIDE the guitar) �
 | 7–8 | V1 | side | B4 | L/R | **torso** fret-zones z1–z2 |
 | 9–12 | V2 | front/rear | B5–B6 | L/R | **torso** fret-zones z3–z6 |
 
-- 12 musical frets map onto the 6 torso zones via **zone + intensity**. **All 12 sites are torso-mounted — strings on the back, fret-zones on the front/torso, NOT the forearm** (no reliable way to anchor to the forearm); exact positions are flexible. Sites kept **≥ 4–5 cm apart**. The 2 reserved zones (old ch 13–14) are **dropped**.
+- 12 musical frets map onto the 6 torso zones via **zone + intensity** — **but the hackathon scope is FRETS 1–6 ONLY, 1:1 (fret N → zone N)**: 6 fret-zone encoders, so we render / record / coach only frets 1–6 (12-via-intensity multiplexing is a post-hackathon extension; this also scopes the AIML data — `docs/24`). **All 12 sites are torso-mounted — strings on the back, fret-zones on the front/torso, NOT the forearm** (no reliable way to anchor to the forearm); exact positions are flexible. Sites kept **≥ 4–5 cm apart**. The 2 reserved zones (old ch 13–14) are **dropped**.
 - ⚠️ **ALSA enumeration trap:** the 3 CM6206 cards enumerate with the same name and reorder across reboots. Bind by `/dev/snd/by-id` (not `hw:0/1/2`), and verify the in-card channel order (`speaker-test`) — CM6206 often presents FL,FR,FC,LFE,RL,RR,SL,SR (center/LFE before rears). Fill `card_alsa`/`alsa_ch` empirically at bring-up. **(docs/15 §2.)**
 
 ### 3.3 Drivers & body coupling

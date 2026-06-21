@@ -5,3 +5,8 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# raw capture media — keep manifest.jsonl, drop heavy A/V
+data/raw/**/*.wav
+data/raw/**/*.mp4
+data/raw/**/*.mov

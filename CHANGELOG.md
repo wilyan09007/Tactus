@@ -2,6 +2,12 @@
 
 > **Current state lives in [`truth.md`](truth.md), not here.** This log is the chronological record of the project, **including the abandoned pre-pivot era** (3-pillar Experience/Express; Raspberry Pi + ESP32 + MAX98357A; 16/14-channel). Older entries are kept as history — do not read them as the current build (as-built = laptop → 2× Vantec → 6× SK473/PAM8403 → 12× KHD drivers, LEARN + PLAY).
 
+## 2026-06-20 — Data-collection: frets 1–6 scope lock, last-mile↔data framing, Day-1 recorder
+- **SCOPE LOCK (D6): frets 1–6 only, 1:1 fret→zone** (6 fret-zone motors — we record/coach only what we can render). Resolves the "fret span beyond 6" open thread and supersedes the eng-review V5 neck-spanning ask. Reconciled across `truth.md §3.2`, `docs/24` (§0b/§3 + decisions), and `docs/23` (breadth pass).
+- **`docs/24 §0b` — "what the data actually trains: the two last miles."** Vision (MediaPipe + ArUco/homography) does the bulk for free; capture only pins two residuals — Stage 1 (occluded pose → string,fret,finger) and Stage 2 (buzz B + d → pressure/cause). One recording trains both; the prompt is the label. This is *why* ~1,000 takes suffice vs ~100× for a raw-pixel model.
+- **`docs/24 §10` + `software/ai/capture/record_conductor.py` — Day-1, zero-build recording.** Terminal conductor (stdlib only) prompts each interleaved run and writes the manifest (prompt = label); QuickTime captures synced A/V in one file. Run: `python3 software/ai/capture/record_conductor.py --player <name> --passes 3`. The localhost/align-mode harness is the next build.
+- **`.gitignore`** — ignore raw capture media (`data/raw/**/*.wav|mp4|mov`), keep `manifest.jsonl` tracked.
+
 ## 2026-06-19 — Refinement pass on the as-built rig (enclosure CAD + build kinks + LEARN UI)
 Aligned to Aritro's as-purchased docs (`docs/00`–`13`, laptop → 3× Vantec → 7× SK473/PAM8403 → 14× 40 mm). Added, on branch `refine/enclosure-build-interface`:
 - **`cad/` — printable enclosure** for everything-but-vest-and-subwoofers, sized to the **FlashForge Adventurer 5M (220³, PETG)**. Parametric OpenSCAD + **pre-rendered STLs** (all verified ≤ 220 mm): `tactus_box` (base+lid: 3 Vantec + 7 amp bricks + Pi 5, vented, **strain-relief comb** + zip-tie floor), `tactus_power_cradle` (Anker 737 / 10-port hub, removable + vented), `actuator_puck` (turns a 40 mm cone speaker into a body tactor — the coupling fix).
