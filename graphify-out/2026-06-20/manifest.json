@@ -1,0 +1,307 @@
+{
+  "/Users/aritro/Downloads/tactus/cad/_verify_enclosure.py": {
+    "mtime": 1781980059.6132164,
+    "ast_hash": "630ab9c1c366573d50a5f6306f6bc91c",
+    "semantic_hash": "630ab9c1c366573d50a5f6306f6bc91c"
+  },
+  "/Users/aritro/Downloads/tactus/cad/tactus_enclosure.py": {
+    "mtime": 1781980059.6179852,
+    "ast_hash": "132f7fd47c72cd3df6d8efdab9e7b6a9",
+    "semantic_hash": "132f7fd47c72cd3df6d8efdab9e7b6a9"
+  },
+  "/Users/aritro/Downloads/tactus/config/channel_map.json": {
+    "mtime": 1781973868.7768495,
+    "ast_hash": "636a3da22843558dd186da337ca5308c",
+    "semantic_hash": "636a3da22843558dd186da337ca5308c"
+  },
+  "/Users/aritro/Downloads/tactus/CHANGELOG.md": {
+    "mtime": 1781973868.7646942,
+    "ast_hash": "34b8d46cc0cd78a692cdbe414f481225",
+    "semantic_hash": "34b8d46cc0cd78a692cdbe414f481225"
+  },
+  "/Users/aritro/Downloads/tactus/README.md": {
+    "mtime": 1781934585.1542127,
+    "ast_hash": "a745f9738df71c2b2a61fa789bd895af",
+    "semantic_hash": "a745f9738df71c2b2a61fa789bd895af"
+  },
+  "/Users/aritro/Downloads/tactus/SHOPPING_LIST.md": {
+    "mtime": 1781934560.0565264,
+    "ast_hash": "c110c571b89e4a4322718dc77d8d4376",
+    "semantic_hash": "c110c571b89e4a4322718dc77d8d4376"
+  },
+  "/Users/aritro/Downloads/tactus/cad/README.md": {
+    "mtime": 1781981193.2405915,
+    "ast_hash": "0f631f838bbbecc3c332fe4243ca0f4e",
+    "semantic_hash": "0f631f838bbbecc3c332fe4243ca0f4e"
+  },
+  "/Users/aritro/Downloads/tactus/docs/00-start-here.md": {
+    "mtime": 1781932279.5284352,
+    "ast_hash": "ba4010ace6c89fafb018bba3306a0975",
+    "semantic_hash": "ba4010ace6c89fafb018bba3306a0975"
+  },
+  "/Users/aritro/Downloads/tactus/docs/00_NORTH_STAR.md": {
+    "mtime": 1781934560.0566895,
+    "ast_hash": "991fba98d0a0a6119355ad60781f4b0d",
+    "semantic_hash": "991fba98d0a0a6119355ad60781f4b0d"
+  },
+  "/Users/aritro/Downloads/tactus/docs/01-bill-of-materials.md": {
+    "mtime": 1781930973.3187149,
+    "ast_hash": "1ed757474cc4af2d07a101e27b750eca",
+    "semantic_hash": "1ed757474cc4af2d07a101e27b750eca"
+  },
+  "/Users/aritro/Downloads/tactus/docs/01_PSYCHOPHYSICS.md": {
+    "mtime": 1781934560.0568366,
+    "ast_hash": "f01de1ddf272dcf953ffdae107941764",
+    "semantic_hash": "f01de1ddf272dcf953ffdae107941764"
+  },
+  "/Users/aritro/Downloads/tactus/docs/02-system-architecture.md": {
+    "mtime": 1781931920.4649684,
+    "ast_hash": "14dc34ea290fe8e5b6beb45d9382c876",
+    "semantic_hash": "14dc34ea290fe8e5b6beb45d9382c876"
+  },
+  "/Users/aritro/Downloads/tactus/docs/02_HARDWARE.md": {
+    "mtime": 1781934560.0569816,
+    "ast_hash": "5eaba50270c4b14092b1f7b2e9b98320",
+    "semantic_hash": "5eaba50270c4b14092b1f7b2e9b98320"
+  },
+  "/Users/aritro/Downloads/tactus/docs/03-power.md": {
+    "mtime": 1781931858.9191535,
+    "ast_hash": "a9d700052f548c734c67fe2b1ee5b3e4",
+    "semantic_hash": "a9d700052f548c734c67fe2b1ee5b3e4"
+  },
+  "/Users/aritro/Downloads/tactus/docs/03_SOURCING_FRIDAY.md": {
+    "mtime": 1781934560.0571315,
+    "ast_hash": "9d5efe84f67ed9dc178651f8b51819cf",
+    "semantic_hash": "9d5efe84f67ed9dc178651f8b51819cf"
+  },
+  "/Users/aritro/Downloads/tactus/docs/04-soldering-guide.md": {
+    "mtime": 1781931890.6903696,
+    "ast_hash": "1d5b02efa8f0fc6b8c4f33c0723e4c07",
+    "semantic_hash": "1d5b02efa8f0fc6b8c4f33c0723e4c07"
+  },
+  "/Users/aritro/Downloads/tactus/docs/04_ML_PIPELINE.md": {
+    "mtime": 1781934560.0572696,
+    "ast_hash": "33394512c300f808d1bed15db0b8226a",
+    "semantic_hash": "33394512c300f808d1bed15db0b8226a"
+  },
+  "/Users/aritro/Downloads/tactus/docs/05-wiring-map.md": {
+    "mtime": 1781973868.7772226,
+    "ast_hash": "8fa84920c96d9788da4215df063a6ba8",
+    "semantic_hash": "8fa84920c96d9788da4215df063a6ba8"
+  },
+  "/Users/aritro/Downloads/tactus/docs/05_INSTRUMENT_PLAYBYTOUCH.md": {
+    "mtime": 1781934560.0573976,
+    "ast_hash": "47e003c7b097739e639c10742ad4a409",
+    "semantic_hash": "47e003c7b097739e639c10742ad4a409"
+  },
+  "/Users/aritro/Downloads/tactus/docs/06-safety.md": {
+    "mtime": 1781931911.8007972,
+    "ast_hash": "4a4f127ef50065143ccac769e8483282",
+    "semantic_hash": "4a4f127ef50065143ccac769e8483282"
+  },
+  "/Users/aritro/Downloads/tactus/docs/06_SPONSORS_AND_TRACKS.md": {
+    "mtime": 1781934560.0575345,
+    "ast_hash": "b80a97141525750577bbc868cbad2b8c",
+    "semantic_hash": "b80a97141525750577bbc868cbad2b8c"
+  },
+  "/Users/aritro/Downloads/tactus/docs/07-haptic-encoding.md": {
+    "mtime": 1781931942.7412612,
+    "ast_hash": "34e177bb67fd946f28471b37246d44a4",
+    "semantic_hash": "34e177bb67fd946f28471b37246d44a4"
+  },
+  "/Users/aritro/Downloads/tactus/docs/07_DEMO_RUNBOOK.md": {
+    "mtime": 1781934560.057666,
+    "ast_hash": "f44a2847f5e4c27ca9374cb68b18520a",
+    "semantic_hash": "f44a2847f5e4c27ca9374cb68b18520a"
+  },
+  "/Users/aritro/Downloads/tactus/docs/08-software-architecture.md": {
+    "mtime": 1781931163.1603205,
+    "ast_hash": "f43507062bf3b873b30568cafa7e3a26",
+    "semantic_hash": "f43507062bf3b873b30568cafa7e3a26"
+  },
+  "/Users/aritro/Downloads/tactus/docs/08_BUILD_PLAN.md": {
+    "mtime": 1781934560.0577972,
+    "ast_hash": "dc0f8d4b324b41ef5f1ce3bc27083131",
+    "semantic_hash": "dc0f8d4b324b41ef5f1ce3bc27083131"
+  },
+  "/Users/aritro/Downloads/tactus/docs/09-assembly-checklist.md": {
+    "mtime": 1781931188.2671576,
+    "ast_hash": "ffb743b1c2c293a2f63bdf33cebacbca",
+    "semantic_hash": "ffb743b1c2c293a2f63bdf33cebacbca"
+  },
+  "/Users/aritro/Downloads/tactus/docs/09_CREATIVE_EXPRESSION.md": {
+    "mtime": 1781934560.0579352,
+    "ast_hash": "d623dcaded1e88734100bc00ac6b5c55",
+    "semantic_hash": "d623dcaded1e88734100bc00ac6b5c55"
+  },
+  "/Users/aritro/Downloads/tactus/docs/10-design-decisions.md": {
+    "mtime": 1781932339.1253195,
+    "ast_hash": "e931d53d3810230e1bf408a5be58fe9f",
+    "semantic_hash": "e931d53d3810230e1bf408a5be58fe9f"
+  },
+  "/Users/aritro/Downloads/tactus/docs/10_GESTURE_PIPELINE.md": {
+    "mtime": 1781934560.0580747,
+    "ast_hash": "1f75a254fc71ca5d89b549ffe72065f9",
+    "semantic_hash": "1f75a254fc71ca5d89b549ffe72065f9"
+  },
+  "/Users/aritro/Downloads/tactus/docs/11-ai-and-pitch.md": {
+    "mtime": 1781932363.6470492,
+    "ast_hash": "3a73d98fb1d8922449f6ff8808b51f6b",
+    "semantic_hash": "3a73d98fb1d8922449f6ff8808b51f6b"
+  },
+  "/Users/aritro/Downloads/tactus/docs/11_STIMULATION_MODALITIES.md": {
+    "mtime": 1781934560.0582037,
+    "ast_hash": "fb948950c4b04addbfca1160d0f1d737",
+    "semantic_hash": "fb948950c4b04addbfca1160d0f1d737"
+  },
+  "/Users/aritro/Downloads/tactus/docs/12-perception-references.md": {
+    "mtime": 1781932384.7004995,
+    "ast_hash": "ed9d67e168ce9fd76594cf69a95861ae",
+    "semantic_hash": "ed9d67e168ce9fd76594cf69a95861ae"
+  },
+  "/Users/aritro/Downloads/tactus/docs/12_PLATFORM_AND_GENAI.md": {
+    "mtime": 1781934560.0583465,
+    "ast_hash": "145ccba94e881971136977d098abeb14",
+    "semantic_hash": "145ccba94e881971136977d098abeb14"
+  },
+  "/Users/aritro/Downloads/tactus/docs/13-open-questions.md": {
+    "mtime": 1781973868.7775655,
+    "ast_hash": "a3c8e21628fafed861a8851803ce6d58",
+    "semantic_hash": "a3c8e21628fafed861a8851803ce6d58"
+  },
+  "/Users/aritro/Downloads/tactus/docs/13_LEARN_WEB_AND_VISUALIZATION.md": {
+    "mtime": 1781934560.058499,
+    "ast_hash": "7daa66bd51590d354e3da7156db4e085",
+    "semantic_hash": "7daa66bd51590d354e3da7156db4e085"
+  },
+  "/Users/aritro/Downloads/tactus/docs/14_HARDWARE_INTEGRATION.md": {
+    "mtime": 1781934560.0586443,
+    "ast_hash": "275b1c468fc70176cb245d8f26082621",
+    "semantic_hash": "275b1c468fc70176cb245d8f26082621"
+  },
+  "/Users/aritro/Downloads/tactus/docs/15-build-refinements.md": {
+    "mtime": 1781973868.7777193,
+    "ast_hash": "a71c21315dc10b72cdf4abc5db3e555c",
+    "semantic_hash": "a71c21315dc10b72cdf4abc5db3e555c"
+  },
+  "/Users/aritro/Downloads/tactus/docs/16-learn-interface.md": {
+    "mtime": 1781973868.7778778,
+    "ast_hash": "ec4a0d1cbb8850ccc9cbbfa1e61066ca",
+    "semantic_hash": "ec4a0d1cbb8850ccc9cbbfa1e61066ca"
+  },
+  "/Users/aritro/Downloads/tactus/docs/17-ai-rigor.md": {
+    "mtime": 1781973868.778034,
+    "ast_hash": "f8ffc973c718d8302d05b4cc338081db",
+    "semantic_hash": "f8ffc973c718d8302d05b4cc338081db"
+  },
+  "/Users/aritro/Downloads/tactus/docs/18-tuning-and-calibration.md": {
+    "mtime": 1781973868.7781503,
+    "ast_hash": "2e5fba96fdcc0ece5d2b854a3000a79e",
+    "semantic_hash": "2e5fba96fdcc0ece5d2b854a3000a79e"
+  },
+  "/Users/aritro/Downloads/tactus/docs/19-sponsors-refined.md": {
+    "mtime": 1781973868.77826,
+    "ast_hash": "6e220edef819c2f46fa4b97517c782a0",
+    "semantic_hash": "6e220edef819c2f46fa4b97517c782a0"
+  },
+  "/Users/aritro/Downloads/tactus/docs/20-aiml-training-design.md": {
+    "mtime": 1781973868.7784178,
+    "ast_hash": "8de81e01de419b204be22bd861140266",
+    "semantic_hash": "8de81e01de419b204be22bd861140266"
+  },
+  "/Users/aritro/Downloads/tactus/docs/20-eng-review.md": {
+    "mtime": 1781973868.7785456,
+    "ast_hash": "dcb8684043941dcce43ecee4b47ab1f7",
+    "semantic_hash": "dcb8684043941dcce43ecee4b47ab1f7"
+  },
+  "/Users/aritro/Downloads/tactus/docs/21-chord-and-sustain-rendering.md": {
+    "mtime": 1781973868.7786946,
+    "ast_hash": "93947ab0767925c537839bf9a38d61ed",
+    "semantic_hash": "93947ab0767925c537839bf9a38d61ed"
+  },
+  "/Users/aritro/Downloads/tactus/docs/22-interface-ar-and-correction.md": {
+    "mtime": 1781973868.7788134,
+    "ast_hash": "8a221d9c72edcf8a4edf7f4a14044925",
+    "semantic_hash": "8a221d9c72edcf8a4edf7f4a14044925"
+  },
+  "/Users/aritro/Downloads/tactus/docs/REF_actuator_brief.md": {
+    "mtime": 1781934560.0588105,
+    "ast_hash": "1b9ce62255ff77c39aad63e681c86dec",
+    "semantic_hash": "1b9ce62255ff77c39aad63e681c86dec"
+  },
+  "/Users/aritro/Downloads/tactus/docs/REF_digital_platform_brief.md": {
+    "mtime": 1781934560.0589893,
+    "ast_hash": "bf0057a9841e2d1c800c194599ae93cb",
+    "semantic_hash": "bf0057a9841e2d1c800c194599ae93cb"
+  },
+  "/Users/aritro/Downloads/tactus/docs/REF_psychophysics_brief.md": {
+    "mtime": 1781934560.05944,
+    "ast_hash": "9753c2d8efb103e4bec8fba42acb9e2e",
+    "semantic_hash": "9753c2d8efb103e4bec8fba42acb9e2e"
+  },
+  "/Users/aritro/Downloads/tactus/docs/REF_sponsors_brief.md": {
+    "mtime": 1781934560.0596125,
+    "ast_hash": "9f875988d3232b35f8c5fa69d046ec98",
+    "semantic_hash": "9f875988d3232b35f8c5fa69d046ec98"
+  },
+  "/Users/aritro/Downloads/tactus/software/README.md": {
+    "mtime": 1781932449.4110065,
+    "ast_hash": "29d72cda92ea438c9ee4d2269f81deb9",
+    "semantic_hash": "29d72cda92ea438c9ee4d2269f81deb9"
+  },
+  "/Users/aritro/Downloads/tactus/software/requirements.txt": {
+    "mtime": 1781931371.4317226,
+    "ast_hash": "e87dd6818905718caf4a6c759c0df120",
+    "semantic_hash": "e87dd6818905718caf4a6c759c0df120"
+  },
+  "/Users/aritro/Downloads/tactus/web/index.html": {
+    "mtime": 1781973868.7789981,
+    "ast_hash": "15a9e5ecb41428eb6010225b74066e93",
+    "semantic_hash": "15a9e5ecb41428eb6010225b74066e93"
+  },
+  "/Users/aritro/Downloads/tactus/docs/REF_ml_brief.md": {
+    "mtime": 1781934560.0592084,
+    "ast_hash": "b3e9ebbd3211cfb17a3652a535ff096e",
+    "semantic_hash": "b3e9ebbd3211cfb17a3652a535ff096e"
+  },
+  "/Users/aritro/Downloads/tactus/cad/enclosure_preview.png": {
+    "mtime": 1781980059.614746,
+    "ast_hash": "82d1081ede7c04ac4c715f70015f0d33",
+    "semantic_hash": "82d1081ede7c04ac4c715f70015f0d33"
+  },
+  "/Users/aritro/Downloads/tactus/cad/print_base_views.png": {
+    "mtime": 1781980059.6166394,
+    "ast_hash": "61ab16de32247c878a99b118b32edbdc",
+    "semantic_hash": "61ab16de32247c878a99b118b32edbdc"
+  },
+  "/Users/aritro/Downloads/tactus/cad/print_bed_layout.png": {
+    "mtime": 1781980059.6170633,
+    "ast_hash": "90e14b38ec780f520b6104e2423ad809",
+    "semantic_hash": "90e14b38ec780f520b6104e2423ad809"
+  },
+  "/Users/aritro/Downloads/tactus/cad/print_lid_views.png": {
+    "mtime": 1781980059.6178,
+    "ast_hash": "124654773505b59ea5955c58b8d201f6",
+    "semantic_hash": "124654773505b59ea5955c58b8d201f6"
+  },
+  "/Users/aritro/Downloads/tactus/diagrams/body-encoding-map.svg": {
+    "mtime": 1781931981.2309601,
+    "ast_hash": "4fe53e482768d17f4ec7105e42c46156",
+    "semantic_hash": "4fe53e482768d17f4ec7105e42c46156"
+  },
+  "/Users/aritro/Downloads/tactus/diagrams/power-modes.svg": {
+    "mtime": 1781931271.5826423,
+    "ast_hash": "4ec613f6722a2200626ec6160c70e433",
+    "semantic_hash": "4ec613f6722a2200626ec6160c70e433"
+  },
+  "/Users/aritro/Downloads/tactus/diagrams/system-flow.svg": {
+    "mtime": 1781931245.842751,
+    "ast_hash": "56fd63e64c55b04a2d7c3064ea46a422",
+    "semantic_hash": "56fd63e64c55b04a2d7c3064ea46a422"
+  },
+  "/Users/aritro/Downloads/tactus/diagrams/wiring-channel-map.svg": {
+    "mtime": 1781931997.2896008,
+    "ast_hash": "cfbbb709b9b92c65ec90bedaea237376",
+    "semantic_hash": "cfbbb709b9b92c65ec90bedaea237376"
+  }
+}

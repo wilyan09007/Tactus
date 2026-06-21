@@ -1,0 +1,45 @@
+{
+  "runs": [
+    {
+      "date": "2026-06-20T18:46:39.151206+00:00",
+      "input_tokens": 548397,
+      "output_tokens": 0,
+      "files": 61
+    },
+    {
+      "date": "2026-06-20T21:04:35.554212+00:00",
+      "input_tokens": 203585,
+      "output_tokens": 0,
+      "files": 46
+    },
+    {
+      "date": "2026-06-20T21:30:32.603132+00:00",
+      "input_tokens": 60048,
+      "output_tokens": 0,
+      "files": 6,
+      "note": "scad backfill"
+    },
+    {
+      "date": "2026-06-20T22:11:28.997307+00:00",
+      "input_tokens": 183553,
+      "output_tokens": 0,
+      "files": 11,
+      "note": "incremental rerun (8 docs/imgs + 3 scad re-extract)"
+    },
+    {
+      "date": "2026-06-20T22:41:50.517832+00:00",
+      "input_tokens": 154295,
+      "output_tokens": 0,
+      "files": 14,
+      "note": "doc-drift re-sync (14 docs)"
+    },
+    {
+      "date": "2026-06-21T00:52:42.425883+00:00",
+      "input_tokens": 79661,
+      "output_tokens": 0,
+      "files": 3
+    }
+  ],
+  "total_input_tokens": 1229539,
+  "total_output_tokens": 0
+}
