@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tactus — live fret-glow annotation</title>
+<script src="https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/alphaTab.min.js"></script>
+<!-- THEME: "Neon Noir" — retro-futuristic cyberpunk arcade. Deep near-black chrome,
+     frosted glassmorphic panels, gold->magenta->cyan accents, electric neon laser
+     string hues, heavy bloom, white-hot cores, film-grain overlay. Visual theme only:
+     all IDs / DOM / JS behavior preserved from glow.html. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<!--
+  Live annotation on the real neck (no 3D). Camera shows frets 1-7 + hand.
+  Per upcoming note, ON the correct (string,fret) spot, a glowing ROUNDED RECT:
+   - COLOR = the STRING (6-hue palette, labels at the nut back it up per a11y)
+   - INTENSITY = time-to-play: WASHED/pale version of the string hue when far
+     -> fully saturated + bright at the strum  (your 'washed -> deep')
+   - BRIGHTNESS = an ADSR envelope (attack in -> peak at the beat -> decay -> release)
+   - APPROACH FRAME: rounded-rect outline shrinking to meet the marker = strum now
+   - POP burst at the beat (every chord note pops together)
+  Real equal-temperament fret spacing (2^-n/12). Strings tinted per-hue + labeled.
+  Drag the 4 handles to align the grid to your neck. Pure 2D canvas over webcam.
+  NEXT: alphaTab real sheet music + songs; js-aruco2 auto-locks the grid.
+-->
+<style>
+  :root{
+    --ivory:#0d1018;          /* glass panel base (dark) */
+    --ink:#e8ecff;            /* primary text */
+    --gold:#ffd23f;           /* warm accent (gold end of the gradient) */
+    --magenta:#ff2bd6;        /* hot accent */
+    --cyan:#19f0ff;           /* cool accent */
+    --line:#1c2740;           /* hairline borders */
+    --bg:#08090d;             /* deep near-black chrome */
+    --glass:rgba(16,20,34,0.55);
+    --glass-hi:rgba(255,255,255,0.10);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink)}
+  /* --- film-grain + faint neon vignette over the whole app (additive, non-interactive) --- */
+  body::before{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;mix-blend-mode:screen;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  body::after{content:"";position:fixed;inset:0;z-index:49;pointer-events:none;
+    background:radial-gradient(120% 90% at 70% 0%,rgba(255,43,214,.05),transparent 55%),radial-gradient(120% 90% at 0% 100%,rgba(25,240,255,.05),transparent 55%);}
+  #app{display:grid;grid-template-columns:340px 1fr;height:100vh}
+  .score{background:linear-gradient(180deg,rgba(14,18,30,.92),rgba(8,9,13,.96));backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden;box-shadow:1px 0 0 rgba(25,240,255,.08), inset -1px 0 22px rgba(255,43,214,.05)}
+  .score h1{font-family:'Chakra Petch','JetBrains Mono';font-weight:700;font-size:18px;margin:0;padding:16px 18px 6px;letter-spacing:.02em;color:var(--ink)}
+  .score h1 b{background:linear-gradient(90deg,var(--gold),var(--magenta) 60%,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 18px rgba(255,43,214,.35)}
+  .score .sub{font-size:11px;padding:0 18px 12px;color:#8ea0c8;letter-spacing:.04em;border-bottom:1px solid var(--line)}
+  .rows{flex:1;overflow:auto;padding:8px}
+  .row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;margin-bottom:4px;border:1px solid transparent}
+  .row .nm{font-family:'Chakra Petch','JetBrains Mono';font-weight:700;font-size:17px;width:34px;letter-spacing:.02em}
+  .row .shape{font:12px/1.4 'JetBrains Mono',ui-monospace,monospace;color:#6f80a8}
+  .row.now{background:linear-gradient(90deg,rgba(255,43,214,.14),rgba(25,240,255,.10));outline:1px solid var(--magenta);border-color:transparent;box-shadow:0 0 22px rgba(255,43,214,.30), inset 0 0 14px rgba(25,240,255,.10)}
+  .row.next{opacity:.85}.row.done{opacity:.32}
+  .score .foot{font-size:10px;color:#6f80a8;letter-spacing:.06em;text-transform:uppercase;padding:10px 18px;border-top:1px solid var(--line)}
+  .main{position:relative;overflow:hidden;background:
+    linear-gradient(rgba(25,240,255,.045) 1px,transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg,rgba(255,43,214,.045) 1px,transparent 1px) 0 0/40px 40px,
+    radial-gradient(120% 100% at 50% -10%,#0b0f1c,#06070b 70%)}
+  #cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  #ov{position:absolute;inset:0;width:100%;height:100%}
+  .top{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;gap:12px;padding:12px 18px;background:linear-gradient(180deg,rgba(6,7,11,.85),rgba(6,7,11,0))}
+  .brand{font-family:'Chakra Petch','JetBrains Mono';font-weight:700;font-size:18px;letter-spacing:.10em;color:#fff;text-shadow:0 0 14px rgba(25,240,255,.55),0 0 30px rgba(255,43,214,.30)}
+  .learn{background:linear-gradient(90deg,var(--gold),var(--magenta));color:#1a0010;font-weight:700;font-size:11px;padding:3px 9px;border-radius:5px;letter-spacing:.16em;box-shadow:0 0 16px rgba(255,43,214,.55)}
+  .top .sp{margin-left:auto}
+  .ctl{position:absolute;right:16px;bottom:14px;z-index:3;display:flex;gap:8px}
+  .ctl button{font:inherit;font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--cyan);background:var(--glass);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);border:1px solid var(--glass-hi);border-radius:9px;padding:7px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s,color .15s}
+  .ctl button:hover{border-color:var(--cyan);color:#cffcff;box-shadow:0 0 18px rgba(25,240,255,.45)}
+  .ctl button.on{background:linear-gradient(90deg,rgba(255,43,214,.30),rgba(25,240,255,.22));color:#fff;border-color:var(--magenta);font-weight:700;box-shadow:0 0 22px rgba(255,43,214,.55)}
+  .handle{position:absolute;width:20px;height:20px;margin:-10px;border:2px solid var(--cyan);border-radius:50%;background:rgba(25,240,255,.22);cursor:grab;z-index:4;touch-action:none;box-shadow:0 0 16px rgba(25,240,255,.7),inset 0 0 8px rgba(255,43,214,.5)}
+  .handle:active{cursor:grabbing}
+  .cue{position:absolute;left:18px;bottom:14px;z-index:3;font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:500;font-size:12px;letter-spacing:.03em;color:var(--cyan);text-shadow:0 0 10px rgba(25,240,255,.5),0 1px 6px #000c}
+  .nowchip{font:700 12px/1 'Chakra Petch','JetBrains Mono';background:linear-gradient(90deg,var(--magenta),var(--cyan));color:#0a0012;padding:3px 9px;border-radius:6px;margin-left:8px;vertical-align:middle;letter-spacing:.06em;box-shadow:0 0 14px rgba(255,43,214,.5)}
+  .tabwrap{flex:1;position:relative;overflow:hidden;background:linear-gradient(180deg,#f4f7ff,#e6ecfb)}
+  .tabwrap #at{position:absolute;top:10px;left:0;transform:translateX(0);will-change:transform}
+  .tabwrap.rows{overflow:auto;display:block;padding:8px;background:transparent}
+  .playhead{position:absolute;left:30%;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--magenta),var(--cyan));box-shadow:0 0 12px var(--magenta),0 0 22px rgba(25,240,255,.6);pointer-events:none;z-index:2}
+  .tabwrap.rows .playhead{display:none}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside class="score">
+    <h1><b>TACTUS</b> · LEARN<span class="nowchip" id="nowchip">—</span></h1>
+    <div class="sub" id="songname">loading score…</div>
+    <div class="tabwrap" id="tabwrap"><div id="at"></div><div class="playhead"></div></div>
+    <div class="foot">real tab · alphaTab · synced to the glow</div>
+  </aside>
+  <div class="main">
+    <video id="cam" autoplay playsinline muted></video>
+    <canvas id="ov"></canvas>
+    <div class="top"><span class="brand">TACTUS</span><span class="learn">LEARN</span>
+      <span class="sp"></span><span style="color:#9fb2e0;font-size:12px;letter-spacing:.04em" id="modehint">align the grid to your neck →</span></div>
+    <div class="cue" id="cue">color = string · <span style="color:#fff">deep + frame closes = strum</span></div>
+    <div class="ctl">
+      <button id="cam-btn">start camera</button>
+      <button id="cal-btn" class="on">calibrate</button>
+      <button id="pause">pause</button>
+    </div>
+  </div>
+</div>
+<script>
+// ---- SONG: ONE source -> real tab (alphaTab, left) AND the glow chart (right) ----
+// shape: [string (1=high e .. 6=low E), fret]; omit muted strings.
+const SONG={ title:'Tactus Etude', sub:'I–vi–IV–V in G', bpm:100, lead:1.6,
+  loop:[
+    {name:'G',  shape:[[6,3],[5,2],[4,0],[3,0],[2,0],[1,3]]},
+    {name:'Em', shape:[[6,0],[5,2],[4,2],[3,0],[2,0],[1,0]]},
+    {name:'C',  shape:[[5,3],[4,2],[3,0],[2,1],[1,0]]},
+    {name:'D',  shape:[[4,0],[3,2],[2,3],[1,2]]},
+  ] };
+const SECPC=4*60/SONG.bpm;                                    // one whole-note bar per chord
+const CHORDS=[...SONG.loop,...SONG.loop].map((c,i)=>({name:c.name,shape:c.shape,t:SONG.lead+i*SECPC,dur:SECPC*0.86}));
+const NOTES=[]; CHORDS.forEach((c,i)=>c.shape.forEach(([s,f])=>NOTES.push({t:c.t,string:s,fret:f,dur:c.dur,ci:i,popped:false})));
+const SONG_END=CHORDS[CHORDS.length-1].t+SECPC+1.0;
+// alphaTex (same chords) -> the real tab rendered on the left
+const ALPHATEX=`\\title "${SONG.title}"\n\\subtitle "${SONG.sub}"\n\\tempo ${SONG.bpm}\n.\n:1\n`+
+  CHORDS.map(c=>'('+c.shape.map(([s,f])=>`${f}.${s}`).join(' ')+')').join(' |\n')+' |';
+
+// ---- per-string palette (index = string 1..6 = high e .. low E). ELECTRIC NEON laser hues, max vibrance ----
+// 1 high-e = hot pink · 2 = neon orange · 3 = acid green · 4 = cyan · 5 = electric blue · 6 low-E = violet
+const STRING_COLORS=[[255,46,180],[255,140,38],[120,255,90],[25,240,255],[80,120,255],[180,80,255]];
+const STRING_NAMES=['e','B','G','D','A','E'];
+const WASH=[40,46,80]; // dark cool toward which far notes desaturate (neon reads over a dark stage)
+
+const lerp=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*t));
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const WIN=2.2;
+// brightness = ADSR envelope over `lead` (sec until beat)
+function envelope(lead,dur){
+  if(lead>WIN) return 0;
+  if(lead>=0){ const a=1-lead/WIN; return a*a; }                 // attack -> 1.0 at the beat
+  if(lead>=-dur){ return 1-0.62*(-lead/dur); }                   // decay/hold: 1.0 -> 0.38
+  return Math.max(0, 0.38-(-lead-dur)*1.8);                      // release fade
+}
+
+// ---- real equal-temperament fret spacing ----
+const NUM_FRETS=7;
+const fdist=n=>1-Math.pow(2,-n/12), F7=fdist(NUM_FRETS);
+const ufret=n=>fdist(n)/F7;
+const pressU=f=> f<=0?0:(ufret(f-1)+ufret(f))/2;
+const cellUV=(s,f)=>[pressU(f),(s-1)/5];
+
+// ---- neck grid: 4 draggable corners, bilinear map (extrapolates beyond 0..1) ----
+let C={c00:{x:.16,y:.34},c10:{x:.86,y:.27},c01:{x:.16,y:.66},c11:{x:.86,y:.73}};
+let calibrate=true;
+const main=document.querySelector('.main'), ov=document.getElementById('ov'), ctx=ov.getContext('2d');
+function P(u,v,W,H){ const tl=C.c00,tr=C.c10,bl=C.c01,br=C.c11;
+  return [ ((1-u)*(1-v)*tl.x+u*(1-v)*tr.x+(1-u)*v*bl.x+u*v*br.x)*W,
+           ((1-u)*(1-v)*tl.y+u*(1-v)*tr.y+(1-u)*v*bl.y+u*v*br.y)*H ]; }
+const handles={};
+['c00','c10','c01','c11'].forEach(k=>{ const h=document.createElement('div'); h.className='handle'; main.appendChild(h); handles[k]=h; let drag=false;
+  h.addEventListener('pointerdown',e=>{drag=true;h.setPointerCapture(e.pointerId);});
+  h.addEventListener('pointermove',e=>{ if(!drag)return; const r=main.getBoundingClientRect(); C[k]={x:clamp((e.clientX-r.left)/r.width,0,1),y:clamp((e.clientY-r.top)/r.height,0,1)}; });
+  h.addEventListener('pointerup',()=>drag=false); });
+function placeHandles(W,H){ for(const k in handles){ handles[k].style.display=calibrate?'block':'none'; handles[k].style.left=C[k].x*W+'px'; handles[k].style.top=C[k].y*H+'px'; } }
+
+// ---- camera ----
+const cam=document.getElementById('cam'), camBtn=document.getElementById('cam-btn'); let camOn=false;
+camBtn.onclick=async()=>{ if(camOn){ (cam.srcObject?.getTracks()||[]).forEach(t=>t.stop()); cam.style.display='none'; camOn=false; camBtn.classList.remove('on'); camBtn.textContent='start camera'; return; }
+  try{ cam.srcObject=await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720,facingMode:'environment'}}); cam.style.display='block'; camOn=true; camBtn.classList.add('on'); camBtn.textContent='camera on'; }
+  catch(e){ document.getElementById('modehint').textContent='camera blocked — allow + retry'; } };
+document.getElementById('cal-btn').onclick=e=>{ calibrate=!calibrate; e.target.classList.toggle('on',calibrate); document.getElementById('modehint').textContent=calibrate?'align the grid to your neck →':''; };
+
+// ---- left panel: real tab via alphaTab (single source = SONG). fallback = chord rows ----
+const tabAt=document.getElementById('at'), tabWrap=document.getElementById('tabwrap');
+document.getElementById('songname').textContent=SONG.title+' · '+SONG.sub;
+let atReady=false, atApi=null;
+function fallbackRows(){ atReady=false; tabWrap.classList.add('rows');
+  tabWrap.innerHTML=CHORDS.map((c,i)=>`<div class="row" id="row${i}"><span class="nm">${c.name}</span><span class="shape">${c.shape.map(([s,f])=>f).join(' ')}</span></div>`).join(''); }
+function initTab(){ if(!window.alphaTab){ fallbackRows(); return; }
+  try{ atApi=new alphaTab.AlphaTabApi(tabAt,{ core:{tex:true,fontDirectory:'https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/font/'}, display:{layout:'horizontal',scale:0.7,staveProfile:'ScoreTab'}, player:{enablePlayer:false} });
+    atApi.error.on(()=>fallbackRows());
+    atApi.renderFinished.on(()=>{ atReady=true; });
+    atApi.tex(ALPHATEX);
+  }catch(e){ fallbackRows(); } }
+initTab();
+
+// ---- helpers ----
+function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+const pops=[];
+function spawnPop(x,y,ang,w,h,rgb){ pops.push({x,y,ang,w,h,rgb,life:0}); }
+
+// ---- clock + render ----
+let now=0,playing=true,last=performance.now();
+document.getElementById('pause').onclick=e=>{playing=!playing;e.target.textContent=playing?'pause':'play';};
+function draw(dt){
+  const W=ov.width=main.clientWidth, H=ov.height=main.clientHeight;
+  ctx.clearRect(0,0,W,H);
+  // --- strings (per-hue) + frets + nut-edge labels ---
+  const sA=calibrate?0.7:0.46, fA=calibrate?0.5:0.28;
+  ctx.lineWidth=calibrate?2.2:2.6;
+  ctx.shadowBlur=calibrate?7:5; // faint neon halo on the string lines so they read over busy video
+  for(let s=1;s<=6;s++){ const c=STRING_COLORS[s-1]; ctx.strokeStyle=`rgba(${c.join(',')},${sA})`; ctx.shadowColor=`rgba(${c.join(',')},0.8)`; ctx.beginPath();
+    for(let f=0;f<=NUM_FRETS;f++){ const[x,y]=P(ufret(f),(s-1)/5,W,H); f?ctx.lineTo(x,y):ctx.moveTo(x,y);} ctx.stroke(); }
+  ctx.shadowBlur=0;
+  ctx.lineWidth=1.2;
+  for(let f=0;f<=NUM_FRETS;f++){ ctx.strokeStyle=`rgba(25,240,255,${f===0?fA+0.3:fA})`; ctx.beginPath();
+    for(let s=1;s<=6;s++){ const[x,y]=P(ufret(f),(s-1)/5,W,H); s>1?ctx.lineTo(x,y):ctx.moveTo(x,y);} ctx.stroke(); }
+  for(let s=1;s<=6;s++){ const c=STRING_COLORS[s-1].join(','); const[x,y]=P(-0.085,(s-1)/5,W,H);
+    ctx.fillStyle='rgba(6,7,11,0.80)'; roundRect(x-13,y-11,26,22,8); ctx.fill();
+    ctx.strokeStyle=`rgba(${c},0.85)`; ctx.lineWidth=1; roundRect(x-13,y-11,26,22,8); ctx.stroke();
+    ctx.fillStyle=`rgb(${c})`; ctx.font='700 15px "Chakra Petch","JetBrains Mono",monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(STRING_NAMES[s-1],x,y+1); }
+
+  const R=Math.max(15,W*0.019);
+  for(const n of NOTES){
+    const lead=n.t-now, bright=envelope(lead,n.dur);
+    if(bright<=0){ continue; }
+    const sc=STRING_COLORS[n.string-1];
+    const prox = lead>0 ? (1-clamp(lead/WIN,0,1)) : 1;            // 0 far -> 1 at/after beat
+    const washed=lerp(sc,WASH,0.6);
+    const rgb=lerp(washed,sc,prox).join(',');                     // washed string-hue -> full string-hue
+    const core=lerp(sc,[255,255,255],0.62).join(',');             // hotter white core for the bloom
+    const[u,v]=cellUV(n.string,n.fret); const[x,y]=P(u,v,W,H);
+    const[xa,ya]=P(Math.min(1,u+0.05),v,W,H); const ang=Math.atan2(ya-y,xa-x);
+    const w=R*2.2, h=R*1.35, rr=h*0.42;
+    ctx.save(); ctx.translate(x,y); ctx.rotate(ang);
+    ctx.shadowColor=`rgba(${rgb},${bright})`; ctx.shadowBlur=46*bright+9;   // HEAVY neon bloom
+    ctx.fillStyle=`rgba(${rgb},${0.42+0.5*bright})`; roundRect(-w/2,-h/2,w,h,rr); ctx.fill();
+    ctx.shadowBlur=20*bright+3;                                            // keep a little bloom on the core
+    ctx.fillStyle=`rgba(${core},${0.28+0.7*bright})`; roundRect(-w*0.3,-h*0.3,w*0.6,h*0.6,h*0.28); ctx.fill();
+    ctx.shadowBlur=0;
+    if(n.fret>0){ ctx.fillStyle=`rgba(8,5,16,${Math.min(1,bright+0.3)})`; ctx.font=`700 ${Math.round(h*0.62)}px "JetBrains Mono",ui-monospace,monospace`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(n.fret,0,0); }
+    if(lead>0){ const k=1+2.4*clamp(lead/WIN,0,1); ctx.strokeStyle=`rgba(${rgb},${0.3+0.6*bright})`; ctx.lineWidth=2.8; ctx.shadowColor=`rgba(${rgb},${bright})`; ctx.shadowBlur=18*bright; roundRect(-w*k/2,-h*k/2,w*k,h*k,rr*k); ctx.stroke(); ctx.shadowBlur=0; }
+    ctx.restore();
+    if(!n.popped && lead<=0){ n.popped=true; spawnPop(x,y,ang,w,h,sc.join(',')); }
+  }
+  for(let i=pops.length-1;i>=0;i--){ const p=pops[i]; p.life+=dt*3; const e=1-(1-p.life)*(1-p.life), a=Math.max(0,1-p.life*p.life), k=1+e*1.15;
+    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.ang); ctx.strokeStyle=`rgba(${p.rgb},${a})`; ctx.lineWidth=3+p.life*11; ctx.shadowColor=`rgba(${p.rgb},${a})`; ctx.shadowBlur=30*a;
+    roundRect(-p.w*k/2,-p.h*k/2,p.w*k,p.h*k,p.h*0.42*k); ctx.stroke(); ctx.restore();
+    if(p.life>=1) pops.splice(i,1); }
+  ctx.shadowBlur=0;
+  placeHandles(W,H);
+  let cur=-1; for(let i=0;i<CHORDS.length;i++){ if(now>=CHORDS[i].t-0.2 && now<CHORDS[i].t+SECPC) cur=i; }
+  if(atReady){ const span=SONG_END-SONG.lead, frac=clamp((now-SONG.lead+0.3)/span,0,1), max=Math.max(0,tabAt.scrollWidth-tabWrap.clientWidth); tabAt.style.transform=`translateX(${-frac*max}px)`; }
+  else { CHORDS.forEach((c,i)=>{ const el=document.getElementById('row'+i); if(el) el.className='row '+(i===cur?'now':(now>c.t+SECPC?'done':'next')); }); }
+  const nc=document.getElementById('nowchip'); if(nc) nc.textContent=cur>=0?CHORDS[cur].name:'—';
+}
+function frame(t){ const dt=Math.min(0.05,(t-last)/1000); last=t; if(playing){ now+=dt; if(now>SONG_END){ now=0; NOTES.forEach(n=>n.popped=false); } } draw(dt); requestAnimationFrame(frame); }
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

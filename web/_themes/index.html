@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tactus — theme drafts</title>
+<style>
+  :root{ --bg:#0b0d12; --card:#12151c; --line:#232936; --ink:#e8edf5; --dim:#8a97ab; --accent:#efc84b; }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace}
+  header{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  header h1{font:700 18px/1 system-ui,sans-serif;margin:0;letter-spacing:-.3px}
+  header h1 b{color:var(--accent)}
+  header .hint{color:var(--dim);font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:18px 24px}
+  @media(max-width:1100px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .bar{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line)}
+  .name{font:700 15px/1 system-ui,sans-serif}
+  .tag{font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:5px}
+  .tag.light{background:#f3efe2;color:#5b513a}
+  .tag.dark{background:#1b2440;color:#9fc0ff}
+  .bar a{margin-left:auto;color:var(--accent);text-decoration:none;font-size:12px;border:1px solid var(--line);
+    padding:5px 11px;border-radius:7px}
+  .bar a:hover{border-color:var(--accent)}
+  .frame{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#000}
+  .frame iframe{position:absolute;top:0;left:0;width:200%;height:200%;transform:scale(.5);transform-origin:0 0;border:0}
+  footer{padding:14px 24px;color:var(--dim);font-size:12px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header>
+  <h1><b>TACTUS</b> — theme drafts</h1>
+  <span class="hint">3 light + 1 dark · same layout & animations · live previews (camera off). Click <b>open ↗</b> for fullscreen + camera.</span>
+</header>
+<div class="grid">
+  <div class="card">
+    <div class="bar"><span class="name">Atelier</span><span class="tag light">light · luxury</span><a href="atelier.html" target="_blank">open ↗</a></div>
+    <div class="frame"><iframe src="atelier.html" loading="lazy"></iframe></div>
+  </div>
+  <div class="card">
+    <div class="bar"><span class="name">Blueprint</span><span class="tag light">light · technical</span><a href="blueprint.html" target="_blank">open ↗</a></div>
+    <div class="frame"><iframe src="blueprint.html" loading="lazy"></iframe></div>
+  </div>
+  <div class="card">
+    <div class="bar"><span class="name">Sherbet</span><span class="tag light">light · playful</span><a href="sherbet.html" target="_blank">open ↗</a></div>
+    <div class="frame"><iframe src="sherbet.html" loading="lazy"></iframe></div>
+  </div>
+  <div class="card">
+    <div class="bar"><span class="name">Neon Noir</span><span class="tag dark">dark · cyberpunk</span><a href="neon-noir.html" target="_blank">open ↗</a></div>
+    <div class="frame"><iframe src="neon-noir.html" loading="lazy"></iframe></div>
+  </div>
+</div>
+<footer>The real UI is <b>web/glow.html</b> (current theme). These are drafts in web/_themes/ — pick one and I'll apply it to glow.html.</footer>
+</body>
+</html>
