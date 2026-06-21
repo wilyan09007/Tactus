@@ -62,6 +62,8 @@
   <span class="pill" id="pMic">mic —</span>
   <span class="pill" id="pProc">DSP —</span>
   <span class="pill" id="pWav">wav —</span>
+  <span class="pill" id="pRes">res —</span>
+  <span class="pill" id="pRate">audio —</span>
   <span class="pill" id="pSrv">server —</span>
   <span style="flex:1"></span>
   <span class="sid" id="counts">0 runs · 0 events</span>
@@ -302,12 +304,14 @@ async function applyDevices(){
   const con={audio:{deviceId:$("#micSel").value?{exact:$("#micSel").value}:undefined,
                     echoCancellation:false,noiseSuppression:false,autoGainControl:false}};
   if(!audioOnly) con.video={deviceId:$("#camSel").value?{exact:$("#camSel").value}:undefined,
-                    width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30}};
+                    width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30}};
   stream = await navigator.mediaDevices.getUserMedia(con);
   $("#preview").srcObject = stream;
   const v=stream.getVideoTracks()[0], a=stream.getAudioTracks()[0];
   setPill("#pCam", audioOnly?"camera off":("camera ✓"), audioOnly?"":"ok");
   setPill("#pMic", a? ("mic: "+(a.label||"ok").slice(0,18)) : "no mic", a?"ok":"bad");
+  const vset=v?v.getSettings():{}; const resOK=(vset.width||0)>=1920&&(vset.height||0)>=1080;  // MacBook spec = 1080p
+  setPill("#pRes", v?((vset.width||"?")+"×"+(vset.height||"?")):"no video", (v&&resOK)?"ok":"bad");
   await setupAudio();
   pickMime();
   refreshReady();
@@ -331,6 +335,8 @@ async function setupAudio(){
     hasWav=true;
   }catch(e){ console.warn("worklet failed",e); }
   setPill("#pWav", hasWav?"wav ✓ (lossless)":"wav off (webm only)", hasWav?"ok":"bad");
+  const _sr=audioCtx?audioCtx.sampleRate:0;   // green = lossless wav at >=44.1k (MacBook/Saramonic = 48k)
+  setPill("#pRate", _sr?((Math.round(_sr/100)/10)+"k "+(hasWav?"wav16":"webm")):"audio —", (hasWav&&_sr>=44100)?"ok":"bad");
   meterLoop();
 }
 function pickMime(){

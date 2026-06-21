@@ -62,6 +62,7 @@
     <b>🎸 Tactus twin · STEP 1/2</b>
     <a href="/" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:700">→ Record ②</a>
     <span class="pill" id="pCam">camera —</span>
+    <span class="pill" id="pRes">res —</span>
     <span class="pill" id="pSrv">server —</span>
     <span class="pill" id="pSaved">0 keyframes</span>
   </div>
@@ -137,7 +138,10 @@ async function apply(){
   stream=await navigator.mediaDevices.getUserMedia({video:{deviceId:$("#camSel").value?{exact:$("#camSel").value}:undefined,
     width:{ideal:1920},height:{ideal:1080}},audio:false});       // high-fidelity capture for the 16" screen
   vid.srcObject=stream; const t=stream.getVideoTracks()[0];
-  setPill("#pCam","camera ✓","ok"); $("#capBtn").disabled=false;
+  const s=t?t.getSettings():{}; const resOK=(s.width||0)>=1920&&(s.height||0)>=1080;  // MacBook spec = 1080p
+  setPill("#pCam","camera ✓","ok");
+  setPill("#pRes", s.width?(s.width+"×"+s.height):"—", resOK?"ok":"bad");
+  $("#capBtn").disabled=false;
 }
 
 // ---- capture + click ----
