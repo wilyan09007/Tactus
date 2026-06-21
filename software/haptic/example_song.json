@@ -1,0 +1,20 @@
+{
+  "format": "tactus-tab/v1",
+  "title": "Demo - single notes + one chord",
+  "artist": "",
+  "tuning": ["E2", "A2", "D3", "G3", "B3", "E4"],
+  "string_numbering": "1=high-E .. 6=low-E",
+  "capo": 0,
+  "bpm": 90,
+  "chord_window_ms": 40,
+  "events": [
+    { "notes": [ { "string": 6, "fret": 0 } ] },
+    { "notes": [ { "string": 6, "fret": 3 } ] },
+    { "notes": [ { "string": 5, "fret": 2 } ] },
+    { "notes": [ { "string": 5, "fret": 0 } ] },
+    { "notes": [ { "string": 4, "fret": 2 } ] },
+    { "notes": [ { "string": 5, "fret": 2 },
+                 { "string": 4, "fret": 2 },
+                 { "string": 3, "fret": 1 } ], "strum_ms": 30 }
+  ]
+}
