@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tactus — chord-field AR (prototype v2)</title>
+<!--
+  v2: the "3-dify" pass. Fretboard FACES the camera (you read the chord SHAPE).
+  Notes are blades along DEPTH (Z): they fly from behind the board, their FRONT
+  edge crosses the board on the onset beat, and the blade extends back by its
+  DURATION -> depth = how long you hold it. A chord = several notes whose fronts
+  cross together -> the cells light up in the chord's shape, each blade's depth
+  showing each note's length.
+
+  NEXT (agents prepping now): alphaTab -> real chord songs; js-aruco2 -> lock the
+  board onto the real neck. Camera button overlays notes on your live webcam.
+-->
+<style>
+  :root{ --ivory:#F8F4EA; --ink:#16130E; --gold:#efc84b; --line:#E7DFC9; }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#0c0a07;font-family:'Manrope',-apple-system,Segoe UI,Roboto,sans-serif}
+  #app{position:relative;height:100vh;overflow:hidden}
+  #cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;display:none;transform:scaleX(-1)}
+  canvas{display:block;position:absolute;inset:0;z-index:1}
+  .top{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;gap:13px;
+    padding:14px 22px;background:linear-gradient(#F8F4EAf2,#F8F4EAbb);border-bottom:1px solid var(--line)}
+  .brand{font-family:'Bricolage Grotesque','Manrope',sans-serif;font-weight:800;font-size:20px;letter-spacing:-.5px;color:var(--ink)}
+  .learn{background:var(--gold);color:#4a3700;font-weight:600;font-size:11px;padding:4px 9px;border-radius:6px;letter-spacing:.08em}
+  .song{margin-left:auto;font-size:13px;color:#7a7261}
+  .mode{font-size:12px;border:1px solid var(--ink);color:var(--ink);font-weight:500;border-radius:999px;padding:5px 13px}
+  .hint{position:absolute;left:22px;bottom:16px;z-index:3;font-family:'Bricolage Grotesque','Manrope',sans-serif;
+    font-weight:700;font-size:15px;color:#f3e4b0;text-shadow:0 1px 6px #000a}
+  .hint b{color:var(--gold)}
+  .ctl{position:absolute;right:22px;bottom:16px;z-index:3;display:flex;gap:8px}
+  .ctl button{font:inherit;font-size:12px;color:#f3e4b0;background:#1c160bcc;border:1px solid #ffffff2e;border-radius:8px;padding:7px 13px;cursor:pointer}
+  .ctl button:hover{border-color:var(--gold)}
+  .ctl button.on{background:var(--gold);color:#3a2c00;border-color:var(--gold);font-weight:600}
+</style>
+</head>
+<body>
+<div id="app">
+  <video id="cam" autoplay playsinline muted></video>
+  <div class="top">
+    <span class="brand">TACTUS</span><span class="learn">LEARN</span>
+    <span class="song" id="song">E &middot; A &middot; D progression</span>
+    <span class="mode">Practice</span>
+  </div>
+  <div class="hint" id="hint">chords fly in &middot; <b>depth = hold length</b></div>
+  <div class="ctl">
+    <button id="cam-btn">start camera</button>
+    <button id="slower">slower</button><button id="faster">faster</button><button id="pause">pause</button>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+// --- CHART: chords share an onset t; dur (sec) -> blade DEPTH. (alphaTab fills this later) ---
+const PROG = [
+  { t:1.3, dur:0.85, shape:[[6,0],[5,2],[4,2],[3,1],[2,0],[1,0]] }, // E
+  { t:2.5, dur:0.85, shape:[[5,0],[4,2],[3,2],[2,2],[1,0]] },       // A
+  { t:3.7, dur:0.85, shape:[[4,0],[3,2],[2,3],[1,2]] },             // D
+  { t:4.9, dur:1.7,  shape:[[6,0],[5,2],[4,2],[3,1],[2,0],[1,0]] }, // E held -> deep
+];
+const NOTES=[]; PROG.forEach((c,ci)=> c.shape.forEach(([s,f])=> NOTES.push({t:c.t,string:s,fret:f,dur:c.dur,ci})));
+const SONG_END = PROG[PROG.length-1].t + PROG[PROG.length-1].dur + 1.2;
+
+const STRING_COLORS=[0xf2d27a,0xf6c651,0xf0a64e,0xe8894e,0xd98b6a,0xc9a24e];
+const STRING_NAMES=['e','B','G','D','A','E'];
+
+const NUM_STRINGS=6, NUM_FRETS=5, SPEED=3.2;
+const stringX = s => (3.5 - s) * 0.5;        // s1 (high e) right .. s6 (low E) left
+const fretY   = f => 2.3 - f * 0.62;         // f0 nut at top, frets downward
+
+const app=document.getElementById('app');
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(0, 1.25, 6.0); camera.lookAt(0, 0.55, -3);
+
+const renderer=new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5)); renderer.setSize(innerWidth,innerHeight);
+renderer.setClearColor(0x000000,0); renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.outputColorSpace=THREE.SRGBColorSpace; app.appendChild(renderer.domElement);
+
+// --- the fretboard, FACING the camera (lines only, so incoming notes show through) ---
+const boardZ=0, fb=new THREE.Group(); scene.add(fb);
+const colL=0x6a5630, colF=0x4a3a22;
+for(let s=1;s<=NUM_STRINGS;s++){                         // strings = vertical columns
+  const g=new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(stringX(s),fretY(0)+0.25,boardZ), new THREE.Vector3(stringX(s),fretY(NUM_FRETS)-0.1,boardZ)]);
+  fb.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:colL})));
+}
+for(let f=0;f<=NUM_FRETS;f++){                           // frets = horizontal rows (f0 = nut, brighter)
+  const g=new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(stringX(6)-0.3,fretY(f),boardZ), new THREE.Vector3(stringX(1)+0.3,fretY(f),boardZ)]);
+  fb.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:f===0?0xb89a4e:colF})));
+}
+// inlay dots (fret 3 & 5) for orientation
+[3,5].forEach(f=>{ const d=new THREE.Mesh(new THREE.CircleGeometry(0.05,16),new THREE.MeshBasicMaterial({color:0x3a2f1c}));
+  d.position.set(0,(fretY(f)+fretY(f-1))/2,boardZ-0.01); fb.add(d); });
+
+function makeCanvas(draw){ const c=document.createElement('canvas'); c.width=c.height=128; draw(c.getContext('2d'));
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t; }
+// string name labels above the nut
+for(let s=1;s<=NUM_STRINGS;s++){
+  const tex=makeCanvas(x=>{ x.fillStyle='#c69e32'; x.font='bold 70px Manrope,sans-serif'; x.textAlign='center'; x.textBaseline='middle'; x.fillText(STRING_NAMES[s-1],64,68); });
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true})); sp.position.set(stringX(s),fretY(0)+0.45,boardZ); sp.scale.setScalar(0.4); scene.add(sp);
+}
+
+// --- notes: blades along DEPTH (length = duration); + a cell-dot that lights on the beat ---
+const bladeGeo=new THREE.BoxGeometry(0.2,0.2,1);
+function dotTexture(fret,hex){ return makeCanvas(x=>{
+  x.fillStyle='#'+hex.toString(16).padStart(6,'0'); x.beginPath(); x.arc(64,64,58,0,7); x.fill();
+  x.fillStyle='#1a1206'; x.font='bold 74px Manrope,sans-serif'; x.textAlign='center'; x.textBaseline='middle'; x.fillText(String(fret),64,70); }); }
+const notes=NOTES.map(n=>{
+  const col=STRING_COLORS[n.string-1], depth=Math.max(0.5,n.dur*SPEED);
+  const mat=new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:1.8,roughness:0.4,metalness:0.1});
+  const blade=new THREE.Mesh(bladeGeo,mat); blade.scale.z=depth; blade.position.set(stringX(n.string),fretY(n.fret),-99); blade.visible=false; scene.add(blade);
+  const dot=new THREE.Sprite(new THREE.SpriteMaterial({map:dotTexture(n.fret,col),transparent:true,opacity:0}));
+  dot.scale.setScalar(0.34); dot.position.set(stringX(n.string),fretY(n.fret),boardZ+0.04); scene.add(dot);
+  return {...n, blade, dot, depth};
+});
+scene.add(new THREE.AmbientLight(0xffffff,0.6));
+
+// --- toned bloom (the ~25% glow you dialed in) ---
+const composer=new EffectComposer(renderer);
+const rp=new RenderPass(scene,camera); rp.clearAlpha=0; composer.addPass(rp);
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.5,0.3,0.38));
+composer.addPass(new OutputPass());
+
+// --- live camera AR backdrop ---
+const cam=document.getElementById('cam'), camBtn=document.getElementById('cam-btn'); let camOn=false;
+camBtn.onclick=async()=>{
+  if(camOn){ (cam.srcObject?.getTracks()||[]).forEach(t=>t.stop()); cam.style.display='none'; camOn=false; camBtn.classList.remove('on'); camBtn.textContent='start camera'; return; }
+  try{ cam.srcObject=await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720}}); cam.style.display='block';
+    camOn=true; camBtn.classList.add('on'); camBtn.textContent='camera on'; document.getElementById('hint').innerHTML='AR overlay &middot; <b>pose-lock next</b>'; }
+  catch(e){ document.getElementById('hint').innerHTML='camera blocked &middot; <b>allow + retry</b>'; }
+};
+
+// --- song clock ---
+let now=0, playing=true, rate=1, last=performance.now();
+document.getElementById('slower').onclick=()=>rate=Math.max(0.4,rate-0.15);
+document.getElementById('faster').onclick=()=>rate=Math.min(1.8,rate+0.15);
+document.getElementById('pause').onclick=e=>{ playing=!playing; e.target.textContent=playing?'pause':'play'; };
+
+function frame(t){
+  const dt=Math.min(0.05,(t-last)/1000)*rate; last=t;
+  if(playing){ now+=dt; if(now>SONG_END) now=0; }
+  for(const n of notes){
+    const zFront=(now-n.t)*SPEED;            // front edge: <0 behind board, 0 on the beat, >0 passed
+    const zBack=zFront-n.depth;
+    if(zBack>4.5 || zFront<-16){ n.blade.visible=false; n.dot.material.opacity=0; continue; }
+    n.blade.visible=true; n.blade.position.z=zFront-n.depth/2;
+    const active = zFront>=0 && zBack<=0;    // board plane is inside the blade -> being fretted
+    n.blade.material.emissiveIntensity = active?3.0:1.7;
+    // cell dot lights while the note crosses the board (the chord shape)
+    n.dot.material.opacity = active?1:Math.max(0, 1-Math.min(Math.abs(zFront),Math.abs(zBack))*1.4);
+    n.dot.scale.setScalar(active?0.42:0.34);
+  }
+  composer.render(); requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight); composer.setSize(innerWidth,innerHeight); });
+</script>
+</body>
+</html>

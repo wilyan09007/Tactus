@@ -15,3 +15,9 @@ data/raw/**/*.webm
 # graphify machine-specific pointers (absolute local paths, auto-regenerated)
 graphify-out/.graphify_python
 graphify-out/.graphify_root
+graphify-out/cache/
+.gstack/
+
+# big untracked scaffolds / exports — not Tactus core, keep out of git + graphify
+openui-app/
+ui-assets/
