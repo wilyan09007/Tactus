@@ -134,9 +134,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     f.write(json.dumps(meta) + "\n")
                 rel = os.path.relpath(fp, ROOT)
                 _KF += 1
+                iw, ih = meta.get("image_w"), meta.get("image_h")
+                kf_ok = (iw or 0) >= 1920 and (ih or 0) >= 1080
                 print("-" * 64)
                 print(f"  ✓ KEYFRAME #{_KF} SAVED   pose='{meta.get('label')}'  ({len(body)//1024} KB)")
-                print(f"      -> {rel}        calib total: {_KF} keyframes on disk")
+                print(f"      RESOLUTION: {iw}x{ih}   {'✓ 1080p' if kf_ok else '⚠ BELOW 1080p'}")
+                print(f"      -> {rel}   calib total: {_KF} keyframes")
                 print("-" * 64)
                 self._send(200, json.dumps({"ok": True, "path": rel}))
             elif path == "/manifest":
@@ -148,16 +151,27 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 _RUNS += 1
                 au = row.get("audio") or {}
                 fl = row.get("files") or {}
+                vd = row.get("video") or {}
                 flags = [x for x, on in (("CLIPPED", au.get("clipped")), ("SILENT", au.get("silent"))) if on]
                 kb = ((fl.get("audio_bytes") or 0) + (fl.get("video_bytes") or 0)) // 1024
+                vw, vh, fps = vd.get("width"), vd.get("height"), vd.get("frame_rate")
+                sr, fmt = au.get("sample_rate"), au.get("format")
+                res_ok = (vw or 0) >= 1920 and (vh or 0) >= 1080
+                aud_ok = (fmt == "wav-pcm16") and (sr or 0) >= 44100
+                vid_str = (f"{vw}x{vh}@{round(fps) if fps else '?'}fps"
+                           if (vd.get("present") and vw)
+                           else ("AUDIO-ONLY" if row.get("audio_only") else "NO VIDEO"))
+                aud_str = (f"{round(sr/1000, 1)}k {fmt}" if sr else "?")
                 print("=" * 64)
                 print(f"  ✓ RUN #{_RUNS} SAVED   {row.get('run_id')}")
                 print(f"      class={row.get('intended_class')}  string={row.get('string')}  "
                       f"frets={row.get('fret_range')}  matched={row.get('matched_intent')}")
-                print(f"      audio={'yes' if fl.get('audio') else 'NO!'}  "
-                      f"video={'yes' if fl.get('video') else 'NO!'}  ~{kb} KB  "
-                      f"peak={au.get('peak_dbfs')} dBFS  "
-                      + ("⚠ " + " ".join(flags) + " — REDO THIS RUN" if flags else "ok ✓"))
+                print(f"      VIDEO: {vid_str}   {'✓ 1080p' if res_ok else '⚠ BELOW 1080p'}")
+                print(f"      AUDIO: {aud_str}   peak={au.get('peak_dbfs')} dBFS   "
+                      f"{'✓ lossless' if aud_ok else '⚠ NOT LOSSLESS / LOW SR'}"
+                      + (("   ⚠ " + " ".join(flags) + " — REDO") if flags else ""))
+                print(f"      files: audio={'yes' if fl.get('audio') else 'NO!'}  "
+                      f"video={'yes' if fl.get('video') else 'NO!'}  ~{kb} KB")
                 print(f"      >> session total: {_RUNS} runs on disk")
                 print("=" * 64)
                 self._send(200, json.dumps({"ok": True}))
