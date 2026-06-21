@@ -1,0 +1,9 @@
+{
+  "_comment": "Haptic-engine output calibration (software/haptic/engine.py). intensity_amp maps the 3 ordinal intensity levels (channel_map.json `intensity_levels`) to playback amplitude; channel_gain is the per-channel software volume that equalizes felt strength across the 12 body sites (docs/18 Exp 4 -- this is THE volume control, not the bypassed amp pots). clip_ceiling caps every channel so the filterless Class-D output never clips into near-DC (cooks the coil, feels worse -- docs/18 safety). Values below are BENCH starting points; overwrite channel_gain on-body Saturday.",
+  "intensity_amp": { "1": 0.30, "2": 0.60, "3": 0.90 },
+  "clip_ceiling": 0.95,
+  "channel_gain": {
+    "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0, "6": 1.0,
+    "7": 1.0, "8": 1.0, "9": 1.0, "10": 1.0, "11": 1.0, "12": 1.0
+  }
+}
