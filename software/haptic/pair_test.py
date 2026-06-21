@@ -52,6 +52,44 @@ log = get_logger("tactus.haptic.pair_test")
 # blocking discrete path which doesn't build a HapticEngine)
 DISCRETE_INTENSITY_AMP = {1: 0.30, 2: 0.60, 3: 0.90}
 
+_REPLUG = (
+    "\n" + "=" * 74 + "\n"
+    "WDM-KS won't open (-9996): the Kernel-Streaming pins are STUCK -- a prior run\n"
+    "grabbed them and Windows hasn't released them (it also breaks resonance_check).\n\n"
+    "FIX: unplug BOTH Vantec USB dongles, wait ~3s, replug, then re-run.\n"
+    "     (A reboot also clears it.) Re-running alone won't help once stuck.\n\n"
+    "AVOID re-sticking them: don't run the STREAMING path (engine.py /\n"
+    "pair_test --streaming / low_note_all) in between -- on this box it can re-grab KS.\n\n"
+    "No-KS alternative: set BOTH USB Sound Devices to '7.1 Surround' in Windows Sound,\n"
+    "then:  python pair_test.py --streaming   (DirectSound then routes discretely).\n"
+    + "=" * 74)
+
+
+def _reinit_portaudio():
+    """Re-init PortAudio so device enumeration is fresh and stuck KS pins from a
+    prior run are released WITHOUT a physical replug (often enough on its own)."""
+    try:
+        sd._terminate()
+        sd._initialize()
+        log.debug("PortAudio re-initialized (fresh device enumeration)")
+    except Exception as e:  # noqa: BLE001
+        log.debug("PortAudio reinit skipped: %s", e)
+
+
+def _preflight_open(dev: int, sr: int):
+    """Actually open `dev` once (callback mode, what KS needs), with a samplerate
+    fallback. Returns (ok, working_sr). A clean single open = the device is healthy."""
+    nch = sd.query_devices(dev)["max_output_channels"]
+    for cand in (sr, int(sd.query_devices(dev)["default_samplerate"])):
+        try:
+            s = sd.OutputStream(device=dev, channels=nch, samplerate=cand,
+                                dtype="float32", callback=lambda o, f, t, st: o.fill(0.0))
+            s.close()
+            return True, cand
+        except Exception as e:  # noqa: BLE001
+            log.debug("preflight idx%d @%dHz failed: %s", dev, cand, e)
+    return False, sr
+
 
 def parse_channel_list(spec: str | None) -> list[int]:
     if not spec:
@@ -81,6 +119,7 @@ def run_discrete_sweep(args, plan) -> None:
                            once via KS). For simultaneous cross-Vantec use macOS
                            CoreAudio, or set both devices to 7.1 and run --streaming.
     """
+    _reinit_portaudio()  # release any stuck KS pins from a prior run (often avoids a manual replug)
     amp = args.amp if args.amp is not None else DISCRETE_INTENSITY_AMP.get(args.intensity, 0.6)
     # resolve the two WDM-KS (bypass) adapters by ENUMERATION ONLY -- no probe, so the
     # KS pins stay healthy and open cleanly (the resonance_check pattern).
@@ -109,14 +148,17 @@ def run_discrete_sweep(args, plan) -> None:
         else:
             log.info("%s = idx%d (%s, discrete)", k, dev, api)
 
+    # PRE-FLIGHT: actually open each KS device once (the stuck-pin check). On failure
+    # print the replug remedy instead of a raw -9996 traceback mid-sweep.
     sr = args.samplerate
-    for dev in (v1, v2):
-        try:
-            sd.check_output_settings(device=dev, channels=8, samplerate=sr)
-        except Exception:  # noqa: BLE001
-            sr = int(sd.query_devices(v1)["default_samplerate"])
-            log.warning("%d Hz rejected; using %d Hz", args.samplerate, sr)
-            break
+    ok1, sr = _preflight_open(v1, sr)
+    ok2, sr2 = _preflight_open(v2, sr) if ok1 else (False, sr)
+    if not (ok1 and ok2):
+        sys.exit(_REPLUG)
+    if sr2 != sr:
+        log.warning("V1/V2 disagree on rate (%d/%d Hz); using %d", sr, sr2, min(sr, sr2))
+        sr = min(sr, sr2)
+    log.info("pre-flight OK: both KS devices open at %d Hz", sr)
     maxch_of = {dev: sd.query_devices(dev)["max_output_channels"] for dev in (v1, v2)}
 
     if args.glide:
@@ -130,7 +172,13 @@ def run_discrete_sweep(args, plan) -> None:
         for hw in hw_list:
             if hw is not None and hw - 1 < n:
                 buf[:, hw - 1] = sig
-        sd.play(buf, samplerate=sr, device=dev, blocking=True)
+        try:
+            sd.play(buf, samplerate=sr, device=dev, blocking=True)
+        except sd.PortAudioError as e:
+            sd.stop()
+            if "9996" in str(e) or "Invalid device" in str(e):
+                sys.exit(_REPLUG)
+            sys.exit(f"audio error on idx{dev}: {e}")
 
     chans = parse_channel_list(args.channels)
     pairs = list(itertools.combinations(chans, 2))
