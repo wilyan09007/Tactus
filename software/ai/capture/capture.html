@@ -205,6 +205,7 @@
             <option value="choked">Choked/sharp runs</option>
             <option value="arpeggio">Chords — arpeggiated</option>
             <option value="strum">Chords — strummed</option>
+            <option value="chord-fault">Chords — per-string fault (granular)</option>
             <option value="holdout">Natural holdout (held out)</option>
           </select>
         </div>
@@ -277,6 +278,7 @@ function chordNotes(shape,fingers){ const o=[]; shape.forEach((fr,i)=>{ if(fr>=0
 function chordMapStr(shape,fingers){ const lab=["E","A","D","G","B","e"];
   return shape.map((fr,i)=>{ if(fr<0) return lab[i]+":x"; if(fr===0) return lab[i]+":0";
     const f=(fingers&&fingers[i]>0)?"("+_FN[fingers[i]]+")":""; return lab[i]+":"+fr+f; }).join("  "); }
+const SNAME=s=>{const x=STRINGS.find(a=>a[0]===s);return x?x[1]:String(s);};
 // pose-variation block cycles these per PASS so Stage-1 generalizes across hand shapes
 const POSE_VARIANTS = [
   ["index","wrist NEUTRAL — your natural fretting angle"],
@@ -419,6 +421,22 @@ function buildPlan(){
               +(v==="clean"?", ring CLEAN":", UNDER-PRESS so it BUZZes")+"   ["+chordMapStr(shape,fing)+"]"}));
       });
     }
+  } else if(block==="chord-fault"){
+    const REPS=4;  // granular: fault ONE known string per run, rest clean -> per-string ground truth
+    for(let p=1;p<=passes;p++){
+      shuffle(CHORDS).forEach(ch=>{
+        const shape=CHORD_SHAPES[ch]||[], fing=CHORD_FINGERS[ch]||[]; const notes=chordNotes(shape,fing);
+        notes.forEach(tgt=>["buzz","muted"].forEach(ft=>plan.push({
+          block,string:"chord",s_num:0,fret_range:"chord",
+          frets:notes.map(n=>n.fret), strings_played:notes.map(n=>n.s_num), fingers_played:notes.map(n=>n.finger),
+          string_classes:notes.map(n=> n.s_num===tgt.s_num?ft:"clean"), fault_string:tgt.s_num, fault_type:ft,
+          chord_name:ch, chord_shape:shape, chord_fingers:fing, finger:"chord",
+          intended_class:"chord-"+ft, is_arpeggio:true, is_strum:false, pluck_strength:pluck, reps:REPS, pass:p,
+          expected_note_count: notes.length*REPS,
+          how:"ARPEGGIATE "+ch+" low→high — "+(ft==="buzz"?"BUZZ":"MUTE")+" ONLY the "+SNAME(tgt.s_num)
+              +" string (fret "+tgt.fret+"), rest ring CLEAN   ["+chordMapStr(shape,fing)+"]"})));
+      });
+    }
   } else if(block==="holdout"){
     plan.push({block,string:"free",s_num:0,fret_range:"free",frets:[],finger:"free",intended_class:"natural",
       held_out:true,pluck_strength:"natural",expected_note_count:0,
@@ -547,6 +565,7 @@ function buildRow(r, qc){
     pluck_strength:r.pluck_strength, pluck_variant:r.pluck_variant||null, pose_variant:r.pose_variant||null,
     chord_name:r.chord_name||null, is_arpeggio:!!r.is_arpeggio, is_strum:!!r.is_strum,
     strings_played:r.strings_played||null, fingers_played:r.fingers_played||null,
+    string_classes:r.string_classes||null, fault_string:r.fault_string||null, fault_type:r.fault_type||null,
     chord_shape:r.chord_shape||null, chord_fingers:r.chord_fingers||null, reps:r.reps||null,
     pass:r.pass||null, held_out:!!r.held_out, expected_note_count:r.expected_note_count,
     matched_intent:null, room:$("#room").value, notes:"",
