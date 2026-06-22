@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tactus — live semantic vector space (Redis)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#07060D;color:#EDE7FF;font-family:'Nunito',sans-serif;overflow:hidden}
+  #scene{position:absolute;inset:0}
+  .hdr{position:absolute;left:22px;top:16px;z-index:2;pointer-events:none}
+  .hdr h1{font:700 21px 'Fredoka';margin:0}
+  .hdr h1 b{color:#FF4D8D}
+  .hdr .sub{font:700 11px 'JetBrains Mono';color:#8B7FB0;margin-top:4px;max-width:62vw}
+  .badge{display:inline-block;font:700 11px 'JetBrains Mono';color:#07060D;background:#3DDC84;padding:2px 7px;border-radius:5px;margin-right:5px}
+  .key{position:absolute;right:18px;top:14px;z-index:2;background:#140E26c0;border:1.5px solid #6b5a9e55;border-radius:14px;padding:11px 13px;backdrop-filter:blur(8px)}
+  .key h4{margin:0 0 6px;font:800 9px 'JetBrains Mono';letter-spacing:.16em;color:#8B7FB0}
+  .key .row{display:flex;gap:12px;align-items:center;margin-bottom:9px;flex-wrap:wrap}
+  .key .it{display:flex;align-items:center;gap:5px;font:800 12px 'Fredoka'}
+  .key i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .key .g{font:700 15px 'Fredoka';color:#cdbcff;width:16px;text-align:center}
+  .guide{position:absolute;left:22px;bottom:84px;z-index:2;max-width:420px;background:#160F2Ec8;border:1.5px solid #6b5a9e66;border-radius:16px;padding:14px 16px;backdrop-filter:blur(8px)}
+  .guide .ask{font:800 11px 'JetBrains Mono';letter-spacing:.14em;color:#8B7FB0}
+  .guide .note{font:700 22px 'Fredoka';color:#fff;margin:4px 0 2px}
+  .guide .fb{font:800 13px 'Fredoka';min-height:18px}
+  .guide .fb.ok{color:#3DDC84}.guide .fb.err{color:#FF6F6F}
+  .stat{position:absolute;right:22px;bottom:84px;z-index:2;background:#160F2Ec8;border:1.5px solid #6b5a9e66;border-radius:16px;padding:12px 16px;text-align:right;backdrop-filter:blur(8px)}
+  .stat b{font:800 26px 'Fredoka';color:#fff;display:block}
+  .stat .row{font:700 11px 'JetBrains Mono';color:#B7A9E0;margin-top:6px}
+  .ctl{position:absolute;left:0;right:0;bottom:16px;z-index:2;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .ctl button{font:800 12px 'Fredoka';color:#fff;background:#241a40;border:1.5px solid #6b5a9e;border-radius:999px;padding:10px 16px;cursor:pointer}
+  .ctl button:hover{border-color:#FF4D8D}
+  .ctl button.on{background:linear-gradient(180deg,#FF6FA3,#FF4D8D);border-color:#FF4D8D}
+  .off{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);font:700 13px 'JetBrains Mono';color:#FF6F6F;text-align:center;z-index:3;display:none;line-height:1.7}
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<div class="hdr">
+  <h1><b>Tactus</b> · live semantic vector space</h1>
+  <div class="sub"><span class="badge" id="vcard">VCARD …</span> organic 3-D cloud · <b>colour = error</b> · <b>shape = string</b> · each note → Redis <b>VADD / VSIM</b> · <span id="var">eigenbasis</span></div>
+</div>
+<div class="key">
+  <h4>ERROR = COLOUR</h4>
+  <div class="row">
+    <span class="it"><i style="background:#3DDC84"></i>clean</span>
+    <span class="it"><i style="background:#FF9F43"></i>buzz</span>
+    <span class="it"><i style="background:#8A7BFF"></i>muted</span>
+  </div>
+  <h4>STRING = SHAPE</h4>
+  <div class="row">
+    <span class="it"><span class="g">▲</span>e</span>
+    <span class="it"><span class="g">■</span>B</span>
+    <span class="it"><span class="g">◆</span>G</span>
+    <span class="it"><span class="g">✚</span>D</span>
+    <span class="it"><span class="g">●</span>A</span>
+    <span class="it"><span class="g">⬢</span>E</span>
+  </div>
+</div>
+<div class="guide">
+  <div class="ask">PLAY THIS</div>
+  <div class="note" id="ask">— start the mic —</div>
+  <div class="fb" id="fb"></div>
+</div>
+<div class="stat">
+  <b id="count">0</b>
+  <div class="row">notes in <span style="color:#fff">tactus:live</span></div>
+  <div class="row" id="errrow">0 errors clustered</div>
+</div>
+<div class="off" id="off"></div>
+<div class="ctl">
+  <button id="mic">● start mic</button>
+  <button id="demoC">＋ demo clean</button>
+  <button id="demoM">＋ demo muted</button>
+  <button id="spin" class="on">⟳ auto-rotate</button>
+  <button id="reset">reset live</button>
+</div>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+const API='http://localhost:8771';
+const CLASS_COLOR={clean:0x3DDC84,buzz:0xFF9F43,muted:0x8A7BFF};
+
+const host=document.getElementById('scene');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight);
+host.appendChild(renderer.domElement);
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x07060D);
+scene.fog=new THREE.FogExp2(0x07060D,0.0012);
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,0.1,6000);
+camera.position.set(230,90,250);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.autoRotate=true; controls.autoRotateSpeed=0.5;
+scene.add(new THREE.AmbientLight(0xffffff,1.0));
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+// organic 3-D cloud: use the embedding coords directly
+const worldOf=p=>[p.x, p.y, p.z];
+let Tf=null;
+function transform(w){ return [ (w[0]-Tf.cx)*Tf.s, (w[1]-Tf.cy)*Tf.s, (w[2]-Tf.cz)*Tf.s ]; }
+function tpoint(p){ return transform(worldOf(p)); }
+const clampB=(v,l)=>Math.max(-l,Math.min(l,v));
+
+// ---- string shape sprites (white glyph; tinted to class colour by vertexColors) ----
+function shapeSprite(sn){
+  const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');
+  x.fillStyle='#fff';x.translate(32,32);const r=23;
+  const poly=(n,rot)=>{x.beginPath();for(let i=0;i<n;i++){const a=rot+i*2*Math.PI/n;const px=r*Math.cos(a),py=r*Math.sin(a);i?x.lineTo(px,py):x.moveTo(px,py);}x.closePath();x.fill();};
+  if(sn===1) poly(3,-Math.PI/2);                 // ▲ high-e
+  else if(sn===2) x.fillRect(-r,-r,2*r,2*r);      // ■ B
+  else if(sn===3) poly(4,0);                      // ◆ G
+  else if(sn===4){x.fillRect(-7,-r,14,2*r);x.fillRect(-r,-7,2*r,14);} // ✚ D
+  else if(sn===6) poly(6,Math.PI/6);             // ⬢ low-E
+  else {x.beginPath();x.arc(0,0,r,0,7);x.fill();} // ● A / default
+  const t=new THREE.CanvasTexture(c);t.needsUpdate=true;return t;
+}
+const SPRITE={}; for(let s=1;s<=6;s++) SPRITE[s]=shapeSprite(s);
+const LIVE_GEO={1:new THREE.TetrahedronGeometry(1.3),2:new THREE.BoxGeometry(2,2,2),
+  3:new THREE.OctahedronGeometry(1.5),4:new THREE.CylinderGeometry(0.55,0.55,2.4,10),
+  5:new THREE.SphereGeometry(1.3,16,16),6:new THREE.IcosahedronGeometry(1.5)};
+
+function labelSprite(text,hex,scale){
+  const cv=document.createElement('canvas');cv.width=256;cv.height=64;const c=cv.getContext('2d');
+  c.font="700 34px Fredoka, sans-serif";c.fillStyle=hex;c.textAlign='center';c.textBaseline='middle';c.fillText(text,128,34);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true,depthWrite:false,depthTest:false}));
+  const s=scale||46; sp.scale.set(s,s/4,1);return sp;
+}
+
+const liveGroup=new THREE.Group(); scene.add(liveGroup);
+const linkGroup=new THREE.Group(); scene.add(linkGroup);
+const livePts=[];
+
+async function loadSpace(){
+  let d;
+  try{ d=await (await fetch(API+'/space3d')).json(); }
+  catch(e){ const o=document.getElementById('off'); o.style.display='block';
+    o.innerHTML='vector service offline — run:<br>REDIS_PORT=6380 python3 software/ai/analysis/exp/redis_live.py'; return; }
+  document.getElementById('vcard').textContent='VCARD '+d.n;
+  document.getElementById('var').textContent='retrieval: PCA-16 eigenbasis';
+
+  // fit transform over all background world coords
+  const W=d.points.map(worldOf);
+  const mid=i=>{const a=W.map(w=>w[i]);return (Math.min(...a)+Math.max(...a))/2;};
+  const span=i=>{const a=W.map(w=>w[i]);return Math.max(1e-6,Math.max(...a)-Math.min(...a));};
+  Tf={cx:mid(0),cy:mid(1),cz:mid(2), s:300/Math.max(span(0),span(1),span(2))};
+
+  // group background points by string -> one Points per shape, vertex-coloured by class
+  const byS={}; d.points.forEach(p=>{(byS[p.string_num]=byS[p.string_num]||[]).push(p);});
+  for(const sn in byS){
+    const arr=byS[sn], g=new THREE.BufferGeometry();
+    const pos=new Float32Array(arr.length*3), col=new Float32Array(arr.length*3);
+    arr.forEach((p,i)=>{ pos.set(tpoint(p),i*3); const c=new THREE.Color(CLASS_COLOR[p.cls]||0x888888); col.set([c.r,c.g,c.b],i*3); });
+    g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    g.setAttribute('color',new THREE.BufferAttribute(col,3));
+    scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:6,map:SPRITE[sn],vertexColors:true,
+      transparent:true,opacity:0.95,alphaTest:0.25,sizeAttenuation:true,depthWrite:false})));
+  }
+
+  // ERROR clusters: bold class label floating at each articulation's centroid
+  d.regions.filter(r=>r.kind==='class').forEach(r=>{
+    const t=tpoint({x:r.centroid[0],y:r.centroid[1],z:r.centroid[2]});
+    const lab=labelSprite(r.label.toUpperCase()+(r.label!=='clean'?' ✕':' ✓'),
+      '#'+new THREE.Color(CLASS_COLOR[r.label]).getHexString(),64);
+    lab.position.set(t[0],t[1]+26,t[2]); scene.add(lab);
+  });
+}
+
+// ---- live point ----
+let errors=0;
+function addLivePoint(res){
+  const p=res.point, lim=300;
+  const t=tpoint(p).map(v=>clampB(v,lim));
+  const color=CLASS_COLOR[p.cls]||0xFF4D8D;
+  const geo=LIVE_GEO[p.string_num]||LIVE_GEO[5];
+  const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color}));
+  m.position.set(...t); m.scale.setScalar(0.1); liveGroup.add(m);
+  livePts.push({mesh:m,born:performance.now()});
+  if(livePts.length>400){ liveGroup.remove(livePts.shift().mesh); }
+  linkGroup.clear();
+  (res.neighbors||[]).slice(0,8).forEach(nb=>{ const nt=tpoint(nb);
+    const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...t),new THREE.Vector3(...nt)]);
+    linkGroup.add(new THREE.Line(g,new THREE.LineBasicMaterial({color,transparent:true,opacity:0.4}))); });
+  document.getElementById('count').textContent=res.live_vcard;
+  if(res.is_error){ errors++; document.getElementById('errrow').textContent=errors+' errors clustered'; }
+}
+
+// ---- guide ----
+const GUIDE=[
+  {cls:'clean',string:'A',text:'CLEAN note · A string'},
+  {cls:'clean',string:'D',text:'CLEAN note · D string'},
+  {cls:'muted',string:'A',text:'MUTE the A (rest finger, no press)'},
+  {cls:'buzz', string:'low-E',text:'BUZZ the low-E (press light)'},
+  {cls:'clean',string:'G',text:'CLEAN note · G string'},
+  {cls:'muted',string:'D',text:'MUTE the D string'},
+];
+let gi=0;
+const showAsk=()=>document.getElementById('ask').textContent=GUIDE[gi%GUIDE.length].text;
+function feedback(res){ const want=GUIDE[gi%GUIDE.length], fb=document.getElementById('fb');
+  if(res.pred_class===want.cls){ fb.className='fb ok'; fb.textContent='✓ landed in the '+res.pred_class+' cluster on '+res.point.string; }
+  else { fb.className='fb err'; fb.textContent='→ landed in '+res.pred_class+' on '+res.point.string; }
+  gi++; showAsk(); }
+
+async function embed(int16,sr){
+  let bin=''; const u8=new Uint8Array(int16.buffer);
+  for(let i=0;i<u8.length;i++) bin+=String.fromCharCode(u8[i]);
+  const body=JSON.stringify({sr,pcm_b64:btoa(bin),requested:GUIDE[gi%GUIDE.length]});
+  try{ const res=await (await fetch(API+'/embed',{method:'POST',headers:{'Content-Type':'application/json'},body})).json();
+    if(res.silent||res.error) return; addLivePoint(res); feedback(res);
+  }catch(e){}
+}
+
+// ---- mic: onset-gated window capture ----
+let actx=null,micOn=false,ring=null,ringLen=0,w=0,lastOnset=0,capturing=false,SR=48000;
+document.getElementById('mic').onclick=async(e)=>{
+  if(micOn){ if(actx) actx.suspend(); micOn=false; e.target.classList.remove('on'); e.target.textContent='● start mic'; return; }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    actx=new (window.AudioContext||window.webkitAudioContext)(); SR=actx.sampleRate;
+    ringLen=Math.ceil(SR*1.2); ring=new Float32Array(ringLen); w=0;
+    const src=actx.createMediaStreamSource(stream), sp=actx.createScriptProcessor(2048,1,1), sink=actx.createGain(); sink.gain.value=0;
+    src.connect(sp); sp.connect(sink); sink.connect(actx.destination);
+    sp.onaudioprocess=(ev)=>{ const inb=ev.inputBuffer.getChannelData(0); let s=0;
+      for(let i=0;i<inb.length;i++){ ring[w]=inb[i]; w=(w+1)%ringLen; s+=inb[i]*inb[i]; }
+      const rms=Math.sqrt(s/inb.length), now=performance.now();
+      if(rms>0.02 && now-lastOnset>420 && !capturing){ lastOnset=now; capturing=true; setTimeout(()=>{captureWindow();capturing=false;},80); } };
+    micOn=true; e.target.classList.add('on'); e.target.textContent='● listening…'; showAsk();
+  }catch(err){ alert('mic blocked: '+err); }
+};
+function captureWindow(){ const N=Math.floor(SR*0.32),out=new Int16Array(N); let idx=(w-N+ringLen)%ringLen;
+  for(let i=0;i<N;i++){ out[i]=Math.max(-32768,Math.min(32767,ring[idx]*32767)); idx=(idx+1)%ringLen; } embed(out,SR); }
+
+// ---- demo notes: replay a REAL recorded note (no mic needed; lands in-cluster) ----
+async function demo(cls,string){
+  try{ const res=await (await fetch(API+'/demo?cls='+cls+'&string='+string)).json();
+    if(res.error) return; addLivePoint(res);
+    const fb=document.getElementById('fb'); fb.className='fb '+(res.is_error?'err':'ok');
+    fb.textContent=(res.is_error?'✕ ':'✓ ')+res.pred_class+' note placed on '+res.point.string+' (replay)';
+  }catch(e){}
+}
+document.getElementById('demoC').onclick=()=>demo('clean','A');
+document.getElementById('demoM').onclick=()=>demo('muted','A');
+document.getElementById('spin').onclick=(e)=>{ controls.autoRotate=!controls.autoRotate; e.target.classList.toggle('on',controls.autoRotate); };
+document.getElementById('reset').onclick=()=>{ livePts.forEach(p=>liveGroup.remove(p.mesh)); livePts.length=0; linkGroup.clear(); errors=0;
+  document.getElementById('errrow').textContent='0 errors clustered'; gi=0; showAsk(); };
+
+function tick(){ const now=performance.now();
+  for(const p of livePts){ const a=Math.min(1,(now-p.born)/260); p.mesh.scale.setScalar(4*(0.5+0.5*a)+(a<1?5*(1-a):0)); p.mesh.rotation.y+=0.03; }
+  controls.update(); renderer.render(scene,camera); requestAnimationFrame(tick); }
+loadSpace().then(()=>tick());
+</script>
+</body>
+</html>
