@@ -5,7 +5,9 @@ Two halves, both on the laptop. See [../docs/08-software-architecture.md](../doc
 ```
 software/
   ai/       transcription (basic-pitch), vision (mediapipe + ArUco), fusion, LLM coach
-  haptic/   encoder (note -> channel), synth (pulse), alsa_out (multichannel write)
+  haptic/   engine (per-speaker control API + real-time voice mixer), rig (routing/device
+            discovery/waveform synth), pair_test (66-pair sweep); speaker_check/resonance_check
+            (bring-up). "Which speaker for a played note" is the ML's job, NOT here. See ../docs/28.
 ```
 
 ## Bring-up order
